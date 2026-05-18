@@ -1,8 +1,8 @@
 {
-  "name": "shirokuma-plugins-test",
-  "version": "0.0.1",
+  "name": "shirokuma-library",
+  "version": "0.0.1-test",
   "owner": {
-    "name": "shirokuma-development"
+    "name": "ShirokumaLibrary"
   },
   "homepage": "https://github.com/ShirokumaDevelopment/shirokuma-plugins",
   "plugins": []
