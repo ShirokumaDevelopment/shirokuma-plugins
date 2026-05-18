@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITLE}}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kosugi+Maru&family=M+PLUS+Rounded+1c:wght@500;700&family=M+PLUS+1+Code:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css?v=12">
+<script src="/assets/theme.js?v=2" defer></script>
+</head>
+<body>
+
+<aside class="toc">
+  <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle theme">
+    <span class="icon" id="theme-icon">🌙</span>
+    <span id="theme-label">Dark mode</span>
+  </button>
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#tldr">1. TL;DR</a></li>
+    <li><a href="#timeline">2. Incident Timeline</a></li>
+    <li><a href="#root-cause">3. Root Cause</a></li>
+    <li><a href="#impact">4. Impact Metrics</a></li>
+    <li><a href="#actions">5. Action Items</a></li>
+  </ol>
+</aside>
+
+<main>
+
+<h1>{{TITLE}}</h1>
+
+<!-- ============== status-header (ID + SEV + Status + Duration) ============== -->
+<div class="status-header">
+  <dl>
+    <div><dt>Incident ID</dt><dd>{{INCIDENT_ID}}</dd></div>
+    <div><dt>Severity</dt><dd>{{SEV}}</dd></div>
+    <div><dt>Status</dt><dd>{{STATUS}}</dd></div>
+    <div><dt>Duration</dt><dd>{{DURATION}}</dd></div>
+  </dl>
+</div>
+
+<!-- ============== 1. TL;DR ============== -->
+<h2 id="tldr">1. TL;DR</h2>
+
+<blockquote>
+  Summarize the event, impact, root cause, and resolution status in 3–4 sentences.
+</blockquote>
+
+<!-- ============== 2. Incident Timeline ============== -->
+<h2 id="timeline">2. Incident Timeline</h2>
+
+<!-- event-log: timestamp-style timeline (.entry + .dot + .time + .body) -->
+<!--
+<div class="event-log">
+  <div class="entry">
+    <span class="dot impact"></span>
+    <span class="time">14:02</span>
+    <div class="body"><strong>Impact starts</strong>: Monitoring alert fired. p99 latency exceeded threshold</div>
+  </div>
+  <div class="entry">
+    <span class="dot"></span>
+    <span class="time">14:05</span>
+    <div class="body">On-call engineer began investigation</div>
+  </div>
+  <div class="entry">
+    <span class="dot mitigated"></span>
+    <span class="time">14:18</span>
+    <div class="body"><strong>Mitigated</strong>: Identified root cause as deployment B, rolled back</div>
+  </div>
+  <div class="entry">
+    <span class="dot resolved"></span>
+    <span class="time">14:24</span>
+    <div class="body"><strong>Resolved</strong>: Confirmed metric normalization, incident resolved</div>
+  </div>
+</div>
+-->
+
+<!-- ============== 3. Root Cause ============== -->
+<h2 id="root-cause">3. Root Cause</h2>
+
+<p>Describe the root cause. Use three perspectives: direct cause, structural cause, and detection delay.</p>
+
+<!-- ============== 4. Impact Metrics ============== -->
+<h2 id="impact">4. Impact Metrics</h2>
+
+<!-- metric-grid: numerical metric card grid -->
+<!--
+<div class="metric-grid">
+  <div class="metric-card">
+    <p class="number">{{REQUEST_FAILURES}}</p>
+    <p class="unit">requests</p>
+    <p class="label">Failed requests</p>
+  </div>
+  <div class="metric-card">
+    <p class="number">{{AFFECTED_USERS}}</p>
+    <p class="unit">users</p>
+    <p class="label">Affected users</p>
+  </div>
+  <div class="metric-card">
+    <p class="number">{{PEAK_LATENCY}}</p>
+    <p class="unit">ms</p>
+    <p class="label">Peak latency p99</p>
+  </div>
+</div>
+-->
+
+<!-- ============== 5. Action Items ============== -->
+<h2 id="actions">5. Action Items</h2>
+
+<table>
+  <thead>
+    <tr><th>Category</th><th>Action</th><th>Owner</th><th>Due</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Prevention</td><td>{{ACTION_1}}</td><td>{{OWNER_1}}</td><td>{{DUE_1}}</td></tr>
+    <tr><td>Detection improvement</td><td>{{ACTION_2}}</td><td>{{OWNER_2}}</td><td>{{DUE_2}}</td></tr>
+  </tbody>
+</table>
+
+<div class="meta">
+  <strong>File</strong>: <code>{{OUTPUT_PATH}}</code><br>
+  <strong>Purpose</strong>: {{PURPOSE}}<br>
+  <strong>Template</strong>: <code>postmortem</code>
+</div>
+
+</main>
+
+</body>
+</html>

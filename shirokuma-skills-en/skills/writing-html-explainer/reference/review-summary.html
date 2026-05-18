@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITLE}}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kosugi+Maru&family=M+PLUS+Rounded+1c:wght@500;700&family=M+PLUS+1+Code:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css?v=12">
+<script src="/assets/theme.js?v=2" defer></script>
+</head>
+<body>
+
+<aside class="toc">
+  <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle theme">
+    <span class="icon" id="theme-icon">🌙</span>
+    <span id="theme-label">Dark mode</span>
+  </button>
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#summary">1. Evaluation Summary</a></li>
+    <li><a href="#issues">2. Issue List</a></li>
+    <li><a href="#actions">3. Recommended Actions</a></li>
+    <li><a href="#detail">4. Detailed Findings</a></li>
+  </ol>
+</aside>
+
+<main>
+
+<!-- ============== Hero (Evaluation Summary) ============== -->
+<div class="hero">
+  <p class="eyebrow">REVIEW SUMMARY · {{REPORT_TYPE}}</p>
+  <h1>{{TITLE}}</h1>
+  <p class="lead">{{REPORT_LEAD}}</p>
+  <div class="tags">
+    <span class="tag orch">{{TARGET}}</span>
+    <span class="tag worker">round {{ROUND}}</span>
+  </div>
+</div>
+
+<!-- ============== 1. Evaluation Summary ============== -->
+<h2 id="summary">1. Evaluation Summary</h2>
+
+<!-- review-score-card: specify one of PASS / FAIL / NEEDS_REVISION via class -->
+<!--
+<div class="review-score-card pass">
+  <span class="label">Verdict</span>
+  <p class="score">PASS</p>
+  <p class="hint">{{SCORE_HINT}}</p>
+</div>
+-->
+
+<p>Write the overall review evaluation comment in 2–3 sentences.</p>
+
+<!-- ============== 2. Issue List ============== -->
+<h2 id="issues">2. Issue List</h2>
+
+<!-- issue-list-table: severity badge + title + file + recommended action -->
+<!--
+<table class="issue-list-table">
+  <thead>
+    <tr>
+      <th>Severity</th>
+      <th>Issue</th>
+      <th>Target File</th>
+      <th>Recommended Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><span class="tag gate">Critical</span></td>
+      <td>Example: Authorization check missing</td>
+      <td><code>src/api/handler.ts</code></td>
+      <td>Insert an auth gate before the middleware</td>
+    </tr>
+  </tbody>
+</table>
+-->
+
+<!-- ============== 3. Recommended Actions ============== -->
+<h2 id="actions">3. Recommended Actions</h2>
+
+<!-- action-items: ordered list + priority chips -->
+<!--
+<ol class="action-items">
+  <li><span class="tag priority-high">HIGH</span>Top-priority item to address</li>
+  <li><span class="tag priority-medium">MEDIUM</span>Next item to address</li>
+  <li><span class="tag priority-low">LOW</span>Optional item to address</li>
+</ol>
+-->
+
+<!-- ============== 4. Detailed Findings ============== -->
+<h2 id="detail">4. Detailed Findings</h2>
+
+<p>Describe each issue's details, reproduction steps, and reference links in the body.</p>
+
+<div class="meta">
+  <strong>File</strong>: <code>{{OUTPUT_PATH}}</code><br>
+  <strong>Purpose</strong>: {{PURPOSE}}<br>
+  <strong>Template</strong>: <code>review-summary</code>
+</div>
+
+</main>
+
+</body>
+</html>

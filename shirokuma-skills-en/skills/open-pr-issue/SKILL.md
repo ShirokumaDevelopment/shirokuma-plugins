@@ -1,0 +1,285 @@
+---
+name: open-pr-issue
+description: Creates a GitHub pull request from the current branch targeting develop (or integration branch for sub-issues). Triggers: "create pull request", "create PR", "open PR", "submit PR".
+allowed-tools: Bash, Read, Grep, Glob, TaskCreate, TaskUpdate, TaskGet, TaskList
+---
+
+## Project Rules
+
+!`shirokuma-flow rules inject --scope pr-worker`
+
+# Creating Pull Request
+
+Create a GitHub pull request from the current feature branch.
+
+## Task Registration (Conditional)
+
+Skip when invoked as subagent from `implement-flow` chain. Register with TaskCreate only on standalone invocation.
+
+| # | content | activeForm | Step |
+|---|---------|------------|------|
+| 1 | Verify branch state | Verifying branch state | Step 1 |
+| 2 | Push branch | Pushing branch | Step 2 |
+| 3 | Analyze changes and create PR | Creating PR | Steps 3-4 |
+| 4 | Return output template | Returning output template | Step 5 |
+
+Dependencies: step 2 blockedBy 1, step 3 blockedBy 2, step 4 blockedBy 3.
+
+Update each step to `in_progress` at start and `completed` on finish via TaskUpdate.
+
+## Workflow
+
+### Step 1: Verify Branch State
+
+PRs target `develop` for daily work (see `branch-workflow` rule):
+
+```bash
+shirokuma-flow git check
+```
+
+Single command returns branch, base_branch, is_feature_branch, uncommitted_changes, unpushed_commits, recent_commits, diff_stat, and warnings as JSON.
+
+**Pre-checks (use JSON values):**
+- `is_feature_branch` is `true` (not `develop` or `main`)
+- `has_uncommitted_changes` is `false` (all changes committed)
+- `recent_commits` has commits ahead of `base_branch`
+
+If `is_feature_branch` is `false`, return an error.
+
+### Step 2: Push Branch
+
+Ensure the branch is pushed and up to date:
+
+```bash
+git push -u origin {branch-name}
+```
+
+### Step 2b: Base Branch Detection
+
+Default is `develop`. When invoked with an issue number, automatically detect sub-issues and use the integration branch as base.
+
+#### Sub-Issue Auto-Detection
+
+If `.shirokuma/github/{org}/{repo}/issues/{number}/body.md` frontmatter contains a `parentIssue` field, the issue is a sub-issue:
+
+```yaml
+parentIssue:
+  number: 958
+  title: "Migrate to Octokit"
+```
+
+If context was passed from `implement-flow`, use it; otherwise, self-detect using the above (fallback structure).
+
+#### Integration Branch Extraction
+
+When a sub-issue is detected, determine the integration branch in this order:
+
+1. **Extract from parent issue body**: Fetch the parent issue with `shirokuma-flow issue context {parent-number}` and read `.shirokuma/github/{org}/{repo}/issues/{parent-number}/body.md`. Look for a `### Integration Branch` (EN) / `### Integration ブランチ` (JA) heading. Extract the branch name from the backtick block immediately following the heading (any prefix accepted: `epic/`, `chore/`, `feat/`, etc.)
+2. **Fallback (remote branch search)**: `git branch -r --list "origin/*/{parent-number}-*"`
+   - 1 match → auto-select
+   - Multiple matches → select first match, include alternatives in result
+   - 0 matches → return error (require explicit `--base`)
+3. **Error**: 0 matches with no `--base` specified → CLI returns error (require explicit `--base`)
+
+```bash
+# Sub-issue
+base_branch="{type}/{parent-number}-{slug}"
+
+# Normal
+base_branch="develop"
+```
+
+**Note**: For PRs targeting the integration branch, the GitHub sidebar will not display the issue link. `Closes #N` should still be included in the PR body (the CLI's `pr merge` parses it independently and works correctly).
+
+### Step 3: Analyze Changes
+
+Use `recent_commits` and `diff_stat` from the Step 1 `shirokuma-flow git check` JSON output. Understand the full scope of changes, not just the latest commit.
+
+### Step 4: Create PR
+
+Write the PR body to a file, then create the PR. When changes meet the Mermaid conditions in the `github-writing-style` rule, include diagrams in the PR body.
+
+> **CLI Template**: Use `shirokuma-flow issue template pr --output <file>` to generate a PR body template.
+
+```markdown
+<!-- /tmp/shirokuma-flow/{number}-pr.md -->
+## Summary
+{Describe what this PR achieves in 1–2 prose sentences. State the intent and scope of the change, conclusion-first.}
+
+- {Bullet points supplementing individual changes}
+
+## Related Issues
+Closes #{issue-number}
+
+## Test plan
+- [ ] {test item 1}
+- [ ] {test item 2}
+```
+
+```bash
+shirokuma-flow pr create {issue-number} --from-file /tmp/shirokuma-flow/{number}-pr.md
+```
+
+**Title rules:**
+- Under 70 characters
+- Conventional commit prefixes (`feat:`, `fix:`, `chore:`, `docs:`, etc.) are always in English
+- **Text after the prefix must be in English**
+- No issue number in title (goes in body)
+
+**Title examples:**
+
+```text
+feat: add branch workflow rules
+fix: resolve cross-repo Projects lookup
+docs: update github-commands.md after CLI changes
+chore: update dependencies
+```
+
+**Bad examples (non-English text in EN plugin):**
+
+```text
+feat: ブランチワークフロールールを追加    ← Wrong: not English
+docs: github-commands.md のコマンド一覧を更新      ← Wrong: not English
+```
+
+**Body rules:**
+- Summary: 1-3 bullet points of what changed
+- Related Issues: Always use `Closes #N` (not `Refs #N` — the CLI's `parseLinkedIssues()` only matches `Closes/Fixes/Resolves` patterns)
+- Test plan: checklist of verification steps
+
+### Step 4b: PR Link Comment (non-default base branch only)
+
+When the base branch is not the repository's default branch (e.g., integration branch-based PR), GitHub's sidebar PR link is not displayed. Automatically post a PR link comment to the related issues.
+
+**Condition**: `base_branch !== default_branch`
+
+```bash
+shirokuma-flow issue comment {issue-number} /tmp/shirokuma-flow/{issue-number}-pr-link.md
+```
+
+In batch mode, post to each issue referenced by `Closes`.
+
+Skip this step for default branch-based PRs (GitHub's native PR link works correctly).
+
+### Step 5: Output Template
+
+PR creation itself is a GitHub write (the deliverable), so no additional GitHub write is needed. Return the following structured data to the caller:
+
+```yaml
+---
+action: CONTINUE
+status: SUCCESS
+ref: "PR #{pr-number}"
+---
+
+{branch} → {base-branch}, {count} commits, Closes #{issue-number}
+
+### PR Body
+## Summary
+- {bullet point 1}
+...
+```
+
+On failure:
+
+```yaml
+---
+action: STOP
+status: FAIL
+---
+
+{error description}
+```
+
+When existing PR detected:
+
+```yaml
+---
+action: CONTINUE
+status: SUCCESS
+ref: "PR #{existing-pr-number}"
+---
+
+Existing PR detected, creation skipped
+```
+
+## Batch Mode
+
+When on a batch branch or when batch context (multiple issue numbers) is provided:
+
+### Batch PR Body
+
+Extract issue numbers from the batch branch commit log and generate an issue-by-issue change summary:
+
+```bash
+git log --oneline develop..HEAD
+```
+
+**PR body format:**
+
+```markdown
+## Summary
+{Overall batch description}
+
+## Changes by Issue
+
+### #{N1}: {title}
+- {change summary from commits}
+
+### #{N2}: {title}
+- {change summary from commits}
+
+## Related Issues
+Closes #{N1}
+Closes #{N2}
+Closes #{N3}
+
+## Test Plan
+- [ ] {verification steps}
+```
+
+## Arguments
+
+If invoked with an issue number (e.g., `/open-pr-issue 39`):
+- Include `Closes #39` in the PR body
+- Derive PR title from the issue context
+
+## Language
+
+PR titles and bodies must be in English. Conventional commit prefixes (`feat:`, `fix:`, etc.) are always in English.
+
+Review reports output by `review-issue` must also follow the `output-language` rule.
+
+## Edge Cases
+
+| Situation | Action |
+|-----------|--------|
+| On develop or main | Return error: must be on a feature branch |
+| Uncommitted changes | Return error: commit first |
+| No commits ahead of base | Return error: nothing to create PR for |
+| PR already exists for branch | Include existing PR URL in result |
+| Push fails | Return error, suggest `git pull --rebase` |
+| Sub-issue with no integration branch found | Return error (require explicit `--base`) |
+| Integration branch PR | Always include `Closes #N` in body (not `Refs` — CLI's `parseLinkedIssues()` only matches `Closes/Fixes/Resolves`. GitHub sidebar won't show link, but CLI handles it) |
+| Multiple branches match fallback search | Select first match, include alternatives in result |
+| Base branch was wrong after PR creation | Fix via REST API: `gh api repos/{owner}/{repo}/pulls/{pr-number} --method PATCH -f base="correct-branch"` |
+
+## Next Steps (Standalone Invocation Only)
+
+**When invoked as subagent from `implement-flow` chain**: Omit this section — next step suggestions disrupt the chain's autonomous progression by introducing unnecessary pauses. Return only the completion report (Step 5).
+
+Only when invoked standalone:
+
+```text
+PR created. Next steps:
+→ Run `/review-flow #{pr-number}` to respond to reviewer feedback
+```
+
+## Notes
+
+- Always push before creating PR
+- Create PRs from feature branches, not `develop` or `main` — PRs from protected branches have no meaningful diff
+- Daily work PRs target `develop`; only hotfixes target `main`
+- Reserve `main` as PR target for hotfixes only — routing daily work to `main` bypasses the integration branch
+- Always use `Closes #N` for issue references (not `Refs #N` — the CLI's `parseLinkedIssues()` cannot parse `Refs`, so Issues won't close on merge)
+- PR body should be informative but concise

@@ -1,0 +1,32 @@
+# Setup Checklist
+
+## Required Items
+
+| # | Item | Verification | Automation |
+|---|------|-------------|------------|
+| 1 | Git repository initialized | `git remote -v` | Automated |
+| 2 | GitHub remote repository | `gh repo view` | Automated |
+| 3 | `.shirokuma/config.yaml` | File existence check | Automated |
+| 4 | Plugin installation | `claude plugin list` | Automated |
+| 5 | `.claude/rules/shirokuma/` deploy | Directory existence check | Automated |
+| 6 | GitHub Projects V2 | `shirokuma-flow issue list` | Automated |
+| 7 | Status/Priority/Size fields | `integrity --setup` | Automated |
+| 8 | Discussion categories | `integrity --setup` | Manual |
+| 9 | Issue Types | Check in GitHub UI | Manual |
+| 10 | Built-in automations | `projects workflows` | Manual |
+
+## Verification Command
+
+```bash
+# Batch verification
+shirokuma-flow integrity --setup
+```
+
+## Common Issues
+
+| Problem | Solution |
+|---------|----------|
+| `missing scopes [project]` | `gh auth refresh -s project,read:project` |
+| Config file not found | `shirokuma-flow init --project .` |
+| Plugin outdated | `shirokuma-flow update` |
+| Missing Discussion categories | Create manually in GitHub UI |

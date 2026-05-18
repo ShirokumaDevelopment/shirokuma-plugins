@@ -1,0 +1,227 @@
+---
+name: create-item-flow
+description: Creates GitHub Issues or Discussions with auto-inferred metadata from conversation context, automatically runs requirements review, and routes to the next flow. Triggers: "create issue", "make this an issue", "follow-up issue", "new issue", "file an issue". For creating specs, ADRs, or running the full requirements definition process, use /requirements-flow instead.
+allowed-tools: Bash, Skill, AskUserQuestion, Read, Write, TaskCreate, TaskUpdate, TaskGet, TaskList
+---
+
+# Creating Items
+
+Auto-infer Issue metadata from conversation context and delegate creation to `managing-github-items`. For Issues, automatically run `analyze-issue requirements` after creation and route to the next flow (`/design-flow`, `/prepare-flow`, `/implement-flow`) based on the review result (`**Review result:**`) and design assessment (`**Design assessment:**`). For Discussions, skip the review and present next action candidates.
+
+## Responsibility Split
+
+| Layer | Responsibility |
+|-------|---------------|
+| `create-item-flow` | User interface. Context analysis, metadata inference, **proactive search of canonical docs / ADRs / existing issues**, chain control |
+| `managing-github-items` | Internal engine. CLI command execution, field setting, validation |
+
+### Boundary with `analyze-issue requirements`
+
+Step 1c (pre-creation discovery) and `analyze-issue requirements`'s project-requirement-consistency check (post-creation verification) play **complementary roles separated by time and purpose**. Do not conflate them.
+
+| Aspect | Step 1c (this skill) | `analyze-issue requirements` |
+|--------|---------------------|----------------------------|
+| Timing | **Before** issue creation | **After** issue creation |
+| Goal | Embed comprehensive references in the issue body to prime reviewers | Verify ADR consistency and judge PASS / NEEDS_REVISION |
+| Output target | `## Related References` section in the issue body | Issue comment |
+| Failure mode | Skip the section if 0 hits (fail-safe) | Loop revisions on NEEDS_REVISION |
+
+## Task Registration (Required)
+
+**Before starting work**, register all chain steps via TaskCreate.
+
+| # | content | activeForm | Skill |
+|---|---------|------------|-------|
+| 1 | Analyze context and infer metadata | Analyzing context | Manager direct |
+| 1b | Search for similar issues and suggest linking | Searching for similar issues | Manager direct: `shirokuma-flow issue search` |
+| 1c | Auto-discover canonical docs / ADRs / existing issues | Discovering related references | Manager direct: `grep` / `discussion adr list` / `issue search` |
+| 2 | Delegate creation to managing-github-items | Creating the item | `managing-github-items` (Skill) |
+| 2b | [Issue only] Run requirements review and design assessment | Running requirements review | `analyze-issue` (Skill, requirements role) |
+| 3 | Return next action candidates to user | Presenting next actions | Manager direct |
+
+Dependencies: step 1b blockedBy 1, step 1c blockedBy 1b, step 2 blockedBy 1c, step 2b blockedBy 2 (conditional: only for Issue creation), step 3 blockedBy 2 or 2b.
+
+Update each step to `in_progress` at start and `completed` on finish via TaskUpdate. Step 2b is skipped when creating a Discussion (may be omitted from the task list). Step 1c skips the section entirely when the search returns 0 hits.
+
+## Workflow
+
+### Step 1: Context Analysis
+
+Infer from conversation context:
+
+| Field | Inference Source |
+|-------|-----------------|
+| Title | Concise summary from user's statement |
+| Issue Type | Content keywords (see [reference/chain-rules.md](reference/chain-rules.md)) |
+| Priority | Impact scope and urgency |
+| Size | Work effort |
+| Area labels | Affected code areas |
+
+**Purpose Clarity Check (required)**: If the user's message only describes a "means" (what to do) without a clear "purpose" (who / what / why), present inferred purpose candidates and confirm via `AskUserQuestion`. See [reference/purpose-criteria.md](reference/purpose-criteria.md) for criteria.
+
+### Step 1b: Search for Similar Issues and Suggest Linking
+
+After context analysis, search for similar existing Issues/Discussions before creation to identify duplicates or linking opportunities.
+
+```bash
+shirokuma-flow issue search "<keyword>" --limit 5
+```
+
+- If similar Issues found: present to user and ask whether to create a new issue or consolidate into an existing one (`AskUserQuestion`)
+- If related Issues found: suggest setting parent-child relationship with `issue parent` after creation
+- If nothing found: proceed to the next step
+
+### Step 1c: Auto-discover canonical docs / ADRs / existing issues
+
+After the similar-issue search and before issue creation, **auto-discover this project's canonical docs (primary source of truth), Accepted ADRs, and related existing issues**, and embed the discovered references as a `## Related References` section in the issue body. See [../../rules/doc-search-rules.md](../../rules/doc-search-rules.md) for the detailed search rules, keyword generation, and placement spec.
+
+> **Document placement decision**: When deciding whether to record content in the Issue body or extract it into a separate reference doc, see the "Temporary plan (Issue body) vs reference doc" boundary case in the `docs-layering` rule.
+
+#### Search Targets
+
+| Category | Search command | Output sub-section |
+|----------|---------------|-------------------|
+| Canonical docs | `grep -l <keywords> docs/guide/ docs/specs/ docs/portal-design-spec.md CLAUDE.md` → Read the relevant excerpts | `### Canonical Documents` |
+| ADR (Accepted) | `shirokuma-flow discussion adr list` → match by title / body keywords, top 3-5 | `### Related ADRs (Accepted)` |
+| Existing issues / PRs | `shirokuma-flow issue search "<keywords>" --limit 5` | `### Related Existing Issues / PRs` |
+
+#### Keyword Generation
+
+Generate search queries from the title finalized in step 1 plus noun phrases in the user's utterance (YAGNI: start simple; escalate only if hit rate is poor). Japanese-fallback splitting is documented in [../../rules/doc-search-rules.md](../../rules/doc-search-rules.md).
+
+#### Embedding into the Issue Body
+
+Place the discovered references as a `## Related References` section **between `## Purpose` and `## Summary`**. Templates are in [../../rules/doc-search-rules.md](../../rules/doc-search-rules.md).
+
+- Skip a sub-section when its category returns 0 hits
+- Skip the entire `## Related References` section when all categories return 0 hits
+
+### Step 2: Delegate to `managing-github-items`
+
+After context analysis, invoke via Skill tool immediately (no pre-creation confirmation):
+
+```
+Skill: managing-github-items
+Args: create-item --title "{Title}" --issue-type "{Type}" --labels "{area:label}" --priority "{Priority}" --size "{Size}"
+```
+
+> **Initial Status (ADR-v3-022)**: `INITIAL_STATUSES = ["Backlog"]` — the default Status for new Issues is `Backlog` (uninvestigated/untriaged). Explicitly specifying `--status "In progress"` will be rejected by `validateInitialStatus`.
+
+### Step 2b: Requirements Review and Design Assessment (invoke analyze-issue requirements)
+
+**Scope**: Execute only when the created item's type is `issue`. Skip for `discussion` and present next action candidates in Step 3 as usual.
+
+Leverage the context immediately after Issue creation to invoke `analyze-issue requirements #{issue-number}` via the Skill tool.
+
+```
+Skill: analyze-issue
+Args: requirements #{issue-number}
+```
+
+`analyze-issue requirements` may additionally perform a Project Requirement Consistency check (ADR reference) based on Issue keywords and labels. See [../analyze-issue/roles/requirements.md](../analyze-issue/roles/requirements.md#project-requirement-consistency) for trigger conditions and output fields.
+
+#### Expected Output Fields
+
+Scan the Issue comment posted by `analyze-issue` for the following strings:
+- `**Review result:**` — PASS or NEEDS_REVISION (always output)
+- `**Design assessment:**` — NEEDED or NOT_NEEDED (always output)
+- `**Project Requirement Consistency:**` — PASS or NEEDS_REVISION (only when ADR check is performed)
+- `**Referenced ADRs:**` — ADR number list (only when ADR check is performed)
+
+#### Handling on Check Failure
+
+When `Review result` is `NEEDS_REVISION` (revision loop): Present the issues to the user and request corrections to the Issue body. Invoke `analyze-issue requirements` again after corrections (maximum 2 revision loops; on the 3rd NEEDS_REVISION, defer to the user).
+
+When `Project Requirement Consistency` is `NEEDS_REVISION`: Present the conflicting ADR numbers and conflict details. Use AskUserQuestion to let the user choose:
+- "Modify the Issue body to make it consistent" → run requirements review again after modification
+- "Review existing ADRs first (using `write-adr` update flow)" → guide to `/write-adr` and suspend this step
+
+### Step 3: Return to User
+
+**For Discussion**: Step 2b is skipped, so present the creation completion and next action candidates.
+
+```markdown
+Discussion created: #{number}
+→ Suggest follow-up discussions or related issues
+```
+
+**For Issue**: When Step 2b's `**Review result:**` is PASS, branch in 3 directions based on `**Design assessment:**`.
+
+**When Design assessment is NEEDED (go to design phase):**
+
+```markdown
+Item created: #{number}
+**Review result:** PASS / **Design assessment:** NEEDED
+→ `/design-flow #{issue-number}` to start design (recommended)
+→ Or keep in ToDo (awaiting)
+```
+
+**When Design assessment is NOT_NEEDED and Size M+ or requirements ambiguous (go to planning phase):**
+
+```markdown
+Item created: #{number}
+**Review result:** PASS / **Design assessment:** NOT_NEEDED
+→ `/prepare-flow #{issue-number}` to start planning (recommended)
+→ `/implement-flow #{issue-number}` to implement directly
+→ Or keep in ToDo (awaiting)
+```
+
+**When Design assessment is NOT_NEEDED and Size XS/S and requirements clear (implement directly):**
+
+```markdown
+Item created: #{number}
+**Review result:** PASS / **Design assessment:** NOT_NEEDED
+→ `/implement-flow #{issue-number}` to implement directly (recommended)
+→ Or keep in ToDo (awaiting)
+```
+
+Design assessment (NEEDED / NOT_NEEDED) takes priority over Size assessment. If design is NEEDED, guide to `/design-flow` regardless of Size.
+
+See [reference/chain-rules.md](reference/chain-rules.md) for chain decision details.
+
+## Reference Documents
+
+| Document | Content | When to Read |
+|----------|---------|--------------|
+| [reference/chain-rules.md](reference/chain-rules.md) | Chain decision rules and inference logic | Item creation |
+| [reference/purpose-criteria.md](reference/purpose-criteria.md) | Means vs purpose criteria (JTBD-based) | Context analysis (purpose clarity check) |
+| [../../rules/doc-search-rules.md](../../rules/doc-search-rules.md) | Canonical-doc / ADR discovery: keyword generation, splitting rules, placement spec, fallbacks | Step 1c execution |
+
+## Next Steps
+
+Based on Step 2b `analyze-issue requirements` result, branch in 3 directions: Design NEEDED → `/design-flow`, Design NOT_NEEDED + M+ → `/prepare-flow`, Design NOT_NEEDED + XS/S + clear requirements → `/implement-flow`. See Step 3 for details.
+
+## Evolution Signal Auto-Recording
+
+At the end of the item creation completion report, auto-record Evolution signals following the "Auto-Recording Procedure at Skill Completion" in the `rule-evolution` rule.
+
+**Skip condition:** If the created item's Issue Type is Evolution, skip the entire signal recording (the Evolution Issue itself is an improvement proposal, avoiding duplicate recording).
+
+## GitHub Writing Rules
+
+Issue title and body must comply with the `output-language` rule and `github-writing-style` rule. This rule also applies to the delegated `managing-github-items` skill.
+
+## Skill Selection Guide
+
+This skill and `requirements-flow` can both create GitHub items, but they serve different purposes.
+
+| Goal | Which skill to use |
+|------|-------------------|
+| "I want to register this conversation as an Issue" / "I need a follow-up Issue" | `create-item-flow` (this skill) |
+| "I want to create a spec or ADR first, then track it as an Issue" / "I want to run the full requirements definition process" | `/requirements-flow` |
+| "I want to write an ADR" / "I want to record a technology decision" | `/requirements-flow` |
+
+**Decision rule**: If the goal is "register this as a GitHub Issue/Discussion right now," use `create-item-flow`. If the goal is "run the requirements definition / ADR creation process," use `requirements-flow`.
+
+### Responsibility Boundary with `requirements-flow`
+
+- `create-item-flow` is the **UI layer** — it immediately registers an Issue/Discussion based on the current conversation context
+- `requirements-flow` is the **requirements phase orchestrator** — it handles the full pipeline: searching existing ADRs/Discussions for consistency → creating ADRs and spec Discussions → guiding next steps
+- A request like "create a spec Discussion" should be routed to `requirements-flow`. This skill does not handle the requirements definition process for specs
+
+## Notes
+
+- After creation, inform the user and offer the opportunity to request modifications
+- Delegate CLI execution to `managing-github-items` (don't call CLI directly)
+- Detailed inference tables are available via the `managing-github-items` skill
+- **Effort assumption**: Assumes xhigh. Ensures sufficient reasoning depth for the chain of context analysis, ADR exploration, and requirements review

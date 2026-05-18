@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITLE}}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kosugi+Maru&family=M+PLUS+Rounded+1c:wght@500;700&family=M+PLUS+1+Code:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css?v=12">
+<script src="/assets/theme.js?v=2" defer></script>
+</head>
+<body>
+
+<aside class="toc">
+  <button id="theme-toggle" class="theme-toggle" type="button" aria-label="テーマ切替">
+    <span class="icon" id="theme-icon">🌙</span>
+    <span id="theme-label">Dark mode</span>
+  </button>
+  <h2>目次</h2>
+  <ol>
+    <li><a href="#overview">1. プロジェクト概要</a></li>
+    <li><a href="#roadmap">2. ロードマップ</a></li>
+    <li><a href="#dataflow">3. データフロー</a></li>
+    <li><a href="#risks">4. リスク</a></li>
+    <li><a href="#acceptance">5. 受け入れ基準</a></li>
+  </ol>
+</aside>
+
+<main>
+
+<!-- ============== ヒーロー（プロジェクト概要） ============== -->
+<div class="hero">
+  <p class="eyebrow">IMPLEMENTATION PLAN · {{PERIOD}}</p>
+  <h1>{{TITLE}}</h1>
+  <p class="lead">{{PROJECT_LEAD}}</p>
+  <div class="tags">
+    <span class="tag orch">prepare-flow</span>
+    <span class="tag worker">epic</span>
+    <span class="tag status">{{STATUS}}</span>
+  </div>
+</div>
+
+<!-- ============== 章番号付き目次グリッド ============== -->
+<div class="toc-grid">
+  <a class="toc-grid-item" href="#overview">
+    <span class="num">01</span>
+    <span class="title">プロジェクト概要</span>
+  </a>
+  <a class="toc-grid-item" href="#roadmap">
+    <span class="num">02</span>
+    <span class="title">ロードマップ</span>
+  </a>
+  <a class="toc-grid-item" href="#dataflow">
+    <span class="num">03</span>
+    <span class="title">データフロー</span>
+  </a>
+  <a class="toc-grid-item" href="#risks">
+    <span class="num">04</span>
+    <span class="title">リスク</span>
+  </a>
+</div>
+
+<!-- ============== 1. プロジェクト概要 ============== -->
+<h2 id="overview">1. プロジェクト概要</h2>
+
+<p>エピック全体の目的・スコープ・成功基準を 1〜2 段落で記述。</p>
+
+<!-- ============== 2. ロードマップ ============== -->
+<h2 id="roadmap">2. ロードマップ</h2>
+
+<!-- milestone-timeline: 期間グルーピング型タイムライン（gantt 風 3 カラム grid） -->
+<!--
+<div class="milestone-timeline">
+
+  <div class="milestone">
+    <div class="when">Week 1 · Mon–Tue</div>
+    <div class="dot-col">
+      <span class="dot done"></span>
+      <span class="line"></span>
+    </div>
+    <div class="body">
+      <h3>サブ Issue #2624</h3>
+      <p>html-report-criteria.md 新設</p>
+      <div class="tags">
+        <span class="tag">~2 days</span>
+        <span class="tag">docs</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="milestone">
+    <div class="when">Week 1 · Wed–Fri</div>
+    <div class="dot-col">
+      <span class="dot current"></span>
+      <span class="line"></span>
+    </div>
+    <div class="body">
+      <h3>サブ Issue #2625</h3>
+      <p>テンプレート 4 種 + snippets 8 種追加</p>
+      <div class="tags">
+        <span class="tag">~3 days</span>
+        <span class="tag">templates</span>
+      </div>
+    </div>
+  </div>
+
+  最終マイルストーンは .line を含めない
+  <div class="milestone">
+    <div class="when">Week 2 · Mon–Wed</div>
+    <div class="dot-col">
+      <span class="dot"></span>
+    </div>
+    <div class="body">
+      <h3>サブ Issue #2626</h3>
+      <p>SKILL.md パラメータ仕様追記</p>
+    </div>
+  </div>
+
+</div>
+-->
+
+<!-- ============== 3. データフロー ============== -->
+<h2 id="dataflow">3. データフロー</h2>
+
+<div class="diagram">
+  <!--
+    SVG コメント枠（推奨カラーペアを使用）:
+    process(blue): #dde5ef / #4d7299 / #2c4d75
+    review/ok(olive): #dde5d0 / #788C5D / #4f5f3d
+    requirements(purple): #e6dde9 / #856ea3 / #4b3680
+    warn(amber): #f0e3c0 / #b08838 / #6e5417
+    新規 hex を追加した場合は style.css の dark mode 上書きにも登録すること
+  -->
+</div>
+
+<!-- ============== 4. リスク ============== -->
+<h2 id="risks">4. リスク</h2>
+
+<table>
+  <thead>
+    <tr><th>リスク</th><th>発生確率</th><th>影響</th><th>緩和策</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>{{RISK_1}}</td>
+      <td><span class="tag gate">中</span></td>
+      <td>{{IMPACT_1}}</td>
+      <td>{{MITIGATION_1}}</td>
+    </tr>
+    <tr>
+      <td>{{RISK_2}}</td>
+      <td><span class="tag worker">低</span></td>
+      <td>{{IMPACT_2}}</td>
+      <td>{{MITIGATION_2}}</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ============== 5. 受け入れ基準 ============== -->
+<h2 id="acceptance">5. 受け入れ基準</h2>
+
+<ul>
+  <li>{{CRITERIA_1}}</li>
+  <li>{{CRITERIA_2}}</li>
+</ul>
+
+<div class="meta">
+  <strong>ファイル</strong>: <code>{{OUTPUT_PATH}}</code><br>
+  <strong>用途</strong>: {{PURPOSE}}<br>
+  <strong>テンプレート</strong>: <code>implementation-plan</code>
+</div>
+
+</main>
+
+</body>
+</html>

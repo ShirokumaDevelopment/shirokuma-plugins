@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITLE}}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kosugi+Maru&family=M+PLUS+Rounded+1c:wght@500;700&family=M+PLUS+1+Code:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css?v=12">
+<script src="/assets/theme.js?v=2" defer></script>
+</head>
+<body>
+
+<aside class="toc">
+  <button id="theme-toggle" class="theme-toggle" type="button" aria-label="テーマ切替">
+    <span class="icon" id="theme-icon">🌙</span>
+    <span id="theme-label">Dark mode</span>
+  </button>
+  <h2>目次</h2>
+  <ol>
+    <li><a href="#tldr">1. TL;DR</a></li>
+    <li><a href="#timeline">2. インシデント時系列</a></li>
+    <li><a href="#root-cause">3. Root Cause</a></li>
+    <li><a href="#impact">4. 影響指標</a></li>
+    <li><a href="#actions">5. アクションアイテム</a></li>
+  </ol>
+</aside>
+
+<main>
+
+<h1>{{TITLE}}</h1>
+
+<!-- ============== status-header（ID + SEV + Status + Duration） ============== -->
+<div class="status-header">
+  <dl>
+    <div><dt>Incident ID</dt><dd>{{INCIDENT_ID}}</dd></div>
+    <div><dt>Severity</dt><dd>{{SEV}}</dd></div>
+    <div><dt>Status</dt><dd>{{STATUS}}</dd></div>
+    <div><dt>Duration</dt><dd>{{DURATION}}</dd></div>
+  </dl>
+</div>
+
+<!-- ============== 1. TL;DR ============== -->
+<h2 id="tldr">1. TL;DR</h2>
+
+<blockquote>
+  事象・影響・根本原因・解消状況を 3〜4 文で要約。
+</blockquote>
+
+<!-- ============== 2. インシデント時系列 ============== -->
+<h2 id="timeline">2. インシデント時系列</h2>
+
+<!-- event-log: 時刻スタンプ型タイムライン（.entry + .dot + .time + .body） -->
+<!--
+<div class="event-log">
+  <div class="entry">
+    <span class="dot impact"></span>
+    <span class="time">14:02</span>
+    <div class="body"><strong>Impact starts</strong>: 監視アラート発火。p99 レイテンシが閾値超過</div>
+  </div>
+  <div class="entry">
+    <span class="dot"></span>
+    <span class="time">14:05</span>
+    <div class="body">オンコールが調査開始</div>
+  </div>
+  <div class="entry">
+    <span class="dot mitigated"></span>
+    <span class="time">14:18</span>
+    <div class="body"><strong>Mitigated</strong>: 原因をデプロイ B 起因と特定、ロールバック実施</div>
+  </div>
+  <div class="entry">
+    <span class="dot resolved"></span>
+    <span class="time">14:24</span>
+    <div class="body"><strong>Resolved</strong>: メトリクス正常化を確認、収束</div>
+  </div>
+</div>
+-->
+
+<!-- ============== 3. Root Cause ============== -->
+<h2 id="root-cause">3. Root Cause</h2>
+
+<p>根本原因の説明。直接原因 / 構造的原因 / 検知遅延の 3 視点で記述。</p>
+
+<!-- ============== 4. 影響指標 ============== -->
+<h2 id="impact">4. 影響指標</h2>
+
+<!-- metric-grid: 数値メトリクスカードのグリッド -->
+<!--
+<div class="metric-grid">
+  <div class="metric-card">
+    <p class="number">{{REQUEST_FAILURES}}</p>
+    <p class="unit">requests</p>
+    <p class="label">失敗リクエスト数</p>
+  </div>
+  <div class="metric-card">
+    <p class="number">{{AFFECTED_USERS}}</p>
+    <p class="unit">users</p>
+    <p class="label">影響ユーザー数</p>
+  </div>
+  <div class="metric-card">
+    <p class="number">{{PEAK_LATENCY}}</p>
+    <p class="unit">ms</p>
+    <p class="label">ピークレイテンシ p99</p>
+  </div>
+</div>
+-->
+
+<!-- ============== 5. アクションアイテム ============== -->
+<h2 id="actions">5. アクションアイテム</h2>
+
+<table>
+  <thead>
+    <tr><th>カテゴリ</th><th>アクション</th><th>担当</th><th>期日</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>再発防止</td><td>{{ACTION_1}}</td><td>{{OWNER_1}}</td><td>{{DUE_1}}</td></tr>
+    <tr><td>検知改善</td><td>{{ACTION_2}}</td><td>{{OWNER_2}}</td><td>{{DUE_2}}</td></tr>
+  </tbody>
+</table>
+
+<div class="meta">
+  <strong>ファイル</strong>: <code>{{OUTPUT_PATH}}</code><br>
+  <strong>用途</strong>: {{PURPOSE}}<br>
+  <strong>テンプレート</strong>: <code>postmortem</code>
+</div>
+
+</main>
+
+</body>
+</html>

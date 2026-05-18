@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITLE}}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kosugi+Maru&family=M+PLUS+Rounded+1c:wght@500;700&family=M+PLUS+1+Code:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css?v=12">
+<script src="/assets/theme.js?v=2" defer></script>
+</head>
+<body>
+
+<aside class="toc">
+  <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle theme">
+    <span class="icon" id="theme-icon">🌙</span>
+    <span id="theme-label">Dark mode</span>
+  </button>
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#overview">1. Project Overview</a></li>
+    <li><a href="#roadmap">2. Roadmap</a></li>
+    <li><a href="#dataflow">3. Data Flow</a></li>
+    <li><a href="#risks">4. Risks</a></li>
+    <li><a href="#acceptance">5. Acceptance Criteria</a></li>
+  </ol>
+</aside>
+
+<main>
+
+<!-- ============== Hero (Project Overview) ============== -->
+<div class="hero">
+  <p class="eyebrow">IMPLEMENTATION PLAN · {{PERIOD}}</p>
+  <h1>{{TITLE}}</h1>
+  <p class="lead">{{PROJECT_LEAD}}</p>
+  <div class="tags">
+    <span class="tag orch">prepare-flow</span>
+    <span class="tag worker">epic</span>
+    <span class="tag status">{{STATUS}}</span>
+  </div>
+</div>
+
+<!-- ============== Numbered TOC Grid ============== -->
+<div class="toc-grid">
+  <a class="toc-grid-item" href="#overview">
+    <span class="num">01</span>
+    <span class="title">Project Overview</span>
+  </a>
+  <a class="toc-grid-item" href="#roadmap">
+    <span class="num">02</span>
+    <span class="title">Roadmap</span>
+  </a>
+  <a class="toc-grid-item" href="#dataflow">
+    <span class="num">03</span>
+    <span class="title">Data Flow</span>
+  </a>
+  <a class="toc-grid-item" href="#risks">
+    <span class="num">04</span>
+    <span class="title">Risks</span>
+  </a>
+</div>
+
+<!-- ============== 1. Project Overview ============== -->
+<h2 id="overview">1. Project Overview</h2>
+
+<p>Describe the overall epic purpose, scope, and success criteria in 1–2 paragraphs.</p>
+
+<!-- ============== 2. Roadmap ============== -->
+<h2 id="roadmap">2. Roadmap</h2>
+
+<!-- milestone-timeline: period-grouped timeline (gantt-style 3-column grid) -->
+<!--
+<div class="milestone-timeline">
+
+  <div class="milestone">
+    <div class="when">Week 1 · Mon–Tue</div>
+    <div class="dot-col">
+      <span class="dot done"></span>
+      <span class="line"></span>
+    </div>
+    <div class="body">
+      <h3>Sub Issue #2624</h3>
+      <p>Add html-report-criteria.md</p>
+      <div class="tags">
+        <span class="tag">~2 days</span>
+        <span class="tag">docs</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="milestone">
+    <div class="when">Week 1 · Wed–Fri</div>
+    <div class="dot-col">
+      <span class="dot current"></span>
+      <span class="line"></span>
+    </div>
+    <div class="body">
+      <h3>Sub Issue #2625</h3>
+      <p>Add 4 templates and 8 snippets</p>
+      <div class="tags">
+        <span class="tag">~3 days</span>
+        <span class="tag">templates</span>
+      </div>
+    </div>
+  </div>
+
+  The last milestone omits .line
+  <div class="milestone">
+    <div class="when">Week 2 · Mon–Wed</div>
+    <div class="dot-col">
+      <span class="dot"></span>
+    </div>
+    <div class="body">
+      <h3>Sub Issue #2626</h3>
+      <p>Add SKILL.md parameter spec</p>
+    </div>
+  </div>
+
+</div>
+-->
+
+<!-- ============== 3. Data Flow ============== -->
+<h2 id="dataflow">3. Data Flow</h2>
+
+<div class="diagram">
+  <!--
+    SVG comment scaffolding (use recommended color pairs):
+    process(blue): #dde5ef / #4d7299 / #2c4d75
+    review/ok(olive): #dde5d0 / #788C5D / #4f5f3d
+    requirements(purple): #e6dde9 / #856ea3 / #4b3680
+    warn(amber): #f0e3c0 / #b08838 / #6e5417
+    When adding a new hex value, also register it in the style.css dark mode overrides
+  -->
+</div>
+
+<!-- ============== 4. Risks ============== -->
+<h2 id="risks">4. Risks</h2>
+
+<table>
+  <thead>
+    <tr><th>Risk</th><th>Likelihood</th><th>Impact</th><th>Mitigation</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>{{RISK_1}}</td>
+      <td><span class="tag gate">Medium</span></td>
+      <td>{{IMPACT_1}}</td>
+      <td>{{MITIGATION_1}}</td>
+    </tr>
+    <tr>
+      <td>{{RISK_2}}</td>
+      <td><span class="tag worker">Low</span></td>
+      <td>{{IMPACT_2}}</td>
+      <td>{{MITIGATION_2}}</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ============== 5. Acceptance Criteria ============== -->
+<h2 id="acceptance">5. Acceptance Criteria</h2>
+
+<ul>
+  <li>{{CRITERIA_1}}</li>
+  <li>{{CRITERIA_2}}</li>
+</ul>
+
+<div class="meta">
+  <strong>File</strong>: <code>{{OUTPUT_PATH}}</code><br>
+  <strong>Purpose</strong>: {{PURPOSE}}<br>
+  <strong>Template</strong>: <code>implementation-plan</code>
+</div>
+
+</main>
+
+</body>
+</html>

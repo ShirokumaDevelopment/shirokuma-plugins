@@ -1,0 +1,21 @@
+{
+  "name": "shirokuma-infra-en",
+  "description": "Local development infrastructure (docker-compose, scripts) skills for Claude Code",
+  "version": "0.3.0-alpha.131",
+  "author": {
+    "name": "ShirokumaLibrary"
+  },
+  "homepage": "https://github.com/ShirokumaDevelopment/shirokuma-plugins",
+  "repository": "https://github.com/ShirokumaDevelopment/shirokuma-plugins",
+  "keywords": [
+    "claude-code",
+    "skills",
+    "infra",
+    "docker-compose",
+    "local-dev",
+    "cicd",
+    "github-actions",
+    "deploy"
+  ],
+  "license": "Apache-2.0"
+}

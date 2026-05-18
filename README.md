@@ -1,26 +1,31 @@
-# shirokuma-plugins (prerelease channel)
+# shirokuma-plugins
 
-This repository is the **prerelease distribution channel** for [shirokuma-flow](https://github.com/ShirokumaLibrary/shirokuma-docs) plugins.
+Reusable AI skills, rules, and safety hooks for [Claude Code](https://docs.anthropic.com/en/docs/claude-code).
 
-- **alpha / beta** versions are published here (`ShirokumaDevelopment/shirokuma-plugins`).
-- **stable** versions live at [`ShirokumaLibrary/shirokuma-plugins`](https://github.com/ShirokumaLibrary/shirokuma-plugins).
+## Plugins
 
-## Install (early adopters)
+| Plugin | Description |
+|--------|-------------|
+| **shirokuma-skills-en** | AI skills, rules, and agents for Claude Code (English) |
+| **shirokuma-skills-ja** | AI skills, rules, and agents for Claude Code (Japanese) |
+| **shirokuma-nextjs-en** | Next.js / shadcn / Drizzle framework-specific skills (English) |
+| **shirokuma-nextjs-ja** | Next.js / shadcn / Drizzle framework-specific skills (Japanese) |
+| **shirokuma-infra-en** | AWS / CDK / CI/CD / Docker infrastructure skills (English) |
+| **shirokuma-infra-ja** | AWS / CDK / CI/CD / Docker infrastructure skills (Japanese) |
+| **shirokuma-hooks** | Safety hooks for destructive git/GitHub operations |
 
-```sh
-claude plugin marketplace add ShirokumaDevelopment/shirokuma-plugins
+## Installation
+
+### Via shirokuma-flow CLI (recommended)
+
+```bash
+shirokuma-flow init --with-skills
 ```
 
-For stable releases (recommended for most users):
+## Documentation
 
-```sh
-claude plugin marketplace add ShirokumaLibrary/shirokuma-plugins
-```
+For full documentation, configuration guides, and CLI reference, see **[shirokuma-flow](https://github.com/ShirokumaLibrary/shirokuma-docs)**.
 
-## Background
+## License
 
-This split tracks ShirokumaDevelopment/shirokuma-docs#2640 — the alpha/beta distribution
-channel is separated from the stable channel so that day-to-day users do not accidentally
-install prerelease builds.
-
-Full documentation lives in [`shirokuma-flow`](https://github.com/ShirokumaLibrary/shirokuma-docs).
+Apache License 2.0 (see [LICENSE](LICENSE) / [NOTICE](NOTICE))

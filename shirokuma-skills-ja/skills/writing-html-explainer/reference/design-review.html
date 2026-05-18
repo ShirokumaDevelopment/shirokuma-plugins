@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITLE}}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kosugi+Maru&family=M+PLUS+Rounded+1c:wght@500;700&family=M+PLUS+1+Code:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css?v=12">
+<script src="/assets/theme.js?v=2" defer></script>
+</head>
+<body>
+
+<aside class="toc">
+  <button id="theme-toggle" class="theme-toggle" type="button" aria-label="テーマ切替">
+    <span class="icon" id="theme-icon">🌙</span>
+    <span id="theme-label">Dark mode</span>
+  </button>
+  <h2>目次</h2>
+  <ol>
+    <li><a href="#summary">1. 総合評価</a></li>
+    <li><a href="#brief">2. Design Brief 整合性</a></li>
+    <li><a href="#aesthetic">3. Aesthetic Direction 評価</a></li>
+    <li><a href="#ui-checklist">4. UI 実装チェック</a></li>
+    <li><a href="#actions">5. 推奨アクション</a></li>
+  </ol>
+</aside>
+
+<main>
+
+<!-- ============== ヒーロー ============== -->
+<div class="hero">
+  <p class="eyebrow">DESIGN REVIEW · {{REPORT_TYPE}}</p>
+  <h1>{{TITLE}}</h1>
+  <p class="lead">{{REPORT_LEAD}}</p>
+  <div class="tags">
+    <span class="tag orch">design-flow</span>
+    <span class="tag worker">design-review</span>
+  </div>
+</div>
+
+<!-- ============== 1. 総合評価 ============== -->
+<h2 id="summary">1. 総合評価</h2>
+
+<!-- review-score-card: APPROVED / NEEDS_REVISION / DIRECTION_CHANGE -->
+<!--
+<div class="review-score-card pass">
+  <span class="label">判定</span>
+  <p class="score">APPROVED</p>
+  <p class="hint">{{SCORE_HINT}}</p>
+</div>
+-->
+
+<p>設計レビューの総合評価コメントを 2〜3 文で。</p>
+
+<!-- ============== 2. Design Brief 整合性 ============== -->
+<h2 id="brief">2. Design Brief 整合性</h2>
+
+<!-- phase-card で整合性カードを構成 -->
+<!--
+<section class="phase-card preparing">
+  <header>
+    <span>Design Brief との整合性</span>
+    <span class="tag status">確認済み</span>
+  </header>
+  <div class="body">
+    <h4>合致している点</h4>
+    <ul>
+      <li>{{POINT_1}}</li>
+    </ul>
+    <h4>乖離している点</h4>
+    <ul>
+      <li>{{GAP_1}}</li>
+    </ul>
+  </div>
+</section>
+-->
+
+<!-- ============== 3. Aesthetic Direction 評価 ============== -->
+<h2 id="aesthetic">3. Aesthetic Direction 評価</h2>
+
+<!-- summary-card で方向性別の評価をサマリ -->
+<!--
+<div class="summary-card ok">
+  <span class="label">採用方向性</span>
+  <p>{{AESTHETIC_DIRECTION}}: {{SCORE}} / 10</p>
+</div>
+-->
+
+<p>採用された Aesthetic Direction（Editorial / Brutalist / Soft / 等）と実装結果の整合性を評価。</p>
+
+<!-- ============== 4. UI 実装チェック ============== -->
+<h2 id="ui-checklist">4. UI 実装チェック</h2>
+
+<!-- チェック項目テーブル -->
+<!--
+<table>
+  <thead>
+    <tr><th>項目</th><th>状態</th><th>メモ</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>カラーパレット遵守</td><td><span class="tag worker">PASS</span></td><td>—</td></tr>
+    <tr><td>タイポグラフィ階層</td><td><span class="tag gate">REVIEW</span></td><td>h2 と h3 のサイズ差が不足</td></tr>
+  </tbody>
+</table>
+-->
+
+<!-- ============== 5. 推奨アクション ============== -->
+<h2 id="actions">5. 推奨アクション</h2>
+
+<!--
+<ol class="action-items">
+  <li><span class="tag priority-high">HIGH</span>最優先で対応する設計修正</li>
+  <li><span class="tag priority-medium">MEDIUM</span>次の改善項目</li>
+</ol>
+-->
+
+<div class="meta">
+  <strong>ファイル</strong>: <code>{{OUTPUT_PATH}}</code><br>
+  <strong>用途</strong>: {{PURPOSE}}<br>
+  <strong>テンプレート</strong>: <code>design-review</code>
+</div>
+
+</main>
+
+</body>
+</html>

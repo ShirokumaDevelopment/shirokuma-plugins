@@ -1,0 +1,131 @@
+# GitHub Discussions Setup
+
+## Required Categories
+
+Configure at: `https://github.com/{owner}/{repo}/discussions/categories`
+
+Click "New category" to add each category.
+
+| Category | Icon | Format | Description |
+|----------|------|--------|-------------|
+| **ADR** | 📐 | Announcement | Architecture Decision Records - Design decisions |
+| **Knowledge** | 💡 | Announcement | Technical knowledge and patterns - Confirmed solutions |
+| **Research** | 🔬 | Open-ended | Research requests and findings - Discussion format |
+
+> Session continuity is handled via `In progress` Issue body + comments (Issue 一元化), not Discussion category.
+
+## Category Details
+
+### ADR 📐
+
+**Format**: Announcement (decisions are final)
+**Purpose**: Record architecture decisions with context
+
+**Title format**: `ADR-{NNN}: {decision title}`
+
+**Body template**:
+```markdown
+## Status
+{Proposed | Accepted | Deprecated | Superseded by ADR-XXX}
+
+## Context
+{What is the issue that we're seeing that is motivating this decision?}
+
+## Decision
+{What is the change that we're proposing and/or doing?}
+
+## Consequences
+{What becomes easier or more difficult because of this change?}
+
+## Alternatives Considered
+{Other options that were evaluated}
+```
+
+### Knowledge 💡
+
+**Format**: Announcement (confirmed knowledge)
+**Purpose**: Document patterns, solutions, and best practices
+
+**Title format**: `{Topic or Pattern Name}`
+
+**Body template**:
+```markdown
+## Problem
+{What issue does this solve?}
+
+## Solution
+{The confirmed solution or pattern}
+
+## Example
+```{language}
+{Code example}
+```
+
+## References
+- Issue #{n} (where this was discovered)
+- External docs: {URL}
+
+## Related Rules
+- `.claude/rules/{rule-name}.md`
+```
+
+### Research 🔬
+
+**Format**: Open-ended (allows discussion)
+**Purpose**: Investigation requests and findings
+
+**Title format**: `[Research] {topic}`
+
+**Body template**:
+```markdown
+## Question
+{What needs to be researched?}
+
+## Context
+{Why is this research needed?}
+
+## Scope
+- {Specific aspect 1}
+- {Specific aspect 2}
+
+## Findings
+{Updated as research progresses}
+
+## Conclusion
+{Final recommendation or decision}
+
+## Next Steps
+- [ ] Create ADR if decision needed
+- [ ] Create Knowledge if pattern confirmed
+- [ ] Create Issue if action needed
+```
+
+## Usage Flow
+
+```
+Research (investigation)
+    ↓
+ADR (if decision needed)
+    ↓
+Knowledge (confirmed pattern)
+    ↓
+.claude/rules/ (AI-readable extract)
+```
+
+## Integration with Issues/Projects
+
+Discussions can be added to Projects:
+```bash
+gh project item-add PROJECT_ID --url DISCUSSION_URL
+```
+
+Cross-reference in Issues:
+```markdown
+See Discussion #30 for background research.
+```
+
+## Notes
+
+- Discussions use same number space as Issues (#1, #2, ...)
+- Cross-references work: "See #30" links to Discussion or Issue
+- Projects can track both Issues and Discussions
