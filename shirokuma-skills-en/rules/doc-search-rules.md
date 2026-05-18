@@ -29,7 +29,7 @@ Defines the shared logic for auto-discovering related canonical docs, ADRs, and 
 
 | Category | Search method | Top N | Output sub-section |
 |----------|--------------|-------|-------------------|
-| Canonical docs | `grep -l "<keyword>" -r docs/guide/ docs/specs/ CLAUDE.md` → Read relevant excerpts | Up to 5 (key passages only) | `### Canonical Documents` |
+| Canonical docs | `grep -l "<keyword>" -r guide/ docs/specs/ CLAUDE.md` → Read relevant excerpts | Up to 5 (key passages only) | `### Canonical Documents` |
 | ADR (Accepted) | `shirokuma-flow discussion adr list` → match titles / bodies by keyword | 3-5 | `### Related ADRs (Accepted)` |
 | Existing issues / PRs / Discussions | `shirokuma-flow issue search "<keyword>" --limit 5` | Up to 5 | `### Related Existing Issues / PRs` |
 
@@ -123,7 +123,7 @@ When the section is skipped, the body falls back to the conventional template st
 In the "Relevant section" column, write a line range plus a short summary. Avoid long verbatim quotes (they bloat the body).
 
 ```
-| `docs/guide/workflows/lifecycle-overview.md` | "Issue Creation" sequence L49-58 | The canonical create-item-flow → analyze-issue → Status flow |
+| `guide/workflows/lifecycle-overview.md` | "Issue Creation" sequence L49-58 | The canonical create-item-flow → analyze-issue → Status flow |
 ```
 
 ## Boundary with `analyze-issue requirements` (when applied via create-item-flow)

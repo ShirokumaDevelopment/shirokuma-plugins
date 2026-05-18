@@ -53,7 +53,7 @@ Q6: Is it a human-readable explanation or tutorial?
 
 **Reference**: e.g., subcommand list and option definitions from a CLI command implementation. Must update when code changes → `.shirokuma/rules/{project}/command-reference.md`
 
-**Tutorial**: e.g., a how-to guide for "using feature X". Human-facing explanation that does not depend on code → `docs/guide/`
+**Tutorial**: e.g., a how-to guide for "using feature X". Human-facing explanation that does not depend on code → `guide/`
 
 ### 2. Project Rule vs Plugin Rule
 

@@ -81,7 +81,7 @@ After the similar-issue search and before issue creation, **auto-discover this p
 
 | Category | Search command | Output sub-section |
 |----------|---------------|-------------------|
-| Canonical docs | `grep -l <keywords> docs/guide/ docs/specs/ docs/portal-design-spec.md CLAUDE.md` → Read the relevant excerpts | `### Canonical Documents` |
+| Canonical docs | `grep -l <keywords> guide/ docs/specs/ docs/portal-design-spec.md CLAUDE.md` → Read the relevant excerpts | `### Canonical Documents` |
 | ADR (Accepted) | `shirokuma-flow discussion adr list` → match by title / body keywords, top 3-5 | `### Related ADRs (Accepted)` |
 | Existing issues / PRs | `shirokuma-flow issue search "<keywords>" --limit 5` | `### Related Existing Issues / PRs` |
 

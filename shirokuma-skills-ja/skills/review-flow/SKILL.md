@@ -26,7 +26,7 @@ PR 番号を受け取り、コードレビュー実行（`review-issue` Agent / 
 
 ### Issue / PR ステータス遷移（原則：再遷移しない）
 
-正本ドキュメント [`docs/guide/workflows/lifecycle-overview.md`](../../../../docs/guide/workflows/lifecycle-overview.md) L325-330 の「**1 エンティティ 1 Review** 原則」に従い、`review-flow` は **課題 Issue / 計画 Issue を Review に再遷移させない**。`pr create` で PR 自身が Status: Review に遷移済みであり、コードレビューは PR の Review 状態で表現される。
+正本ドキュメント [`guide/workflows/lifecycle-overview.md`](../../../../guide/workflows/lifecycle-overview.md) L325-330 の「**1 エンティティ 1 Review** 原則」に従い、`review-flow` は **課題 Issue / 計画 Issue を Review に再遷移させない**。`pr create` で PR 自身が Status: Review に遷移済みであり、コードレビューは PR の Review 状態で表現される。
 
 | エンティティ | review-flow 中の挙動 |
 |------------|-------------------|

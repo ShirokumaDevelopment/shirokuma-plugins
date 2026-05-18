@@ -56,7 +56,7 @@ Check for duplicates or conflicts with existing ADRs and specs **and simultaneou
 
 ```bash
 # Canonical docs (grep)
-grep -l "<keyword>" -r docs/guide/ docs/specs/ CLAUDE.md
+grep -l "<keyword>" -r guide/ docs/specs/ CLAUDE.md
 
 # ADRs (Accepted)
 shirokuma-flow discussion adr list

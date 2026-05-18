@@ -239,7 +239,7 @@ stateDiagram-v2
 
 | エラー | 対処 |
 |-------|------|
-| `shirokuma-flow: command not found` | インストール: `npm i -g @shirokuma-library/shirokuma-flow` |
+| `shirokuma-flow: command not found` | インストール: `npm i -g @shirokuma-library/flow` |
 | `gh: command not found` | インストール: `brew install gh` or `sudo apt install gh` |
 | `not logged in` / `not authenticated` | 実行: `gh auth login` |
 | No project found | `/setting-up-project` を実行してプロジェクト作成 |

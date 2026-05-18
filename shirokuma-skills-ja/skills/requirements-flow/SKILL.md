@@ -56,7 +56,7 @@ AskUserQuestion(
 
 ```bash
 # 正本ドキュメント（grep）
-grep -l "<keyword>" -r docs/guide/ docs/specs/ CLAUDE.md
+grep -l "<keyword>" -r guide/ docs/specs/ CLAUDE.md
 
 # ADR (Accepted)
 shirokuma-flow discussion adr list

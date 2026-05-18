@@ -53,7 +53,7 @@ Q6: 人間が読む説明・チュートリアルか？
 
 **reference**: 例: CLI コマンド実装のサブコマンド一覧とオプション定義。コード変更時に更新が必要 → `.shirokuma/rules/{project}/command-reference.md`
 
-**tutorial**: 例: 「機能 X を使う手順」のガイド。コードに依存しない人間向け説明 → `docs/guide/`
+**tutorial**: 例: 「機能 X を使う手順」のガイド。コードに依存しない人間向け説明 → `guide/`
 
 ### 2. project rule vs plugin rule
 

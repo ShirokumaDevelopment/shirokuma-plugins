@@ -238,7 +238,7 @@ Labels are added manually based on project structure. Status is managed via Proj
 
 | Error | Action |
 |-------|--------|
-| `shirokuma-flow: command not found` | Install: `npm i -g @shirokuma-library/shirokuma-flow` |
+| `shirokuma-flow: command not found` | Install: `npm i -g @shirokuma-library/flow` |
 | `gh: command not found` | Install: `brew install gh` or `sudo apt install gh` |
 | `not logged in` / `not authenticated` | Run: `gh auth login` |
 | No project found | Run `/setting-up-project` to create one |

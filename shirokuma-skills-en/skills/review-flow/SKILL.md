@@ -26,7 +26,7 @@ Takes a PR number and performs code review execution (via `review-issue` Agent /
 
 ### Issue / PR Status Transitions (Principle: Do NOT re-transition)
 
-Per the canonical document [`docs/guide/workflows/lifecycle-overview.md`](../../../../docs/guide/workflows/lifecycle-overview.md) L325-330's "**one Review per entity**" principle, `review-flow` MUST NOT re-transition the issue or plan issue to Review. The PR is already in Status: Review (from `pr create`), and code review is represented by the PR's Review state.
+Per the canonical document [`guide/workflows/lifecycle-overview.md`](../../../../guide/workflows/lifecycle-overview.md) L325-330's "**one Review per entity**" principle, `review-flow` MUST NOT re-transition the issue or plan issue to Review. The PR is already in Status: Review (from `pr create`), and code review is represented by the PR's Review state.
 
 | Entity | Behavior during review-flow |
 |--------|----------------------------|
