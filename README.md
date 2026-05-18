@@ -24,7 +24,7 @@ shirokuma-flow init --with-skills
 
 ## Documentation
 
-For full documentation, configuration guides, and CLI reference, see **[shirokuma-flow](https://github.com/ShirokumaLibrary/shirokuma-docs)**.
+For full documentation, configuration guides, and CLI reference, see **[shirokuma-flow](https://github.com/ShirokumaLibrary/shirokuma-flow)**.
 
 ## License
 
