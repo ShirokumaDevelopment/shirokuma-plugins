@@ -21,10 +21,10 @@ Full project dashboard aggregating GitHub data.
 
 ### Workflow
 
-1. Get repository info: `shirokuma-flow repo info --format json` (refer to `nameWithOwner` field)
+1. Get repository info: `shirokuma-flow repo info` (always JSON output; refer to `full_name` field)
 2. Run in parallel:
-   - `shirokuma-flow issue list` (project items by status + derive open issue count from `total_issues`)
-   - `shirokuma-flow pr list` (open PRs list + derive PR count from line count)
+   - `shirokuma-flow issue list` (default `--format table-json` returns `{repository, total_count, columns, rows}`. Derive open issue count from `total_count`, group `rows` by the Status column)
+   - `shirokuma-flow pr list` (default `--format table-json` returns `{repository, total_count, columns, rows}`. Derive PR count from `total_count`)
    - `gh api repos/{owner}/{repo}/commits?per_page=5` (recent commits)
 
 ### Display Format

@@ -18,7 +18,7 @@ Detect local/remote repository:
 
 ```bash
 git remote -v
-shirokuma-flow repo info --format json 2>/dev/null
+shirokuma-flow repo info 2>/dev/null
 ```
 
 | State | Action |

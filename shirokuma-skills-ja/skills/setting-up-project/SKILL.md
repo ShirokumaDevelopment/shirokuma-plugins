@@ -18,7 +18,7 @@ TaskCreate で進捗管理（5ステップ）。
 
 ```bash
 git remote -v
-shirokuma-flow repo info --format json 2>/dev/null
+shirokuma-flow repo info 2>/dev/null
 ```
 
 | 状態 | アクション |

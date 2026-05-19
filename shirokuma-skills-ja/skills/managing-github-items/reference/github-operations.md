@@ -126,7 +126,7 @@ shirokuma-flow repo labels
 
 ```bash
 shirokuma-flow issue list --repo docs
-shirokuma-flow issue add --repo docs --file /tmp/shirokuma-flow/new-issue.md
+shirokuma-flow issue add --repo docs /tmp/shirokuma-flow/new-issue.md
 ```
 
 ### gh フォールバック（CLI 未対応の操作のみ）

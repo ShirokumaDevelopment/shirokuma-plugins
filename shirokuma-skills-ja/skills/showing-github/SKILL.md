@@ -21,10 +21,10 @@ allowed-tools: Bash, Read, Glob
 
 ### ワークフロー
 
-1. リポジトリ情報取得: `shirokuma-flow repo info --format json`（`nameWithOwner` フィールドを参照）
+1. リポジトリ情報取得: `shirokuma-flow repo info`（常に JSON 出力、`full_name` フィールドを参照）
 2. 並列実行:
-   - `shirokuma-flow issue list`（ステータス別アイテム + `total_issues` でオープン Issue 数を導出）
-   - `shirokuma-flow pr list`（オープン PR 一覧 + 行数から PR 数を導出）
+   - `shirokuma-flow issue list`（デフォルト `--format table-json`: `{repository, total_count, columns, rows}` を返す。`total_count` でオープン Issue 数を導出、`rows` を Status 列でグルーピング）
+   - `shirokuma-flow pr list`（デフォルト `--format table-json`: `{repository, total_count, columns, rows}` を返す。`total_count` で PR 数を導出）
    - `gh api repos/{owner}/{repo}/commits?per_page=5`（最近のコミット）
 
 ### 表示フォーマット
