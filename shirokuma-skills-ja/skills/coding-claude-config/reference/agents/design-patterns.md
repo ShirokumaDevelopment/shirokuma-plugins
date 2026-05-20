@@ -85,6 +85,11 @@
 | **セクショニング** | 独立したサブタスクに分割 | レビュー: セキュリティ + スタイル + パフォーマンス |
 | **投票** | 同じタスクを複数回実行 | 3つの LLM が最良解に投票 |
 
+**使用場面**:
+- サブタスクが独立している
+- 速度が重要
+- 複数の視点で信頼性が向上
+
 **例**: 包括的コードレビュー
 ```typescript
 // Parallel execution
@@ -109,7 +114,7 @@ Promise.all([
 - タスク分解の柔軟性が必要
 - 委任が必要な複雑な問題
 
-**並列化との違い**: サブタスクが動的に決定される。
+**並列化との違い**: サブタスクが事前定義ではなく動的に決定される。
 
 **例**: 機能実装
 ```markdown
@@ -183,6 +188,12 @@ Expert in analyzing [domain] for [criteria].
 3. **Analyze**: Check against criteria
 4. **Report**: Generate findings with severity levels
 
+## Analysis Criteria
+
+- [Criterion 1]
+- [Criterion 2]
+- [Criterion 3]
+
 ## Report Format
 
 \```
@@ -201,7 +212,10 @@ Expert in analyzing [domain] for [criteria].
 
 ### 例
 
-- Code Reviewer / Security Auditor / Style Checker / Architecture Analyzer
+- Code Reviewer
+- Security Auditor
+- Style Checker
+- Architecture Analyzer
 
 ---
 
@@ -226,17 +240,37 @@ model: sonnet
 
 Expert in creating [output type] following [standards].
 
+## Core Responsibilities
+- Gather context from existing files
+- Design structure and content
+- Generate files following conventions
+- Verify generated content
+
 ## Workflow
 
 1. **Gather Context**: Read existing files, understand patterns
 2. **Design**: Plan structure and content
 3. **Generate**: Write new files
 4. **Verify**: Check generated content against requirements
+
+## Output Standards
+
+- [Standard 1]
+- [Standard 2]
+
+## Template
+
+\```[language]
+[Output template structure]
+\```
 ```
 
 ### 例
 
-- Test Generator / Documentation Builder / Config Creator / API Endpoint Generator
+- Test Generator
+- Documentation Builder
+- Config Creator
+- API Endpoint Generator
 
 ---
 
@@ -259,12 +293,25 @@ model: sonnet
 
 # [Transformation] Transformer
 
+Expert in transforming [input] to [output].
+
+## Core Responsibilities
+- Read current content
+- Identify required changes
+- Apply transformations safely
+- Validate results
+
 ## Workflow
 
 1. **Read**: Load current content
 2. **Analyze**: Identify changes needed
 3. **Transform**: Apply modifications
 4. **Validate**: Verify correctness
+
+## Transformation Rules
+
+- [Rule 1]
+- [Rule 2]
 
 ## Safety Checks
 
@@ -275,7 +322,10 @@ model: sonnet
 
 ### 例
 
-- Refactoring Specialist / Code Formatter / Migration Agent / Syntax Updater
+- Refactoring Specialist
+- Code Formatter
+- Migration Agent
+- Syntax Updater
 
 ---
 
@@ -298,6 +348,14 @@ model: opus
 
 # [Problem Domain] Investigator
 
+Expert in diagnosing and resolving [problem type].
+
+## Core Responsibilities
+- Reproduce the issue
+- Isolate root cause
+- Analyze relevant code
+- Propose solutions
+
 ## Workflow
 
 1. **Reproduce**: Run failing test or command
@@ -307,10 +365,20 @@ model: opus
 5. **Diagnose**: Identify root cause
 6. **Suggest**: Propose fix with explanation
 
+## Investigation Techniques
+
+- Stack trace analysis
+- Variable state tracking
+- Control flow analysis
+- Dependency checking
+
 ## Report Format
 
 \```
 # Investigation: [Issue]
+
+## Error Summary
+[Error message and context]
 
 ## Root Cause
 [Why it happens]
@@ -328,7 +396,10 @@ model: opus
 
 ### 例
 
-- Debugger / Performance Analyzer / Error Investigator / Memory Leak Detector
+- Debugger
+- Performance Analyzer
+- Error Investigator
+- Memory Leak Detector
 
 ---
 
@@ -351,6 +422,14 @@ model: sonnet
 
 # [Workflow] Orchestrator
 
+Coordinates complex [workflow] involving multiple agents.
+
+## Core Responsibilities
+- Plan workflow steps
+- Delegate to specialized agents
+- Manage execution order
+- Integrate results
+
 ## Workflow
 
 1. **Plan**: Break into subtasks
@@ -358,6 +437,18 @@ model: sonnet
 3. **Coordinate**: Manage execution sequence
 4. **Integrate**: Combine results
 5. **Verify**: Check completeness
+
+## Subagent Delegation
+
+\```typescript
+// Parallel execution
+Task({ subagent_type: "analyzer", prompt: "..." })
+Task({ subagent_type: "generator", prompt: "..." })
+
+// Sequential execution
+const analysis = await Task({ subagent_type: "analyzer", prompt: "..." })
+await Task({ subagent_type: "generator", prompt: `Based on: ${analysis}` })
+\```
 
 ## Coordination Rules
 
@@ -368,7 +459,10 @@ model: sonnet
 
 ### 例
 
-- CI/CD Runner / Release Manager / Deployment Coordinator / Full-Stack Feature Builder
+- CI/CD Runner
+- Release Manager
+- Deployment Coordinator
+- Full-Stack Feature Builder
 
 ---
 
@@ -388,6 +482,7 @@ model: sonnet
 **Creator エージェント**（コーダー、ジェネレータ）:
 - "Do" ルールに従うことで一貫した出力
 - ポジティブな要件は実装しやすい
+- 何を作るべきかの曖昧さが少ない
 
 **Checker エージェント**（レビューア、オーディター）:
 - 欠けているもの（"Don't" 違反）を検出する必要
@@ -418,6 +513,13 @@ model: sonnet
 - [ ] No hardcoded strings
 - [ ] No console.log in production code
 ```
+
+### 設計ガイドライン
+
+1. **意図的にペアを作成**: Creator と Checker を一緒に設計する
+2. **明確なハンドオフ**: Creator 完了 → Checker レビュー
+3. **相補的なルール**: Checker は Creator が見逃しうるものを捕捉する
+4. **異なる tool アクセス**: Creator は Write が必要、Checker は Read 専用
 
 ### よくあるペア
 

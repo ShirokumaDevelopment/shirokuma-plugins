@@ -20,6 +20,7 @@
 | `commands/test-api.md` | API テストコマンド |
 | `hooks/validate-openapi.js` | Pre-commit フック |
 | `templates/` | OpenAPI テンプレート |
+| `README.md` | ドキュメント |
 
 ### plugin.json
 
@@ -53,6 +54,13 @@ description: Design RESTful APIs following best practices with OpenAPI specifica
 
 Design RESTful APIs with OpenAPI specifications following best practices.
 
+## When to Use
+
+Automatically invoke when the user:
+- Asks to "design an API" or "create REST API"
+- Mentions "OpenAPI" or "Swagger"
+- Says "plan API endpoints"
+
 ## Workflow
 
 ### Step 1: Understand Requirements
@@ -83,6 +91,10 @@ Create OpenAPI schema:
 ### Step 4: Generate OpenAPI Spec
 
 Use template from [templates/openapi-template.yaml](templates/openapi-template.yaml)
+
+## Notes
+
+Follow company API design guidelines.
 ```
 
 ### agents/api-generator/AGENT.md
@@ -96,6 +108,13 @@ description: Generates complete API implementations from OpenAPI specifications 
 # API Generator Agent
 
 Generate complete API implementation from OpenAPI specification.
+
+## When to Use
+
+Invoke when:
+- User has OpenAPI spec and needs implementation
+- Says "generate API code" or "scaffold API"
+- Requests "implement this spec"
 
 ## Workflow
 
@@ -127,6 +146,10 @@ Generate:
 - API usage guide
 - Authentication docs
 - Example curl commands
+
+## Tool Access
+
+Full access for code generation and file creation.
 ```
 
 ### commands/new-endpoint.md
@@ -169,6 +192,7 @@ module.exports = {
   async execute(context) {
     const { files } = context;
 
+    // Find OpenAPI spec files
     const specFiles = files.filter(f =>
       f.endsWith('openapi.yaml') || f.endsWith('openapi.json')
     );
@@ -179,6 +203,7 @@ module.exports = {
 
     console.log('Validating OpenAPI specifications...');
 
+    // Run validation (pseudo-code)
     for (const file of specFiles) {
       const valid = await validateOpenAPI(file);
       if (!valid) {
@@ -188,9 +213,65 @@ module.exports = {
     }
 
     console.log('All OpenAPI specs valid');
-    return true;
+    return true; // Allow commit
   }
 };
+```
+
+### README.md
+
+```markdown
+# API Toolkit Plugin
+
+Complete toolkit for API development with design, generation, validation, and testing.
+
+## Components
+
+### Skills
+- **designing-apis**: Design RESTful APIs with OpenAPI
+- **validating-schemas**: Validate API schemas and requests
+
+### Agents
+- **api-generator**: Generate complete API implementation from spec
+
+### Commands
+- `/new-endpoint`: Create new API endpoint interactively
+- `/test-api`: Run API test suite
+
+### Hooks
+- `validate-openapi`: Pre-commit validation of OpenAPI specs
+
+## Installation
+
+\```bash
+/plugin install api-toolkit@company-marketplace
+\```
+
+## Quick Start
+
+1. Design API:
+\```
+"Design a REST API for user management"
+\```
+
+2. Generate implementation:
+\```
+"Generate code from this OpenAPI spec"
+\```
+
+3. Create endpoint:
+\```bash
+/new-endpoint
+\```
+
+## Requirements
+
+- Claude Code 2.0+
+- Node.js 18+ (for validation hooks)
+
+## License
+
+MIT
 ```
 
 ---
@@ -207,6 +288,7 @@ module.exports = {
 | `plugins/code-helper/` | コード分析プラグイン |
 | `plugins/devops-agents/` | DevOps エージェントプラグイン |
 | `plugins/api-toolkit/` | API ツールキットプラグイン |
+| `README.md` | ドキュメント |
 
 ### marketplace.json
 
@@ -243,23 +325,84 @@ module.exports = {
 }
 ```
 
+### README.md
+
+```markdown
+# Company Claude Code Plugins
+
+Internal marketplace for company-standard Claude Code plugins.
+
+## Available Plugins
+
+- **code-helper**: Code analysis and documentation
+- **devops-agents**: Build and deployment automation
+- **api-toolkit**: API design and generation
+- **quick-commands**: Common utility commands
+
+## Setup
+
+1. Add marketplace:
+\```bash
+/plugin marketplace add https://raw.githubusercontent.com/company/claude-plugins/main/marketplace.json
+\```
+
+2. Install plugins:
+\```bash
+/plugin install code-helper@company-plugins
+/plugin install devops-agents@company-plugins
+/plugin install api-toolkit@company-plugins
+/plugin install quick-commands@company-plugins
+\```
+
+## Development
+
+To add a new plugin:
+
+1. Create plugin directory under `plugins/`
+2. Add plugin.json with metadata
+3. Update marketplace.json
+4. Test locally
+5. Submit PR
+
+## Support
+
+Contact #claude-code on Slack
+```
+
 ### Git セットアップ
 
 ```bash
+# Initialize
 git init
 git add .
 git commit -m "Initial company plugins marketplace"
+
+# Create repository on GitHub, then:
 git remote add origin https://github.com/company/claude-plugins.git
 git push -u origin main
 ```
 
-配布 URL: `https://raw.githubusercontent.com/company/claude-plugins/main/marketplace.json`
+### 配布 URL
+
+チームに共有:
+```
+https://raw.githubusercontent.com/company/claude-plugins/main/marketplace.json
+```
 
 ---
 
 ## チームワークフロー
 
 リポジトリ設定を通じてチームがプラグインを使用する方法。
+
+### プロジェクト構造
+
+| パス | 目的 |
+|------|------|
+| `.claude/settings.json` | マーケットプレイス設定を含む Claude 設定 |
+| `.claude/plugins/project-specific/` | .claude-plugin/plugin.json を持つローカルプラグイン |
+| `.claude/plugins/project-specific/skills/project-linter/` | プロジェクト固有の linter スキル |
+| `src/` | ソースコード |
 
 ### .claude/settings.json
 
@@ -283,18 +426,25 @@ git push -u origin main
 1. チームメンバーがリポジトリをクローン
 2. Claude Code で開く
 3. フォルダを信頼（初回のみ）
-4. プラグインが自動インストール
+4. プラグインが自動インストール:
+   - マーケットプレイスが追加される
+   - 指定されたプラグインがインストールされる
+   - ローカルプラグインがロードされる
 5. プラグインが利用可能な状態で作業開始
 
 ### プロジェクトプラグインの追加
 
 ```bash
+# Create plugin in project
 mkdir -p .claude/plugins/project-linter
-# ... プラグインファイルを作成 ...
+# ... create plugin files ...
+
+# Commit to repo
 git add .claude/plugins/project-linter
 git commit -m "Add project-specific linter plugin"
 git push
-# 他のチームメンバーは次の pull で取得
+
+# Other team members get it on next pull
 ```
 
 ---
@@ -339,17 +489,24 @@ git push
 }
 ```
 
-### .npmignore
+### .npmignore の追加
 
 ```
+# Development files
 .git
 .github
 node_modules
 *.log
+
+# Test files
 test/
 tests/
 __tests__
+
+# Documentation source
 docs/
+
+# IDE
 .vscode
 .idea
 *.swp
@@ -358,17 +515,23 @@ docs/
 ### 公開
 
 ```bash
-npm pack          # ローカルテスト
-npm login         # npm にログイン
+# Test package locally
+npm pack
+
+# Login to npm
+npm login
+
+# Publish
 npm publish --access public
 
-# 次のリリースでバージョン更新
+# Update version for next release
 npm version patch  # or minor, major
 npm publish --access public
 ```
 
-### ユーザーインストール
+### インストール
 
+ユーザーはグローバルにインストール:
 ```bash
 npm install -g @username/claude-plugin-api-toolkit
 ```
@@ -377,18 +540,19 @@ Claude Code がグローバル node_modules から自動検出。
 
 ### メンテナンス
 
+プラグインを更新:
 ```bash
-# 変更を加える
+# Make changes
 git add .
 git commit -m "feat: add new feature"
 
-# バージョンバンプ
+# Bump version
 npm version minor
 
-# 公開
+# Publish
 npm publish
 
-# タグをプッシュ
+# Push tags
 git push --tags
 ```
 

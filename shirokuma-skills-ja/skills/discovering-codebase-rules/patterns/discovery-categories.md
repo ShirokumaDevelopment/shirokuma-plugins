@@ -48,9 +48,14 @@ grep -rn "throw new [A-Z].*Error" --include="*.ts"
 ### 非同期パターン
 
 ```bash
+# async 関数宣言
 grep -rn "async function" --include="*.ts"
+
+# Promise ハンドリング
 grep -rn "\.then(" --include="*.ts"
 grep -rn "await " --include="*.ts"
+
+# Promise.all の使用
 grep -rn "Promise.all" --include="*.ts"
 ```
 
@@ -73,25 +78,42 @@ grep -rn "as [A-Z]" --include="*.ts"
 ### Server Actions
 
 ```bash
+# "use server" 宣言
 grep -rn '"use server"' --include="*.ts"
+
+# 認証パターン
 grep -rn "verifyAuth\|verifyAuthMutation" --include="*.ts"
+
+# CSRF パターン
 grep -rn "validateCSRF\|csrfProtect" --include="*.ts"
+
+# Zod バリデーション
 grep -rn "\.parse(\|\.safeParse(" --include="*.ts"
 ```
 
 ### React コンポーネント
 
 ```bash
+# 関数コンポーネント
 grep -rn "^export function [A-Z]" --include="*.tsx"
+
+# Props インターフェース
 grep -rn "interface.*Props" --include="*.tsx"
+
+# フックの使用
 grep -rn "use[A-Z][a-zA-Z]*(" --include="*.tsx"
 ```
 
 ### i18n パターン
 
 ```bash
+# useTranslations の使用
 grep -rn "useTranslations" --include="*.tsx"
+
+# t() 呼び出し
 grep -rn "t\(['\"]" --include="*.tsx"
+
+# 翻訳キーフォーマット
 grep -rn 't("' --include="*.tsx" | sed 's/.*t("//' | sed 's/".*//' | sort | uniq
 ```
 
@@ -100,15 +122,23 @@ grep -rn 't("' --include="*.tsx" | sed 's/.*t("//' | sed 's/".*//' | sort | uniq
 ### JSDoc カバレッジ
 
 ```bash
+# JSDoc ブロック
 grep -rn "/\*\*" --include="*.ts"
+
+# @description タグ
 grep -rn "@description" --include="*.ts"
+
+# @param タグ
 grep -rn "@param" --include="*.ts"
+
+# @returns タグ
 grep -rn "@returns\|@return" --include="*.ts"
 ```
 
 ### カスタムアノテーション
 
 ```bash
+# shirokuma-flow アノテーション
 grep -rn "@screen\|@component\|@serverAction" --include="*.ts"
 grep -rn "@usedComponents\|@usedActions" --include="*.ts"
 grep -rn "@dbTables\|@feature" --include="*.ts"
@@ -117,7 +147,10 @@ grep -rn "@dbTables\|@feature" --include="*.ts"
 ### TODO/FIXME 追跡
 
 ```bash
+# TODO コメント
 grep -rn "// TODO\|// FIXME" --include="*.ts"
+
+# 担当者付き
 grep -rn "// TODO(@" --include="*.ts"
 ```
 
@@ -126,15 +159,23 @@ grep -rn "// TODO(@" --include="*.ts"
 ### テスト構造
 
 ```bash
+# describe ブロック
 grep -rn "describe(" --include="*.test.ts"
+
+# it/test ブロック
 grep -rn "it(\|test(" --include="*.test.ts"
+
+# @testdoc アノテーション
 grep -rn "@testdoc" --include="*.test.ts"
 ```
 
 ### モックパターン
 
 ```bash
+# jest.mock の使用
 grep -rn "jest.mock" --include="*.test.ts"
+
+# vi.mock (Vitest)
 grep -rn "vi.mock" --include="*.test.ts"
 ```
 

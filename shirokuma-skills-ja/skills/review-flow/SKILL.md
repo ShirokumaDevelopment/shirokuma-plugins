@@ -26,7 +26,7 @@ PR 番号を受け取り、コードレビュー実行（`review-issue` Agent / 
 
 ### Issue / PR ステータス遷移（原則：再遷移しない）
 
-正本ドキュメント [`guide/workflows/lifecycle-overview.md`](../../../../guide/workflows/lifecycle-overview.md) L325-330 の「**1 エンティティ 1 Review** 原則」に従い、`review-flow` は **課題 Issue / 計画 Issue を Review に再遷移させない**。`pr create` で PR 自身が Status: Review に遷移済みであり、コードレビューは PR の Review 状態で表現される。
+「**1 エンティティ 1 Review** 原則」に従い、`review-flow` は **課題 Issue / 計画 Issue を Review に再遷移させない**。`pr create` で PR 自身が Status: Review に遷移済みであり、コードレビューは PR の Review 状態で表現される。
 
 | エンティティ | review-flow 中の挙動 |
 |------------|-------------------|
@@ -38,7 +38,7 @@ PR 番号を受け取り、コードレビュー実行（`review-issue` Agent / 
 
 - `submit <Issue#>` / `submit <PlanIssue#>`（課題 Issue / 計画 Issue を Review に遷移させる行為。**1 Review 原則違反**）
 - `status transition <Issue#> --to Review`（同上）
-- 課題 Issue / 計画 Issue を Review ↔ In progress で往復させる経路全般（フラッピング防止 — 過去の挙動 #2249 と本 Issue #2488 で禁止）
+- 課題 Issue / 計画 Issue を Review ↔ In progress で往復させる経路全般（フラッピング防止）
 
 #### review-flow 中のコード修正
 
@@ -49,7 +49,7 @@ PR 番号を受け取り、コードレビュー実行（`review-issue` Agent / 
 3. `pr reply` / `pr resolve` でスレッド対応
 4. ステータス更新は不要（PR は Review のまま、Issue は In progress のまま）
 
-> **設計意図**: PR open 中は **PR が Status: Review を担う**。Issue / 計画 Issue は In progress のまま。コード修正のための「一時的な In progress 戻り」操作は **行わない**（`lifecycle-overview.md` L325-330 の正本決定 + `project-items.md` Review セクションの DO NOT リスト準拠）。
+> **設計意図**: PR open 中は **PR が Status: Review を担う**。Issue / 計画 Issue は In progress のまま。コード修正のための「一時的な In progress 戻り」操作は **行わない**（`project-items.md` Review セクションの DO NOT リスト準拠 — 1 エンティティ 1 Review 原則）。
 
 ### ステップ 1: コンテキスト復元（必須・最初に実行）
 
@@ -114,7 +114,7 @@ shirokuma-flow pr comments {PR#}
    Agent(
      description: "review-worker code PR #{PR#}",
      subagent_type: "review-worker",
-     prompt: "code PR #{PR#}\n\n成果物レビュー対象:\n- #1592 (Discussion)\n- #1593 (Discussion)"
+     prompt: "code PR #{PR#}\n\n成果物レビュー対象:\n- #101 (Discussion)\n- #102 (Discussion)"
    )
    ```
 
@@ -146,7 +146,7 @@ shirokuma-flow pr comments {PR#}
 
 `review-issue`（`review-worker` Agent）から返却された判定情報（`html_report_required`, `template_name`, `category`, `slug`, `report_lines`, `report_kb`, `critical_high_count`, `report_type`）を受け取り、HTML 化要否を最終判定する。
 
-**判定基準・テンプレート対応・カテゴリマッピングの正本**: [`.shirokuma/rules/shirokuma-flow/html-report-criteria.md`](../../../../.shirokuma/rules/shirokuma-flow/html-report-criteria.md)（閾値・テンプレート名・カテゴリ名を本ファイルに直書きしない）。
+**判定基準・テンプレート対応・カテゴリマッピングの正本**: [`html-report-criteria.md`](../../rules/html-report-criteria.md)（閾値・テンプレート名・カテゴリ名を本ファイルに直書きしない）。
 
 1. **判定式**: `html-report-criteria.md` §5-2 の擬似コードに従う。`report_type` が常時 HTML 化対象（`postmortem` / `security-pr-review`）、または閾値（行数 / KB / Critical+High 件数）のいずれかを満たせば HTML 化を実施する。
 2. **HTML 化 YES の場合**: `writing-html-explainer` を Skill ツールで呼び出して HTML レポートを生成する:
@@ -246,7 +246,7 @@ Dependencies: step 2 blockedBy 1, step 3 blockedBy 2, step 4 blockedBy 3, step 5
 
 コード修正スレッドをまとめて処理する。修正は `code-issue` に Skill ツールで委任し、コミットは `commit-worker` に Agent ツールで委任する。
 
-> **ステータス遷移（ADR-v3-022 PR_ROLLBACK）**: コード修正のために PR を `Review → In progress` に戻す場合は `--rollback` フラグが必須（`shirokuma-flow status transition {PR#} --to "In progress" --rollback`）。修正完了後の `In progress → Review` は PR_FORWARD として通常遷移（`--rollback` 不要）。
+> **ステータス遷移（PR_ROLLBACK）**: コード修正のために PR を `Review → In progress` に戻す場合は `--rollback` フラグが必須（`shirokuma-flow status transition {PR#} --to "In progress" --rollback`）。修正完了後の `In progress → Review` は PR_FORWARD として通常遷移（`--rollback` 不要）。
 
 1. **修正**: `code-issue` に修正対象スレッドの情報（ファイルパス、指摘内容）をまとめて渡し、一括修正を委任:
    ```text
@@ -358,8 +358,8 @@ shirokuma-flow issue comment {PR#} /tmp/shirokuma-flow/pr-{PR#}-review-response.
 | ユーザーが修正不要と判断（UCP） | 完了レポートを表示して終了。スレッド対応をスキップ |
 | ユーザーが一部のみ対応を選択（UCP） | 指定されたスレッドのみ処理し、残りは未解決のまま保持 |
 | PASS + 推奨事項のみで対応を選択（review thread なし） | ステップ 3（スレッド分類）をスキップし、issue comment の推奨事項を元にコード修正 → コミットを実行。スレッド返信・解決ステップは不要 |
-| ユーザーが「PR を close する」を選択（修正の方向性が違う等） | `shirokuma-flow pr close {PR#} --rollback` を案内・実行する。`--rollback` フラグでリンク Issue が Review から In progress に自動差し戻しされる（PR_ROLLBACK 遷移、ADR-v3-022、#2234, F-006）。本フローは終了し、Issue ステータス更新はスキップ |
-| マージ済み PR の取り消しが必要（revert 要求） | `shirokuma-flow issue rollback {plan-issue#} --action revert` を案内する。revert ブランチ作成 + revert PR 作成 + 計画 Issue を ToDo に戻す処理を一括実行する（#2024 Phase 1-D） |
+| ユーザーが「PR を close する」を選択（修正の方向性が違う等） | `shirokuma-flow pr close {PR#} --rollback` を案内・実行する。`--rollback` フラグでリンク Issue が Review から In progress に自動差し戻しされる（PR_ROLLBACK 遷移）。本フローは終了し、Issue ステータス更新はスキップ |
+| マージ済み PR の取り消しが必要（revert 要求） | `shirokuma-flow issue rollback {plan-issue#} --action revert` を案内する。revert ブランチ作成 + revert PR 作成 + 計画 Issue を ToDo に戻す処理を一括実行する |
 
 ## ツール使用
 

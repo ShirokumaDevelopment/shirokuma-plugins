@@ -105,7 +105,7 @@ shirokuma-flow issue comment {PR#} /tmp/shirokuma-flow/{PR#}-review-summary.md
 
 **Do NOT save to Reports**: PR-specific review results (→ post as PR comment instead)
 
-## Investigation / Design Artifacts (#2251)
+## Investigation / Design Artifacts
 
 Intermediate artifacts produced by AI during investigation or design phases — process flow diagrams, side-effect matrices, ideal-state designs, gap analysis reports — must not be dumped into Issue comments by default. Doing so buries them in chronological order and makes them hard to find, structure, or update.
 
@@ -134,7 +134,7 @@ If none of the above match, default to **Discussion (Reports)**. Issue comments 
 
 ### Past Incident
 
-In the #1910 investigation tasks, process flow detail and side-effect matrices were posted as Issue comments. They became chronologically buried and difficult to reuse. This was not a deliberate design decision — it was the residual choice when "no code changes" eliminated other options. This rule prevents recurrence.
+In past investigation tasks, process flow detail and side-effect matrices were posted as Issue comments. They became chronologically buried and difficult to reuse. This was not a deliberate design decision — it was the residual choice when "no code changes" eliminated other options. This rule prevents recurrence.
 
 ### Affected Skills
 

@@ -109,10 +109,6 @@ AskUserQuestion で提案を Issue として記録するかを確認する:
 Issue 作成後、元の Evolution Issue のコメントに作成した Issue への参照を記録する:
 
 ```bash
-# ファイルに書き出してから issue comment で投稿
-cat > /tmp/shirokuma-flow/{evolution-number}-evolution-ref.md <<'EOF'
-提案 Issue を作成しました: #{created-issue-number}
-EOF
 shirokuma-flow issue comment {evolution-number} /tmp/shirokuma-flow/{evolution-number}-evolution-ref.md
 ```
 
@@ -129,22 +125,6 @@ shirokuma-flow issue comment {evolution-number} /tmp/shirokuma-flow/{evolution-n
 - **影響範囲**: 変更が他のルール・スキルに及ぼす影響の評価
 
 ```bash
-# ファイルに書き出してから issue comment で投稿
-cat > /tmp/shirokuma-flow/{number}-analysis.md <<'EOF'
-## 分析完了: {date}
-
-### 分析サマリー
-{N} 件のシグナルを分析。{カテゴリ分布の要約}。
-
-### Issue 作成済み
-- {対象}: {提案概要}。Issue #{created-issue-number} として記録。
-
-### スキップ
-- {対象}: {スキップ理由}
-
-### 影響範囲
-{変更が他のルール・スキルに及ぼす影響。なければ「影響なし」}
-EOF
 shirokuma-flow issue comment {number} /tmp/shirokuma-flow/{number}-analysis.md
 ```
 

@@ -31,6 +31,8 @@ TaskUpdate で各ステップの実行開始時に `in_progress`、完了時に 
 
 ### ステップ 1: ブランチ状態確認
 
+日常作業の PR は `develop` をターゲットにする（`branch-workflow` ルール参照）:
+
 ```bash
 shirokuma-flow git check
 ```
@@ -115,7 +117,16 @@ Closes #{issue-number}
 shirokuma-flow pr create {issue-number} --from-file /tmp/shirokuma-flow/{number}-pr.md
 ```
 
-**タイトルルール**: 70文字以内、プレフィックス(`feat:` 等)は英語、**それ以降は日本語**で記述する。Issue番号はタイトルに入れない。
+**タイトルルール:**
+- 70文字以内
+- Conventional commit プレフィックス (`feat:`, `fix:`, `chore:`, `docs:` 等) は常に英語
+- **プレフィックス以降は日本語**で記述する
+- Issue 番号はタイトルに入れない（本文に記載）
+
+**本文ルール:**
+- 概要: 変更内容を 1-3 件の箇条書き
+- 関連 Issue: 常に `Closes #N` を使用（`Refs #N` は不可 — CLI の `parseLinkedIssues()` は `Closes/Fixes/Resolves` パターンのみマッチ）
+- テスト計画: 検証手順のチェックリスト
 
 ### ステップ 4b: PR リンクコメント（デフォルトブランチ以外がベースの場合のみ）
 
@@ -221,6 +232,8 @@ Issue 番号付きで起動された場合（例: `/open-pr-issue 39`）：
 ## 言語
 
 PR のタイトルと本文は日本語で記述する。Conventional commit プレフィックス (`feat:`, `fix:` 等) は常に英語。
+
+`review-issue` が出力するレビュー報告も `output-language` ルールに従うこと。
 
 **NGタイトル例（日本語設定なのに英語）:**
 

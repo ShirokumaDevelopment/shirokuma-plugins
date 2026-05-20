@@ -17,7 +17,7 @@ Common post-processing chain shared by `implement-flow` and `review-flow`. Runs 
 
 ## Design Note: Context Isolation
 
-Both `/simplify` and `reviewing-security` emit large intermediate output (full-codebase reviews, diffs, finding lists). Invoking them sequentially via the Skill tool from the main context fills up context near the end of `implement-flow`, and the processing freezes just before auto-compression (#2612). Delegating to the `finalize-worker` SubAgent confines the intermediate output to the SubAgent context, so only a change summary is returned to the main context.
+Both `/simplify` and `reviewing-security` emit large intermediate output (full-codebase reviews, diffs, finding lists). Invoking them sequentially via the Skill tool from the main context fills up context near the end of `implement-flow`, and the processing freezes just before auto-compression. Delegating to the `finalize-worker` SubAgent confines the intermediate output to the SubAgent context, so only a change summary is returned to the main context.
 
 ## Workflow
 

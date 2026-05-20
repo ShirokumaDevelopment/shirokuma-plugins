@@ -85,7 +85,7 @@ Example: If "commit" is pending and "implement" is completed
 
 ## Recovery after PR Revert
 
-When a revert is required after a PR has been merged (issue is Done), the canonical path is the CLI-integrated `issue rollback` command (#2024 Phase 1-D):
+When a revert is required after a PR has been merged (issue is Done), the canonical path is the CLI-integrated `issue rollback` command:
 
 ```bash
 shirokuma-flow issue rollback {plan-issue#} --action revert
@@ -102,7 +102,7 @@ After the revert PR is merged, run `/implement-flow #{plan-issue#}` in a new con
 
 For "cancelled" decisions, after merging the revert PR, run `shirokuma-flow issue cancel {plan-issue#}` to mark it as Done(NOT_PLANNED).
 
-> The legacy procedure (manual revert + manual status change) was unified into `issue rollback --action revert` in #2024 Phase 1-D. Manual operation is still possible, but the CLI command is the canonical path.
+> The legacy procedure (manual revert + manual status change) was unified into `issue rollback --action revert`. Manual operation is still possible, but the CLI command is the canonical path.
 
 ## Idempotency Guarantees
 

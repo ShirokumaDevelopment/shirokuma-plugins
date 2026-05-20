@@ -118,7 +118,7 @@ WebSearch: "[技術] official documentation [トピック]"
 shirokuma-flow discussion add /tmp/shirokuma-flow/findings.md
 ```
 
-> 出力先の選択指針は `rules/output-destinations.md` の「調査・設計成果物の記録先」（#2251）を参照。ベストプラクティス調査・技術選定比較は **Discussion (Research)** が既定。処理フローや副作用マトリクスのような構造化リソースは Discussion (Reports)、長期参照される設計判断は Discussion (Knowledge) または ADR を選ぶ。
+> 出力先の選択指針は `rules/output-destinations.md` の「調査・設計成果物の記録先」を参照。ベストプラクティス調査・技術選定比較は **Discussion (Research)** が既定。処理フローや副作用マトリクスのような構造化リソースは Discussion (Reports)、長期参照される設計判断は Discussion (Knowledge) または ADR を選ぶ。
 
 ## 出力フォーマット
 

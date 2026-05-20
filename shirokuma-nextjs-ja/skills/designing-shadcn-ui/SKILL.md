@@ -95,4 +95,4 @@ pnpm --filter {app-name} build
 - **記憶に残ることが最優先**
 - **ビルドが通ること必須**
 - Design Brief が渡された場合はそれに基づいて実装。スタンドアロン時はユーザーに美学方向性を確認してから実装
-- **設計成果物の出力先**: `shirokuma-skills` の `rules/output-destinations.md` の「調査・設計成果物の記録先」（#2251）に従う。デザインシステム選定や視覚設計の意思決定は **Discussion (Knowledge)** または ADR、コンポーネント比較・採用根拠は **Discussion (Reports)** が既定
+- **設計成果物の出力先**: `shirokuma-skills` の `rules/output-destinations.md` の「調査・設計成果物の記録先」に従う。デザインシステム選定や視覚設計の意思決定は **Discussion (Knowledge)** または ADR、コンポーネント比較・採用根拠は **Discussion (Reports)** が既定

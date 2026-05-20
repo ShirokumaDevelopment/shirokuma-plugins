@@ -43,7 +43,7 @@ GitHub Projects V2 のビルトイン自動化ワークフローが、CLI ベー
 | `status update-batch --done` | Done を直接設定 — 自動化と冪等 |
 | `integrity` | 無効化されている推奨自動化を警告として報告 |
 | `integrity --fix` | 不整合を修正 — 自動化と互換 |
-| `issue cancel` | close 後に Done（state_reason: not_planned）を設定。「Item closed → Done」自動化と冪等（#2204 で Cancelled は Done に統合済み） |
+| `issue cancel` | close 後に Done（state_reason: not_planned）を設定。「Item closed → Done」自動化と冪等（Cancelled は Done に統合済み） |
 
 ### 自動化状態の確認
 
@@ -59,7 +59,7 @@ shirokuma-flow project workflows
 
 | ラベル種別 | 役割 | 例 |
 |-----------|------|-----|
-| エリアラベル | 影響範囲 | `area:cli`, `area:plugin` |
+| エリアラベル | 影響範囲 | `area:<領域>`（プロジェクト定義） |
 | 運用ラベル | トリアージ | `duplicate`, `invalid`, `wontfix` |
 
 ### ラベルルール
@@ -72,7 +72,7 @@ shirokuma-flow project workflows
 
 | プレフィックス | 目的 | 例 |
 |--------------|------|-----|
-| `area:` | 影響するコードベース領域 | `area:cli`, `area:plugin`, `area:github` |
+| `area:` | 影響するコードベース領域 | `area:<領域>`（語彙はプロジェクト定義） |
 | (なし) | 運用 / トリアージ | `duplicate`, `invalid`, `wontfix` |
 
 ## アイテム本文メンテナンス（Issues / Discussions / PRs 共通）

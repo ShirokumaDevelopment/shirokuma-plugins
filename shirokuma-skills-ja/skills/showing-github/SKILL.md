@@ -287,8 +287,8 @@ ToDo | In progress | Review | Blocked | Done
 ### バッチ候補
 | グループ | Issue | エリア |
 |---------|-------|-------|
-| プラグイン修正 | #101, #102, #105 | area:plugin |
-| CLI 改善 | #110, #112, #115 | area:cli |
+| 認証まわりの修正 | #101, #102, #105 | area:auth |
+| API 改善 | #110, #112, #115 | area:api |
 
 バッチ処理: `/implement-flow #101 #102 #105`
 ```

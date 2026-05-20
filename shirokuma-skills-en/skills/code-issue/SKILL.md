@@ -39,7 +39,7 @@ If a fixed table skill is optimal, it takes precedence regardless of discovery r
 
 | Work Type | Condition | Route |
 |-----------|-----------|-------|
-| Framework-specific implementation | `area:frontend`, `area:cli` + framework related | Skill delegate to discovered `coding-*` skill |
+| Framework-specific implementation | `area:frontend` and similar area labels + framework related | Skill delegate to discovered `coding-*` skill |
 | Bug fix (code) | Affects code files | Skill delegate to discovered `coding-*` skill or direct edit |
 | Markdown / documentation editing | `.md` file changes | Direct edit |
 | Skill / rule / agent editing | Under `plugin/`, `.claude/` | Skill delegate to discovered `coding-claude-config` skill |

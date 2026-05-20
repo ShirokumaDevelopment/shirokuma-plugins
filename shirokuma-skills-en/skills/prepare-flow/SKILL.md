@@ -126,7 +126,7 @@ When child issues with titles that do NOT start with "Plan:" exist (count > 0), 
 
 - **Continue (re-plan keeping existing sub-issues)**: Update the plan document only; keep existing sub-issues.
 - **Reset (cancel all sub-issues and re-plan)**: Execute the following:
-  1. Cancel all non-plan sub-issues via `shirokuma-flow issue cancel {sub-numbers}` to set them to **Done(NOT_PLANNED)** (internally recorded as `state_reason: not_planned` close + Status: Done, #2204; `issue cancel` automatically detaches the cancelled issue from its own parent, #2252, and also unparents any grandchild issues, #2024 Phase 2-A)
+  1. Cancel all non-plan sub-issues via `shirokuma-flow issue cancel {sub-numbers}` to set them to **Done(NOT_PLANNED)** (internally recorded as `state_reason: not_planned` close + Status: Done; `issue cancel` automatically detaches the cancelled issue from its own parent, and also unparents any grandchild issues)
   2. Force the parent back to ToDo: `shirokuma-flow status transition {parent-number} --to "ToDo" --force` (ToDo transitions are NOT supported by checkpoint commands `begin`/`submit`/`block`/`resume`/`approve`/`reject`/`cancel`, so the primitive is used directly. The auto-sync in `integrity --fix` does not distinguish `state_reason: not_planned` and would transition the parent to Done instead, so `--force` manual reset is the canonical path)
   3. Return to Step 1b to re-transition to In progress, then proceed to Step 3 (plan-issue delegation)
 
@@ -247,38 +247,10 @@ Agent(
 
 #### Sub-issue Creation Procedure (plan-issue Step 4c details)
 
-`plan-issue` Step 4c executes the following:
+`plan-issue` Step 4c executes the following (full bash details: [reference/sub-issue-creation.md](reference/sub-issue-creation.md)):
 
-1. Parse the `### Sub-Issue Structure` table and create each sub-issue:
-   ```bash
-   # Create the body file for each sub-issue
-   cat > /tmp/shirokuma-flow/{parent-number}-sub-{n}.md <<'EOF'
-   ---
-   title: "{sub-issue title}"
-   status: "In progress"
-   ---
-
-   See #{parent-number} for full plan.
-   EOF
-
-   # Create the sub-issue
-   shirokuma-flow issue add /tmp/shirokuma-flow/{parent-number}-sub-{n}.md
-
-   # Set parent-child relationship
-   shirokuma-flow issue parent {sub-number} {parent-number}
-   ```
-
-2. After all sub-issues are created, replace placeholders (`#{sub1}` / `{sub1}`, etc.) in the plan issue body with actual issue numbers, then sync via `issue update` + `issue push`:
-   ```bash
-   # Fetch plan issue body and replace placeholders
-   shirokuma-flow issue context {PLAN_ISSUE_NUMBER}
-   # Read .shirokuma/github/{org}/{repo}/issues/{PLAN_ISSUE_NUMBER}/body.md
-   # → cp the body and replace placeholders via python3
-   shirokuma-flow issue update {PLAN_ISSUE_NUMBER} /tmp/shirokuma-flow/{PLAN_ISSUE_NUMBER}-updated-body.md
-   shirokuma-flow issue push {PLAN_ISSUE_NUMBER}
-   ```
-
-> **Full bash example**: See the "Step 4c" section in `plan-issue`.
+1. Parse the `### Sub-Issue Structure` table and create each sub-issue via `issue add` + `issue parent`
+2. After all sub-issues are created, replace placeholders (`#{sub1}` etc.) in the plan issue body with actual numbers, then sync via `issue update` + `issue push`
 
 #### On Failure
 
@@ -302,7 +274,7 @@ plan-issue → Plan written to body
 
 ### Step 5: Update Status (Plan Issue child → Review)
 
-**Plan-issue-centric model (ADR-v3-022, D-1)**: `prepare-flow` manages only the lifecycle of the **plan issue (child)**. Do not directly transition the parent issue (task issue). The parent issue's status is auto-derived by `syncParentStatus` from the plan issue's status.
+**Plan-issue-centric model**: `prepare-flow` manages only the lifecycle of the **plan issue (child)**. Do not directly transition the parent issue (task issue). The parent issue's status is auto-derived by `syncParentStatus` from the plan issue's status.
 
 ```bash
 shirokuma-flow submit {plan-issue-number}
@@ -310,7 +282,7 @@ shirokuma-flow submit {plan-issue-number}
 
 > `submit` transitions the plan issue (child) from `Backlog → Review`, expressing "plan review ready (awaiting human review)". To post a comment together, pass `--comment <file>` (comment is posted before the transition).
 
-> **ADR-v3-022 D-1**: Do NOT transition the parent (task) issue to `Review`. The parent issue's `Review` status is reserved exclusively for PR review. Plan review completion is expressed via the plan issue (child) `Backlog → Review`. After `approve` on the plan issue (child) (`Review → Done`), `syncParentStatus` automatically syncs the parent issue from `Backlog → ToDo`.
+> **Constraint**: Do NOT transition the parent (task) issue to `Review`. The parent issue's `Review` status is reserved exclusively for PR review. Plan review completion is expressed via the plan issue (child) `Backlog → Review`. After `approve` on the plan issue (child) (`Review → Done`), `syncParentStatus` automatically syncs the parent issue from `Backlog → ToDo`.
 
 ### Step 6: Return to User
 

@@ -108,7 +108,7 @@ find apps/ -name "*.tsx" | xargs basename -a | sort | uniq -c | sort -rn
 ルール提案前に、コンテキストと根拠を保存するため Knowledge Discussion を作成。
 
 ```bash
-# 確認済みパターン → Knowledge カテゴリ（frontmatter に title と category を設定）
+# 確認済みパターン → Knowledge カテゴリ（frontmatter にメタデータを含める）
 shirokuma-flow discussion add /tmp/shirokuma-flow/knowledge.md
 
 # 調査中 → Research カテゴリ

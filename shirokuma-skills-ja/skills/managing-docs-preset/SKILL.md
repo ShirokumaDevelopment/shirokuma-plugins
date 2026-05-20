@@ -10,7 +10,7 @@ allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebSearch, WebFetch
 
 ## バージョニング規約
 
-`.shirokuma/rules/shirokuma-flow/docs-preset-versioning.md` に定義。要点：
+`.shirokuma/rules/{project}/docs-preset-versioning.md` に定義。要点：
 
 - フォーマット: `{name}-{version}`（ハイフン区切り）
 - バージョンは**新機能が追加されるバージョン**で区切る

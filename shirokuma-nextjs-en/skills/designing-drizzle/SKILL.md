@@ -140,4 +140,4 @@ Data model design complete. Next steps:
 - **Build verification is not needed** -- this skill produces design documents, not runnable code
 - When Design Brief is provided, design based on it. When standalone, gather requirements from the issue before designing
 - Always check DB engine-specific constraints (PostgreSQL array types, SQLite ALTER TABLE limitations, etc.)
-- **Design artifact destinations**: Follow the "Investigation / Design Artifacts" section (#2251) of `shirokuma-skills`'s `rules/output-destinations.md`. Schema design decisions, migration strategies, and indexing strategies default to **Discussion (Knowledge)** or ADR; ER diagrams and relation matrices default to **Discussion (Reports)**
+- **Design artifact destinations**: Follow the "Investigation / Design Artifacts" section of `shirokuma-skills`'s `rules/output-destinations.md`. Schema design decisions, migration strategies, and indexing strategies default to **Discussion (Knowledge)** or ADR; ER diagrams and relation matrices default to **Discussion (Reports)**

@@ -102,6 +102,12 @@ Report to the user in this format:
 Create Issues only after confirming with the user. This skill does not auto-create Issues.
 
 ```bash
+# Prepare a Markdown file with frontmatter, then run:
+# Set the following in the frontmatter of /tmp/shirokuma-flow/security-issue.md:
+# title: "security: {severity} vulnerability in {package-name} ({cve})"
+# type: Bug
+# priority: High
+# size: S
 shirokuma-flow issue add /tmp/shirokuma-flow/security-issue.md
 ```
 

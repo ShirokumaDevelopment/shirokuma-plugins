@@ -233,15 +233,19 @@ import type { NextRequest } from "next/server"
 import { randomBytes } from "crypto"
 
 export function middleware(request: NextRequest) {
+  // CSP 用の nonce を生成
   const nonce = randomBytes(32).toString("base64")
 
   const requestHeaders = new Headers(request.headers)
   requestHeaders.set("x-nonce", nonce)
 
   const response = NextResponse.next({
-    request: { headers: requestHeaders },
+    request: {
+      headers: requestHeaders,
+    },
   })
 
+  // nonce 付き CSP ヘッダーをセット
   response.headers.set(
     "Content-Security-Policy",
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'; object-src 'none'; base-uri 'self';`
@@ -254,6 +258,34 @@ export const config = {
   matcher: [
     "/((?!api|_next/static|_next/image|favicon.ico).*)",
   ],
+}
+```
+
+### Client Component での利用
+
+```typescript
+"use client"
+
+import { useEffect, useState } from "react"
+
+export function SecureForm() {
+  const [nonce, setNonce] = useState<string>("")
+
+  useEffect(() => {
+    // meta タグまたは inline script から nonce を取得
+    const nonceElement = document.querySelector('meta[name="csp-nonce"]')
+    if (nonceElement) {
+      setNonce(nonceElement.getAttribute("content") || "")
+    }
+  }, [])
+
+  const handleSubmit = async (formData: FormData) => {
+    // Server Action は headers から nonce を自動的に含める
+    const result = await createFeature(formData)
+    // ...
+  }
+
+  return <form onSubmit={handleSubmit}>{/* ... */}</form>
 }
 ```
 
@@ -283,6 +315,7 @@ export default async function RootLayout({ children }: Props) {
 ### 定時間操作
 
 ```typescript
+// 認証/認可におけるタイミング攻撃を防ぐ
 async function waitForMinimumDuration(
   startTime: number,
   minimumMs: number
@@ -305,6 +338,7 @@ export async function signInAction(credentials: SignInInput) {
       return { error: "Invalid credentials" }
     }
 
+    // 最低 500ms 確保（タイミング攻撃防止）
     await waitForMinimumDuration(startTime, 500)
     return { success: true }
   } catch (error) {
@@ -319,6 +353,7 @@ export async function signInAction(credentials: SignInInput) {
 1. **ユーザー列挙防止**: ユーザー存在有無に関わらず同じタイミング
 2. **パスワード強度推測防止**: レスポンス時間からパスワード強度を推測不可
 3. **DB クエリタイミング隠蔽**: クエリ実行時間のばらつきを隠す
+4. **レートリミット**: 自動化攻撃の最適化を困難にする
 
 ## アンチパターン
 
@@ -328,6 +363,17 @@ export async function signInAction(credentials: SignInInput) {
 // Bad: 認証チェックなし
 export async function deletePost(id: string) {
   await db.delete(posts).where(eq(posts.id, id))  // 誰でも削除可能!
+}
+```
+
+### CSRF 保護の欠落
+
+```typescript
+// Bad: nonce 検証なし
+export async function sensitiveAction(data: FormData) {
+  const session = await verifyAdmin(await headers())
+  // 欠落: CSRF 保護のための nonce チェック
+  await performSensitiveOperation(data)
 }
 ```
 

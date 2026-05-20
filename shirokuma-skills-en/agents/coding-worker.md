@@ -60,7 +60,7 @@ Already implemented; no changes needed.
 
 ### Investigation
 - Confirmed the relevant logic in `src/commands/items/projects.ts:45-80`
-- The behavior requested in Issue #2006 is already present
+- The behavior requested in Issue #N is already present
 
 ### Determination
 Already implemented

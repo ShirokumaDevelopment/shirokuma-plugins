@@ -60,7 +60,7 @@ changes_made: false
 
 ### 調査内容
 - `src/commands/items/projects.ts:45-80` で該当ロジックを確認
-- Issue #2006 で要求された挙動は既に実装されている
+- Issue #N で要求された挙動は既に実装されている
 
 ### 判定
 既に実装済み

@@ -7,14 +7,14 @@ When `--headless` is specified, default behaviors are applied to implementation-
 All of the following must be met to run in headless mode:
 
 1. An **explicit issue number** is provided as an argument
-2. The issue status is **Review** or **ToDo** (ADR-v3-022)
+2. The issue status is **Review** or **ToDo**
    - plan/design Issue: **ToDo** is required (must be approved first via `approve` (`Review → Done`); Review status will stop with a precondition error)
    - Normal Issue: **Review** is required
 3. A plan issue (child issue with title starting with "Plan:" or "計画:") exists
 
 If any precondition is not met, display an error message and stop (no fallback to normal mode).
 
-> **Note:** Issues with statuses other than Review or ToDo (e.g., In progress, Blocked) will also stop with a precondition error when `--headless` is specified. Issues in In progress status (planning phase) require interactive planning via `prepare-flow` and are therefore excluded from headless mode. Also, plan/design Issues in Review status will stop with a precondition error — explicit approval via `status approve` (`Review → Done`, ADR-v3-022; `syncParentStatus` auto-syncs parent `Backlog → ToDo`) must be completed first.
+> **Note:** Issues with statuses other than Review or ToDo (e.g., In progress, Blocked) will also stop with a precondition error when `--headless` is specified. Issues in In progress status (planning phase) require interactive planning via `prepare-flow` and are therefore excluded from headless mode. Also, plan/design Issues in Review status will stop with a precondition error — explicit approval via `status approve` (`Review → Done`; `syncParentStatus` auto-syncs parent `Backlog → ToDo`) must be completed first.
 
 ## UCP Default Behaviors
 

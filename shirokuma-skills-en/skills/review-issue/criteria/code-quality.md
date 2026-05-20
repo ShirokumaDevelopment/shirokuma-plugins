@@ -217,7 +217,7 @@ export async function closeIssueById(
 
 ### Adopted In
 
-This pattern was adopted in 4 consecutive PRs (#2324, #2328, #2330, #2331), making it the project's canonical extension shape.
+This pattern was adopted in 4 consecutive PRs, making it the project's canonical extension shape.
 
 ## Import Organization
 

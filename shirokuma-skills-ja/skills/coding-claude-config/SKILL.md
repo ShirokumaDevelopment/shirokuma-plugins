@@ -62,8 +62,8 @@ JA 版完成後に EN 版を作成する。
 
 設定タイプによって関連ファイルが必要な場合:
 
-- `plugin/` 配下のスキル追加 → `.shirokuma/rules/shirokuma-flow/skills-index.md` を更新
-- ルール追加 → `.shirokuma/rules/shirokuma-flow/rules-index.md` を更新
+- `plugin/` 配下のスキル追加 → `.shirokuma/rules/{project}/skills-index.md` を更新
+- ルール追加 → `.shirokuma/rules/{project}/rules-index.md` を更新
 - **新規ファイル作成時**: `docs-layering` ルールの判定フローで配置先を決定する（`.shirokuma/rules/{project}/`、`plugin/shirokuma-skills-{en,ja}/rules/`、`docs/`、`plugin/specs/` 等の選択基準）
 
 ### 4. 削除タスクの場合

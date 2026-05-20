@@ -63,6 +63,18 @@ Assess the plan depth level from issue content and investigation results, then c
 
 Plan templates for each level (Lightweight/Standard/Detailed/Epic) are in [reference/plan-templates.md](reference/plan-templates.md).
 
+#### Sub-issue Body Template for Epic Issues
+
+When planning an Epic issue, create each sub-issue body based on the `### Sub-Issue Structure` table. Each sub-issue body must include a reference to the parent plan:
+
+```markdown
+See #{epic-number} for the plan.
+```
+
+This allows `implement-flow` to reference the parent context when processing sub-issues, preserving consistency across the work.
+
+**Note**: Exclude the Epic issue's plan issue (the child issue named `Plan: {title}`) from the sub-issue structure count. Only include the Epic's actual work sub-issues in the `### Sub-Issue Structure` table.
+
 ### Step 4: Create Plan Issue
 
 Create a plan issue using `issue add` with the plan content from Step 3 as the body.

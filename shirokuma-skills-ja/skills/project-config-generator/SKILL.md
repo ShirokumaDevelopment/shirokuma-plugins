@@ -10,6 +10,7 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 
 ## いつ使うか
 
+ユーザーが以下の操作をするときに自動起動:
 - 既存スキルで新規プロジェクトをセットアップする場合
 - 「generate project config」「initialize skill configs」
 - tech-stack バージョンの更新が必要な場合
@@ -145,9 +146,9 @@ mkdir -p .claude/rules
 
 | 関心事 | 場所 |
 |--------|------|
-| GitHub 出力言語 | `output-language` ルール |
-| 設定ファイル言語 | `skill-authoring` ルール |
-| コード/コメント言語 | `git-commit-style` ルール |
+| GitHub 出力言語 | `output-language` ルール（JA プラグインは日本語） |
+| 設定ファイル言語 | `skill-authoring` ルール（日本語） |
+| コード/コメント言語 | `git-commit-style` ルール（日本語） |
 
 #### インストール後の調整
 
@@ -246,6 +247,17 @@ Discussion (human-readable, ユーザー言語)
 |------|-----------|---------|
 | English | `templates/discussion-templates/en/` | adr.yml, knowledge.yml, research.yml |
 | Japanese | `templates/discussion-templates/ja/` | adr.yml, knowledge.yml, research.yml |
+
+**例**:
+
+```bash
+# テンプレート生成（CLAUDE.md から言語を検出、または user に確認）
+"generate discussion templates"
+
+# 言語を明示指定
+"generate discussion templates in Japanese"
+"generate discussion templates --lang ja"
+```
 
 **出力**:
 

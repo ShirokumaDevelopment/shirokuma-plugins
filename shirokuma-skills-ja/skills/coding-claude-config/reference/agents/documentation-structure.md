@@ -53,6 +53,16 @@
 
 **悪い例**: reference.md が patterns/ のコードを重複
 
+```markdown
+## Quick Reference
+
+### Auth Pattern
+\`\`\`typescript
+// patterns/auth.md から全コードブロックを重複
+export async function verifyAdmin() { ... }
+\`\`\`
+```
+
 ### 重複が許容される場合
 
 - 即座に見える必要がある**クリティカルなパターン**（最大1-2個）
@@ -62,6 +72,8 @@
 ---
 
 ## パターンファイルの形式
+
+すべてのパターンファイルは以下の構造に従う:
 
 ```markdown
 # {Pattern Name}
@@ -117,6 +129,26 @@
 
 ---
 
+## Document Structure セクション
+
+ファイル責務を明確化するため reference.md に追加する:
+
+```markdown
+## Document Structure
+
+| File | Responsibility | Content |
+|------|---------------|---------|
+| **AGENT.md** | Workflow | N-step process only |
+| **reference.md** | Quick Reference | Tech stack, pattern list |
+| **checklists.md** | Quality Gates | Completion checklists |
+| **patterns/*.md** | Detailed Patterns | Source of Truth |
+| **templates/** | Code Templates | Template specs |
+
+**Principle**: Information in one place only. Others reference.
+```
+
+---
+
 ## ファイル長のガイドライン
 
 | 行数 | アクション |
@@ -133,7 +165,19 @@
 
 ### セクション区切り
 
-主要セクションの前に `---` を使用。
+主要セクションの前に `---` を使用:
+
+```markdown
+## Solution
+
+Code...
+
+---
+
+## Key Points
+
+- Point 1
+```
 
 ### コードブロック
 

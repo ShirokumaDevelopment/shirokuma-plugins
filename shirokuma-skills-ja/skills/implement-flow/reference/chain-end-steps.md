@@ -102,7 +102,7 @@ shirokuma-flow issue comment {number} /tmp/shirokuma-flow/{number}-no-changes-su
 | Blocked | `shirokuma-flow block {n} --reason "{理由}"` | 再検討・追加情報待ち（reason は Issue コメントとして記録） |
 | ToDo | `shirokuma-flow status transition {n} --to ToDo` | 後で再評価する |
 
-> **重要**: 取り下げは **`issue cancel`** 専用コマンドで実行する。`Cancelled` Status は #2204 で廃止され、現在は `state_reason: not_planned` の Close + Status: Done として記録される（`status-workflow.ts` の `isCancelledEquivalent` 参照）。
+> **重要**: 取り下げは **`issue cancel`** 専用コマンドで実行する。`Cancelled` Status は廃止され、現在は `state_reason: not_planned` の Close + Status: Done として記録される（`status-workflow.ts` の `isCancelledEquivalent` 参照）。
 
 実装:
 

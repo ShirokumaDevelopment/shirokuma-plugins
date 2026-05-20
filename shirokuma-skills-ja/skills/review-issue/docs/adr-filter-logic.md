@@ -38,7 +38,7 @@ shirokuma-flow discussion adr get {number}
 
 ### ラベル補完
 
-ラベル `area:*` の値（例: `area:plugin` → `plugin`、`area:cli` → `cli`）を追加キーワードとして補完する。
+ラベル `area:*` の値部分（例: `area:<領域>` → `<領域>`）を追加キーワードとして補完する。
 
 ## フォールバック
 
@@ -69,11 +69,11 @@ shirokuma-flow discussion search "<キーワード>"
 
 ## 実行例
 
-Issue タイトル: 「スキルのトリガーキーワード設計を変更する」
-ラベル: `area:plugin`
+Issue タイトル: 「認証トークンの保存方式を変更する」
+ラベル: `area:auth`
 
-1. キーワード抽出: 「スキル」「トリガーキーワード」「設計」「plugin」（4 個）
-2. 検索: `shirokuma-flow discussion search "スキル トリガーキーワード"`
-3. ヒット例: ADR-003（スキルアーキテクチャ）、ADR-007（ブランチモデル）→ ADR-003 を優先取得
+1. キーワード抽出: 「認証」「トークン」「保存方式」「auth」（4 個）
+2. 検索: `shirokuma-flow discussion search "認証 トークン"`
+3. ヒット例: ADR-003（認証アーキテクチャ）、ADR-007（データ保存方針）→ ADR-003 を優先取得
 4. 詳細取得: `shirokuma-flow discussion adr get {ADR-003 の Discussion 番号}`
 5. 整合性チェック: ADR-003 の内容と Issue の方針を比較

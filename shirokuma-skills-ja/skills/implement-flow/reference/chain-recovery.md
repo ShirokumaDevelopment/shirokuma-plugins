@@ -85,7 +85,7 @@ TaskList の `pending` ステップが再開可能状態を定義する。チェ
 
 ## PR revert 後のリカバリー
 
-PR がマージ済み（Issue が Done）の状態で revert が必要な場合、CLI に統合された `issue rollback` コマンド（#2024 Phase 1-D）を使うのが正規パス:
+PR がマージ済み（Issue が Done）の状態で revert が必要な場合、CLI に統合された `issue rollback` コマンドを使うのが正規パス:
 
 ```bash
 shirokuma-flow issue rollback {plan-issue#} --action revert
@@ -102,7 +102,7 @@ revert PR をマージした後、再実装する場合は新しい会話で `/i
 
 「見送り」の場合は revert PR マージ後に `shirokuma-flow issue cancel {plan-issue#}` で Done(NOT_PLANNED) 化する。
 
-> 旧仕様（手動 revert + 手動ステータス変更）は #2024 Phase 1-D で `issue rollback --action revert` に統合された。手動操作は引き続き可能だが、CLI コマンドが正規パス。
+> 旧仕様（手動 revert + 手動ステータス変更）は `issue rollback --action revert` に統合された。手動操作は引き続き可能だが、CLI コマンドが正規パス。
 
 ## 冪等性保証
 

@@ -11,6 +11,7 @@
 | 投稿詳細 | 300秒 | 個別投稿は変更頻度が低い |
 | 静的ページ | 3600秒 | 非常に安定（About、Terms 等） |
 
+**実装例:**
 ```typescript
 // app/[locale]/(main)/page.tsx
 export const revalidate = 60 // ホームページ: 60秒
@@ -32,6 +33,9 @@ export const revalidate = 3600 // 静的ページ: 1時間
 
 ## useActionState パターン（React 19）
 
+React 19 の `useActionState` は、フォーム状態を持つ Server Actions を扱うための実験的フック `useFormState` の置き換え。
+
+**正しいパターン:**
 ```typescript
 "use client"
 import { useActionState } from "react"
@@ -100,6 +104,10 @@ export default function Page({ params }: { params: { slug: string } }) {
   const { slug } = params
   return <div>{slug}</div>
 }
+
+export async function generateMetadata({ params }: { params: { slug: string } }) {
+  return { title: params.slug }
+}
 ```
 
 **After（Next.js 16）:**
@@ -150,6 +158,9 @@ export default async function Page({
 
 ## ローディング状態のアクセシビリティ
 
+ローディング状態はスクリーンリーダーや支援技術からアクセス可能でなければならない。
+
+**ベストプラクティスパターン:**
 ```typescript
 export default function Loading() {
   return (
@@ -168,6 +179,26 @@ export default function Loading() {
 }
 ```
 
+**コンポーネント例:**
+```typescript
+export function PostList({ isLoading }: { isLoading: boolean }) {
+  if (isLoading) {
+    return (
+      <div
+        role="status"
+        aria-busy="true"
+        aria-label="Loading posts"
+      >
+        <PostSkeleton />
+        <span className="sr-only">Loading posts...</span>
+      </div>
+    )
+  }
+
+  return <div role="list" aria-label="Blog posts">{/* ... */}</div>
+}
+```
+
 **レビューチェックリスト:**
 - [ ] ローディングコンポーネントに `role="status"`
 - [ ] `aria-busy="true"` でローディング状態を示す
@@ -175,12 +206,19 @@ export default function Loading() {
 - [ ] `.sr-only` テキストでスクリーンリーダー向けコンテキスト
 - [ ] ローディング状態がインタラクションを不必要にブロックしない
 
+**アクセシビリティ属性:**
+- `role="status"`: スクリーンリーダーにローディングを通知
+- `aria-busy="true"`: 要素がローディング中であることを示す
+- `aria-label`: 何のコンテンツがロード中か説明
+- `aria-live="polite"`: 動的更新用（オプション）
+
 ---
 
 ## 並列クエリパターン
 
-独立したデータソースは `Promise.all` で並行フェッチ:
+独立したデータソースは `Promise.all` で並行フェッチし、ページのロード時間を短縮する。
 
+**最適なパターン:**
 ```typescript
 // Good: 並列クエリ
 export default async function Page() {
@@ -192,19 +230,59 @@ export default async function Page() {
 
   return <Dashboard posts={posts} categories={categories} tags={tags} />
 }
+```
 
+**アンチパターン:**
+```typescript
 // Bad: 逐次クエリ（低速）
 export default async function Page() {
   const posts = await getPosts()
   const categories = await getCategories()
   const tags = await getTags()
+
+  return <Dashboard posts={posts} categories={categories} tags={tags} />
 }
 ```
 
-**パフォーマンス効果:**
+**エラーハンドリング付き:**
 ```typescript
-// 逐次: 300ms + 200ms + 150ms = 650ms
-// 並列: max(300ms, 200ms, 150ms) = 300ms
+export default async function Page() {
+  try {
+    const [posts, categories, tags] = await Promise.all([
+      getPosts(),
+      getCategories(),
+      getTags(),
+    ])
+
+    return <Dashboard posts={posts} categories={categories} tags={tags} />
+  } catch (error) {
+    console.error("Failed to load dashboard data:", error)
+    return <ErrorState />
+  }
+}
+```
+
+**条件付き並列クエリ:**
+```typescript
+export default async function Page({
+  params
+}: {
+  params: Promise<{ slug: string }>
+}) {
+  const { slug } = await params
+
+  const [post, relatedPosts, comments] = await Promise.all([
+    getPostBySlug(slug),
+    getRelatedPosts(slug),
+    getComments(slug),
+  ])
+
+  if (!post) {
+    notFound()
+  }
+
+  return <PostDetail post={post} related={relatedPosts} comments={comments} />
+}
 ```
 
 **レビューチェックリスト:**
@@ -214,12 +292,19 @@ export default async function Page() {
 - [ ] 依存クエリは適切に順序化
 - [ ] オプショナルデータには Promise.allSettled を検討
 
+**パフォーマンス効果:**
+```typescript
+// 逐次: 300ms + 200ms + 150ms = 650ms
+// 並列: max(300ms, 200ms, 150ms) = 300ms
+```
+
 ---
 
 ## 検索ページの SEO
 
-検索・フィルター・ページネーションページは重複コンテンツペナルティ回避のためインデックスしない:
+検索・フィルター・ページネーションページは重複コンテンツペナルティ回避のためインデックスしない。
 
+**正しいパターン:**
 ```typescript
 // app/[locale]/(main)/search/page.tsx
 import type { Metadata } from "next"
@@ -231,10 +316,20 @@ export const metadata: Metadata = {
     follow: true,    // ページ上のリンクはフォロー
   },
 }
+
+export default async function SearchPage({
+  searchParams
+}: {
+  searchParams: Promise<{ q?: string }>
+}) {
+  const { q = "" } = await searchParams
+  // ...
+}
 ```
 
 **動的メタデータ:**
 ```typescript
+// クエリパラメータ付きページ用
 export async function generateMetadata({
   searchParams,
 }: {
@@ -242,6 +337,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { q = "", page = "1" } = await searchParams
 
+  // ページネーションまたはフィルターされたページのインデックスを防ぐ
   if (page !== "1" || q) {
     return {
       robots: { index: false, follow: true },
@@ -263,12 +359,48 @@ export async function generateMetadata({
 - [ ] `follow: true` でリンクエクイティを渡す
 - [ ] ページネーションコンテンツに正規 URL を設定
 
+**Robots 設定:**
+```typescript
+// 検索結果
+robots: { index: false, follow: true }
+
+// ページネーションページ
+robots: { index: false, follow: true }
+
+// フィルターページ（?category=x&sort=y）
+robots: { index: false, follow: true }
+
+// メインリストページ（パラメータなし）
+robots: { index: true, follow: true }
+```
+
+**正規 URL パターン:**
+```typescript
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>
+}): Promise<Metadata> {
+  const { page } = await searchParams
+
+  return {
+    robots: page && page !== "1"
+      ? { index: false, follow: true }
+      : { index: true, follow: true },
+    alternates: {
+      canonical: "/posts", // 常に 1 ページ目を指す
+    },
+  }
+}
+```
+
 ---
 
 ## その他の Next.js 16 パターン
 
 ### Server Component のデータフェッチ
 ```typescript
+// Good: Server Component で直接 DB クエリ
 export default async function Page() {
   const posts = await db.query.posts.findMany({
     where: eq(posts.published, true),
@@ -281,12 +413,17 @@ export default async function Page() {
 
 ### 動的セグメント
 ```typescript
+// ビルド時に静的パスを生成
 export async function generateStaticParams() {
   const posts = await getPosts()
-  return posts.map((post) => ({ slug: post.slug }))
+
+  return posts.map((post) => ({
+    slug: post.slug,
+  }))
 }
 
-export const dynamicParams = true // 不明なパスで 404
+// 不明なパスに対する挙動を制御
+export const dynamicParams = true // 不明なパスは 404
 ```
 
 ### Suspense によるストリーミング

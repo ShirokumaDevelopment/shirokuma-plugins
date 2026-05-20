@@ -102,7 +102,7 @@ When the chain ends with no changes, there is no code change or PR, so the issue
 | Blocked | `shirokuma-flow block {n} --reason "{reason}"` | Awaiting reconsideration or more information (reason recorded as comment) |
 | ToDo | `shirokuma-flow status transition {n} --to ToDo` | Re-evaluate later |
 
-> **Important**: Cancellation must be set via the dedicated **`issue cancel`** command. The `Cancelled` Status was removed by #2204 and is now recorded as `state_reason: not_planned` Close + Status: Done (see `isCancelledEquivalent` in `status-workflow.ts`).
+> **Important**: Cancellation must be set via the dedicated **`issue cancel`** command. The `Cancelled` Status was removed and is now recorded as `state_reason: not_planned` Close + Status: Done (see `isCancelledEquivalent` in `status-workflow.ts`).
 
 Implementation:
 

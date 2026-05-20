@@ -123,7 +123,7 @@ When the section is skipped, the body falls back to the conventional template st
 In the "Relevant section" column, write a line range plus a short summary. Avoid long verbatim quotes (they bloat the body).
 
 ```
-| `guide/workflows/lifecycle-overview.md` | "Issue Creation" sequence L49-58 | The canonical create-item-flow → analyze-issue → Status flow |
+| `guide/<doc>.md` | Relevant section L<start>-<end> | Relation to this issue / ADR |
 ```
 
 ## Boundary with `analyze-issue requirements` (when applied via create-item-flow)

@@ -38,7 +38,7 @@ Based on user request, select the appropriate role:
 | "design", "設計レビュー", "デザイン" | design | criteria/design, roles/design | `design-review` |
 | "research", "リサーチレビュー" | research | roles/research, criteria/research | `review-summary` |
 
-> **HTML Template column**: the `template_name` value returned to the calling orchestrator in Step 7 "HTML Report Decision". The canonical mapping of templates to roles is defined in [`.shirokuma/rules/shirokuma-flow/html-report-criteria.md`](../../../../.shirokuma/rules/shirokuma-flow/html-report-criteria.md) §3.
+> **HTML Template column**: the `template_name` value returned to the calling orchestrator in Step 7 "HTML Report Decision". The canonical mapping of templates to roles is defined in [`html-report-criteria.md`](../../rules/html-report-criteria.md) §3.
 
 **HTML decision skip condition**: After role selection, if a PASS verdict with zero findings and a report under 80 lines is already certain, the structured output in Step 7 may return `html_report_required: false` (the canonical threshold lives in `html-report-criteria.md` §2).
 
@@ -80,7 +80,7 @@ Read required knowledge files based on role:
 7. Check against anti-patterns
 8. Verify consistency with requirements and deliverables
 9. **Detect coexisting plan Issues**: run `shirokuma-flow issue sub-list {parent}` and raise Critical when more than one plan Issue is present (`criteria/plan.md` V7)
-10. **Comment destination**: Post the review result **as a comment on the plan issue (child) at `{plan-issue-number}`** — not on the parent issue. This allows human reviewers to see the review comment directly when the plan issue (child) is in Review status (ADR-v3-022 D-1)
+10. **Comment destination**: Post the review result **as a comment on the plan issue (child) at `{plan-issue-number}`** — not on the parent issue. This allows human reviewers to see the review comment directly when the plan issue (child) is in Review status
 
 **Backward compatibility**: When no plan issue (child issue) exists but the parent issue body contains a `## Plan` / `## 計画` section (legacy approach), use the parent issue's plan section as the review target, and post the comment on the parent issue.
 
@@ -141,18 +141,18 @@ shirokuma-flow issue comment {issue#} /tmp/shirokuma-flow/{number}-analyze-repor
 
 | Context | Output Destination |
 |---------|-------------------|
-| Issue number (plan role) | **Comment on plan issue (child)** (ADR-v3-022: so reviewers can see the comment when plan issue is in Review. Backward compat: comment on parent when no plan issue exists) |
+| Issue number (plan role) | **Comment on plan issue (child)** (so reviewers can see the comment when plan issue is in Review. Backward compat: comment on parent when no plan issue exists) |
 | Issue number (requirements role) | Issue comment |
 | Issue number (design role) | Issue comment |
 | Issue number (research role) | Issue comment |
 
-> See `rules/output-destinations.md` for the full output destination policy. In particular, the "Investigation / Design Artifacts" section (#2251) defines the routing criteria for intermediate artifacts (process flows, side-effect matrices, gap analysis, design proposals) produced by the plan/requirements/design/research roles — do not default to Issue comments; pick Discussion (Reports/Research/Knowledge) or ADR based on the artifact's nature.
+> See `rules/output-destinations.md` for the full output destination policy. In particular, the "Investigation / Design Artifacts" section defines the routing criteria for intermediate artifacts (process flows, side-effect matrices, gap analysis, design proposals) produced by the plan/requirements/design/research roles — do not default to Issue comments; pick Discussion (Reports/Research/Knowledge) or ADR based on the artifact's nature.
 
 ### 7. HTML Report Decision
 
 After saving the report, this skill itself does not generate HTML. Instead, it returns **decision information** as structured data to the calling orchestrator (`design-flow` / `prepare-flow` / `review-flow` / `implement-flow`, etc.). The actual HTML generation (invoking `writing-html-explainer`) is the orchestrator's responsibility.
 
-The **canonical source** for decision criteria, template mapping, and category mapping is [`.shirokuma/rules/shirokuma-flow/html-report-criteria.md`](../../../../.shirokuma/rules/shirokuma-flow/html-report-criteria.md) (do not duplicate threshold values, template names, or category names into this file).
+The **canonical source** for decision criteria, template mapping, and category mapping is [`html-report-criteria.md`](../../rules/html-report-criteria.md) (do not duplicate threshold values, template names, or category names into this file).
 
 **`auditing-security` exclusion note**: `auditing-security` is a dependency-vulnerability scanner that completes within Issue creation, so it is outside this decision step. `reviewing-security` (PR security review) is always an HTML target. See the note in `html-report-criteria.md` §2.
 
@@ -200,7 +200,7 @@ On analysis completion, output the following standard expressions so that the ca
 
 ### Plan Review Mode (plan role)
 
-When invoked from `prepare-flow` with plan role, post the plan review result **as a comment on the plan issue (child)** (ADR-v3-022 D-1: so that human reviewers can access the review result directly when the plan issue is in Review status) and include the following verdict.
+When invoked from `prepare-flow` with plan role, post the plan review result **as a comment on the plan issue (child)** (so that human reviewers can access the review result directly when the plan issue is in Review status) and include the following verdict.
 
 - **PASS**: `**Review result:** PASS` — No critical issues in the plan (Suggestions may still be present)
 - **NEEDS_REVISION**: `**Review result:** NEEDS_REVISION` — Missing requirements, significant inconsistencies, or anti-patterns detected

@@ -6,7 +6,7 @@ Detailed spec for `review-issue` SKILL.md Step 7 (HTML Report Decision).
 
 After saving the report, this skill itself does not generate HTML. It returns **decision information** as structured data to the calling orchestrator (`review-flow`, etc.). The actual HTML generation (invoking `writing-html-explainer`) is the orchestrator's responsibility.
 
-**Canonical source for decision criteria, template mapping, and category mapping**: [`.shirokuma/rules/shirokuma-flow/html-report-criteria.md`](../../../../../.shirokuma/rules/shirokuma-flow/html-report-criteria.md) (do not duplicate threshold values, template names, or category names into this file).
+**Canonical source for decision criteria, template mapping, and category mapping**: [`html-report-criteria.md`](../../../rules/html-report-criteria.md) (do not duplicate threshold values, template names, or category names into this file).
 
 ## Decision Skip Condition
 

@@ -17,7 +17,7 @@ Every project item MUST have:
 | Size | Recommended | XS / S / M / L / XL |
 | Type | Yes | Organization Issue Types (manual setup) |
 
-## Status Workflow (6-Value Model, ADR-v3-022 Second Revision)
+## Status Workflow (6-Value Model)
 
 ```mermaid
 stateDiagram-v2
@@ -43,21 +43,21 @@ stateDiagram-v2
 | Review | Human review pending (plan issue child plan review, or PR code review only) |
 | Done | Completed / closed (cancelled issues also use Done with `state_reason: not_planned`) |
 
-> Legacy statuses (`Approved` / `Completed` / `Pending` / `Ready` / `On Hold` / `Cancelled`, etc.) are deprecated by ADR-v3-018. Legacy values are read transparently via `LEGACY_STATUS_VALUES`. `Backlog` is restored as an active Status in ADR-v3-022 Second Revision.
+> Legacy statuses (`Approved` / `Completed` / `Pending` / `Ready` / `On Hold` / `Cancelled`, etc.) are deprecated. Legacy values are read transparently via `LEGACY_STATUS_VALUES`. `Backlog` is restored as an active Status.
 
-### status approve and Done Transition (ADR-v3-022 Second Revision)
+### status approve and Done Transition
 
-`approve {number}` is a checkpoint command to approve a Review-status Issue (ADR-v3-022 Second Revision).
+`approve {number}` is a checkpoint command to approve a Review-status Issue.
 
 - **Plan Issue (issue itemType)**: Review → **Done** (plan complete). `syncParentStatus` auto-syncs parent Issue from Backlog → ToDo
 - **Fails if not Review**: exits with `result: "error"` and exit 1
 - **JSON output**: `{ "result": "ok" | "error", "to": "Done", "next_suggestions": [...] }`
 
-**Approval model (ADR-v3-022 Second Revision)**: `approve` transitions Review → Done. The legacy `Review → ToDo` path is abolished. After plan issue (child) `approve`, `syncParentStatus` automatically syncs the parent Issue from Backlog → ToDo (ready to start).
+**Approval model**: `approve` transitions Review → Done. The legacy `Review → ToDo` path is abolished. After plan issue (child) `approve`, `syncParentStatus` automatically syncs the parent Issue from Backlog → ToDo (ready to start).
 
-### 4-System Transition Tables (ADR-v3-022)
+### 4-System Transition Tables
 
-ADR-v3-022 manages forward and rollback transitions in 4 separate tables for Issue and PR.
+Forward and rollback transitions are managed in 4 separate tables for Issue and PR.
 
 #### ISSUE_FORWARD_TRANSITIONS
 
@@ -213,7 +213,7 @@ AI MUST update issue status at these points:
 
 ### Review Usage (AI Work Complete, User Review Possible)
 
-Review means "AI work is complete and the user (human) can review". Per **ADR-v3-022 D-1**: a parent (task) issue's Review is **exclusively for PR review**. Plan reviews use the plan issue (child) Review state. An entity enters Review **exactly once** during its lifecycle (1 entity = 1 Review principle).
+Review means "AI work is complete and the user (human) can review". Per the parent-Review constraint: a parent (task) issue's Review is **exclusively for PR review**. Plan reviews use the plan issue (child) Review state. An entity enters Review **exactly once** during its lifecycle (1 entity = 1 Review principle).
 
 #### **DO NOT**: Cases where transitioning to Review is forbidden
 
@@ -232,14 +232,14 @@ Review means "AI work is complete and the user (human) can review". Per **ADR-v3
 
 | Entity | Trigger to enter Review | Exit from Review |
 |---|---|---|
-| Issue | — (ADR-v3-022: Issue Review is for PR review only; create-item-flow does not transition to Review) | — |
+| Issue | — (Issue Review is for PR review only; create-item-flow does not transition to Review) | — |
 | Plan Issue | After plan drafting + AI self-review in `prepare-flow` (**creation only**) | `approve` → Done (plan complete). Parent Issue auto-synced Backlog → ToDo |
-| Design Issue (child) | After design drafting + AI self-review in `design-flow` (**creation only**) | `approve` → Done (design complete). Parent Issue auto-synced Backlog → ToDo via syncParentStatus (ADR-v3-022 D-1 / `design-flow` Phase 5) |
+| Design Issue (child) | After design drafting + AI self-review in `design-flow` (**creation only**) | `approve` → Done (design complete). Parent Issue auto-synced Backlog → ToDo via syncParentStatus (`design-flow` Phase 5) |
 | PR | At `pr create` (code review possible) | `pr merge` → Done |
 
 #### Issues / Plan Issues do NOT re-transition to Review during implementation
 
-Per ADR-v3-022 D-1, while a PR is active during implementation, the issue and plan issue **stay in In progress untouched**. Code review is **carried by the PR itself in Status: Review** (parent issue Review is reserved for PR review only).
+While a PR is active during implementation, the issue and plan issue **stay in In progress untouched**. Code review is **carried by the PR itself in Status: Review** (parent issue Review is reserved for PR review only).
 
 Therefore `implement-flow` / `review-flow` MUST NOT `submit` the issue or plan issue at the chain tail (only `pr create` transitions the PR to Review).
 
@@ -269,7 +269,7 @@ GitHub Projects has built-in Workflows (e.g., `Item closed` → set Status to Do
 
 ## Initial Status at Issue Creation
 
-When creating an Issue with `issue add`, the initial Status defaults to **Backlog** (uninvestigated / untriaged) per ADR-v3-022 Second Revision.
+When creating an Issue with `issue add`, the initial Status defaults to **Backlog** (uninvestigated / untriaged).
 
 **Plan Issue creation procedure:**
 
@@ -303,7 +303,7 @@ Plan issues represent the lifecycle of the plan itself and do not participate in
 
 **`integrity` aggregation exclusion**: When auto-deriving parent Issue status, plan issues with the `area:plan` label are excluded from sub-issue status aggregation. This prevents a plan issue remaining in Review from affecting the parent's In progress derivation.
 
-### Plan Issue-Centric Status Model (ADR-v3-017 + ADR-v3-022)
+### Plan Issue-Centric Status Model
 
 **Core principle**: The plan issue is the primary subject of status transitions. The parent (task) issue status is auto-derived by `syncParentStatus` from child issue statuses. AI sessions and CLI commands should target **the plan issue**.
 
@@ -325,7 +325,7 @@ Plan issues represent the lifecycle of the plan itself and do not participate in
 | `pr create` | Transition plan issue to Review (identify plan issue from `Closes #N`) | Directly transition linked issue to Review |
 | `pr merge` | Transition plan issue to Done (parent auto-derived by `syncParentStatus`) | Directly transition linked issue to Done |
 
-#### `integrity` Inconsistency Detection Patterns (ADR-v3-017)
+#### `integrity` Inconsistency Detection Patterns
 
 | Pattern | Severity | Situation | `--fix` Action |
 |---------|---------|-----------|----------------|

@@ -209,6 +209,14 @@ Note: Internally calls `gh pr merge` which is protected by PreToolUse hook. Merg
 Post result as Issue comment:
 
 ```bash
+# Write to file first, then post with issue comment
+cat > /tmp/shirokuma-flow/{issue-number}-merge-complete.md <<'EOF'
+## Merge Complete
+
+**PR:** (based on CLI output) → {base-branch}
+**Issue updates:** (based on CLI output)
+**Branch:** deleted, switched to {base-branch}
+EOF
 shirokuma-flow issue comment {issue-number} /tmp/shirokuma-flow/{issue-number}-merge-complete.md
 ```
 
@@ -228,6 +236,10 @@ PR #{pr-number} merged to {base-branch}, branch deleted
 **If merge is part of commit flow** (e.g., user says "commit and merge"):
 
 Execute Steps 1-3 → Step 4 (PR Chain) → Step 5 (Merge Chain) sequentially.
+
+#### Sub-Issue Parent Issue Integrity Check (CLI Auto-Handling)
+
+Parent issue status auto-derivation is handled reactively by the CLI on `status transition`, `issue close`, `status update-batch`, and `pr merge`. Explicit `integrity --fix` invocation from this skill is unnecessary.
 
 ## Batch Mode
 
@@ -290,6 +302,10 @@ If invoked with a message argument (e.g., `/commit-issue fix typo in config`):
 | `git-commit-style` | Commit message format and language |
 | `output-language` | Commit message output language |
 | `branch-workflow` | Branch model and push constraints |
+
+## Language
+
+Issue comments must be written in English. Commit messages follow the `git-commit-style` rule (prefix in English, description in English).
 
 ## Notes
 

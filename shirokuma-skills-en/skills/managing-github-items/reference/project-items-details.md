@@ -43,7 +43,7 @@ Built-in automations are configured via the GitHub UI (not API):
 | `status update-batch --done` | Sets Done directly — idempotent with automation |
 | `integrity` | Reports disabled recommended automations as warnings |
 | `integrity --fix` | Fixes inconsistencies — compatible with automation |
-| `issue cancel` | Sets Done (state_reason: not_planned) after close. Idempotent with "Item closed → Done" automation (Cancelled was unified into Done by #2204). |
+| `issue cancel` | Sets Done (state_reason: not_planned) after close. Idempotent with "Item closed → Done" automation (Cancelled was unified into Done). |
 
 ### Checking Automation Status
 
@@ -59,7 +59,7 @@ Labels indicate **where** work applies (cross-cutting attribute). Work type clas
 
 | Label type | Role | Example |
 |------------|------|---------|
-| Area labels | Scope of impact | `area:cli`, `area:plugin` |
+| Area labels | Scope of impact | `area:<scope>` (per project) |
 | Operational labels | Triage | `duplicate`, `invalid`, `wontfix` |
 
 ### Label Rules
@@ -72,7 +72,7 @@ Labels indicate **where** work applies (cross-cutting attribute). Work type clas
 
 | Prefix | Purpose | Examples |
 |--------|---------|---------|
-| `area:` | Codebase area affected | `area:cli`, `area:plugin`, `area:github` |
+| `area:` | Codebase area affected | `area:<scope>` (vocabulary per project) |
 | (none) | Operational / triage | `duplicate`, `invalid`, `wontfix` |
 
 ## Item Body Maintenance (Issues / Discussions / PRs)

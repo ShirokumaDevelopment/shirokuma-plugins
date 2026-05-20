@@ -75,6 +75,13 @@ user: "[Sample user message]"
 assistant: "[Expected response before invoking]"
 <Task tool call to [agent-name] agent>
 </example>
+
+<example>
+Context: [Another situation]
+user: "[Another sample message]"
+assistant: "[Response pattern]"
+<Task tool call to [agent-name] agent>
+</example>
 ```
 
 **Example ブロックのフィールド**:
@@ -86,6 +93,28 @@ assistant: "[Expected response before invoking]"
 | `assistant:` | 期待される応答 | `"I'll implement this with TDD."` |
 | `<Task...>` | ツール呼び出しプレースホルダ | `<Task tool call to coder agent>` |
 
+**完全な例** (`coding-nextjs`、`shirokuma-nextjs` plugin より):
+
+```yaml
+description: Use this agent when the user wants to implement new features, create components, or build pages using natural language. This agent transforms vibe descriptions into working code with TDD.
+
+Examples:
+
+<example>
+Context: User describes a feature in natural language.
+user: "ユーザーがプロフィール画像をアップロードできる機能が欲しい"
+assistant: "I'll use the coding-nextjs agent to implement this with TDD."
+<Task tool call to coding-nextjs agent>
+</example>
+
+<example>
+Context: User wants a new page or component.
+user: "Add a dashboard page that shows post statistics"
+assistant: "Let me use the agent to create this dashboard with proper test coverage."
+<Task tool call to coding-nextjs agent>
+</example>
+```
+
 **形式の使い分け**:
 
 | 形式 | ユースケース | エージェント例 |
@@ -96,16 +125,22 @@ assistant: "[Expected response before invoking]"
 **アンチパターン**:
 
 ```yaml
-# 短すぎる
+# ❌ 短すぎる
 description: Code reviewer
 
-# トリガーなし
+# ❌ トリガーなし
 description: An agent that reviews code for quality issues
 
-# 良いシンプル形式
+# ❌ コンテキストなしの例
+description: Reviews code.
+<example>
+user: "review"
+</example>
+
+# ✅ 良いシンプル形式
 description: Reviews code for quality and security. Use when user asks to "review PR" or "check code".
 
-# 良いリッチ形式
+# ✅ 良いリッチ形式
 description: Use this agent for TDD implementation.
 
 <example>
@@ -395,6 +430,29 @@ Valid tools: Read, Write, Edit, Bash, Grep, Glob, WebFetch, WebSearch, Task
 - frontmatter を含む
 - ハイレベルなワークフロー
 - サポートファイルへのリンク（1階層のみ）
+
+**例**:
+
+```markdown
+---
+name: complex-reviewer
+description: Comprehensive code review
+tools: Read, Grep, Glob, Bash
+---
+
+# Comprehensive Reviewer
+
+## Core Responsibilities
+- Security detection
+- Performance analysis
+
+## Workflow
+1. **Scan**: Find files
+2. **Analyze**: Check criteria (see [reference.md](reference.md))
+3. **Report**: Generate findings
+
+For examples, see [examples.md](examples.md).
+```
 
 ### サポートファイル
 

@@ -62,8 +62,8 @@ After completing the JA version, create the EN version.
 
 Some config types require updating related files:
 
-- Adding skills under `plugin/` → Update `.shirokuma/rules/shirokuma-flow/skills-index.md`
-- Adding rules → Update `.shirokuma/rules/shirokuma-flow/rules-index.md`
+- Adding skills under `plugin/` → Update `.shirokuma/rules/{project}/skills-index.md`
+- Adding rules → Update `.shirokuma/rules/{project}/rules-index.md`
 - **When creating new files**: Use the `docs-layering` rule's decision flow to determine the correct location (`.shirokuma/rules/{project}/`, `plugin/shirokuma-skills-{en,ja}/rules/`, `docs/`, `plugin/specs/`, etc.)
 
 ### 4. For Deletion Tasks

@@ -287,8 +287,8 @@ When displaying project items via `/show-items`, add a batch candidate section a
 ### Batch Candidates
 | Group | Issues | Area |
 |-------|--------|------|
-| Plugin fixes | #101, #102, #105 | area:plugin |
-| CLI improvements | #110, #112, #115 | area:cli |
+| Auth fixes | #101, #102, #105 | area:auth |
+| API improvements | #110, #112, #115 | area:api |
 
 Batch processing: `/implement-flow #101 #102 #105`
 ```

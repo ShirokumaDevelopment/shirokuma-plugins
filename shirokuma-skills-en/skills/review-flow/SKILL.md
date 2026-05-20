@@ -26,7 +26,7 @@ Takes a PR number and performs code review execution (via `review-issue` Agent /
 
 ### Issue / PR Status Transitions (Principle: Do NOT re-transition)
 
-Per the canonical document [`guide/workflows/lifecycle-overview.md`](../../../../guide/workflows/lifecycle-overview.md) L325-330's "**one Review per entity**" principle, `review-flow` MUST NOT re-transition the issue or plan issue to Review. The PR is already in Status: Review (from `pr create`), and code review is represented by the PR's Review state.
+Per the "**one Review per entity**" principle, `review-flow` MUST NOT re-transition the issue or plan issue to Review. The PR is already in Status: Review (from `pr create`), and code review is represented by the PR's Review state.
 
 | Entity | Behavior during review-flow |
 |--------|----------------------------|
@@ -38,7 +38,7 @@ Per the canonical document [`guide/workflows/lifecycle-overview.md`](../../../..
 
 - `submit <Issue#>` / `submit <PlanIssue#>` (re-transitioning the issue or plan issue to Review — **violates the one-Review-per-entity rule**)
 - `status transition <Issue#> --to Review` (same as above)
-- Any path that toggles the issue or plan issue between Review ↔ In progress (anti-flapping — historical behavior #2249, banned again in #2488)
+- Any path that toggles the issue or plan issue between Review ↔ In progress (anti-flapping)
 
 #### Code fixes during review-flow
 
@@ -49,7 +49,7 @@ Apply code fixes in response to review feedback **while the issue / plan issue s
 3. Reply / resolve threads via `pr reply` / `pr resolve`
 4. No status update (PR stays in Review, issue stays in In progress)
 
-> **Design intent**: While the PR is open, the **PR carries Status: Review**. Issues and plan issues stay in In progress. The "temporary fall back to In progress" pattern that earlier `review-flow` versions performed is **forbidden** (per `lifecycle-overview.md` L325-330 canonical decision and the DO NOT list in `project-items.md` Review section).
+> **Design intent**: While the PR is open, the **PR carries Status: Review**. Issues and plan issues stay in In progress. The "temporary fall back to In progress" pattern that earlier `review-flow` versions performed is **forbidden** (per the DO NOT list in `project-items.md` Review section — one-Review-per-entity principle).
 
 ### Step 1: Context Restoration (Required — Must Run First)
 
@@ -114,7 +114,7 @@ When no review has been submitted yet, invoke `review-issue` via the Agent tool 
    Agent(
      description: "review-worker code PR #{PR#}",
      subagent_type: "review-worker",
-     prompt: "code PR #{PR#}\n\nArtifact review targets:\n- #1592 (Discussion)\n- #1593 (Discussion)"
+     prompt: "code PR #{PR#}\n\nArtifact review targets:\n- #101 (Discussion)\n- #102 (Discussion)"
    )
    ```
 
@@ -146,7 +146,7 @@ When no review has been submitted yet, invoke `review-issue` via the Agent tool 
 
 Receive the decision information returned by `review-issue` (the `review-worker` Agent) — `html_report_required`, `template_name`, `category`, `slug`, `report_lines`, `report_kb`, `critical_high_count`, `report_type` — and make the final HTML decision.
 
-**Canonical source for decision criteria, template mapping, and category mapping**: [`.shirokuma/rules/shirokuma-flow/html-report-criteria.md`](../../../../.shirokuma/rules/shirokuma-flow/html-report-criteria.md) (do not duplicate threshold values, template names, or category names into this file).
+**Canonical source for decision criteria, template mapping, and category mapping**: [`html-report-criteria.md`](../../rules/html-report-criteria.md) (do not duplicate threshold values, template names, or category names into this file).
 
 1. **Decision formula**: follow the pseudocode in `html-report-criteria.md` §5-2. If `report_type` is an always-HTML type (`postmortem` / `security-pr-review`) or any threshold (lines / KB / Critical+High) is met, generate HTML.
 2. **When HTML is YES**: invoke `writing-html-explainer` via the Skill tool to generate the HTML report:
@@ -246,7 +246,7 @@ When code fix threads and question/disagreement threads coexist, use the code fi
 
 Process code fix threads together. Delegate fixes to `code-issue` via Skill tool and commits to `commit-worker` via Agent tool.
 
-> **Status transitions (ADR-v3-022 PR_ROLLBACK)**: If a PR needs to be transitioned from `Review → In progress` for code fixes, the `--rollback` flag is required (`shirokuma-flow status transition {PR#} --to "In progress" --rollback`). After fixes are complete, `In progress → Review` is a PR_FORWARD transition and does not require `--rollback`.
+> **Status transitions (PR_ROLLBACK)**: If a PR needs to be transitioned from `Review → In progress` for code fixes, the `--rollback` flag is required (`shirokuma-flow status transition {PR#} --to "In progress" --rollback`). After fixes are complete, `In progress → Review` is a PR_FORWARD transition and does not require `--rollback`.
 
 1. **Fix**: Delegate to `code-issue` with the thread information (file paths, review feedback) for all threads at once:
    ```text
@@ -358,8 +358,8 @@ Addressed {N} threads.
 | User decides no fixes needed (UCP) | Display completion report and exit. Skip thread resolution |
 | User selects partial addressing (UCP) | Process only specified threads, leave the rest unresolved |
 | PASS + recommendations only, user chose to address (no review threads) | Skip Step 3 (thread classification), apply code fixes based on issue comment recommendations → commit. Thread reply/resolve steps are not needed |
-| User chooses to close the PR (e.g., wrong direction) | Guide and run `shirokuma-flow pr close {PR#} --rollback`. The `--rollback` flag auto-reverts linked Issues from Review back to In progress (#2234, F-006). This flow ends; skip the Issue status update |
-| Merged PR needs to be reverted | Guide `shirokuma-flow issue rollback {plan-issue#} --action revert`. It batch-executes revert branch creation, revert PR creation, and resetting the plan Issue to ToDo (#2024 Phase 1-D) |
+| User chooses to close the PR (e.g., wrong direction) | Guide and run `shirokuma-flow pr close {PR#} --rollback`. The `--rollback` flag auto-reverts linked Issues from Review back to In progress. This flow ends; skip the Issue status update |
+| Merged PR needs to be reverted | Guide `shirokuma-flow issue rollback {plan-issue#} --action revert`. It batch-executes revert branch creation, revert PR creation, and resetting the plan Issue to ToDo |
 
 ## Tool Usage
 

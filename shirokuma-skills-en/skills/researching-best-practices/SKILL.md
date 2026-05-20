@@ -117,7 +117,7 @@ For significant research, create a Discussion in the Research category:
 shirokuma-flow discussion add /tmp/shirokuma-flow/findings.md
 ```
 
-> Refer to the "Investigation / Design Artifacts" section (#2251) of `rules/output-destinations.md` for destination selection. Best-practice research and technology comparisons default to **Discussion (Research)**. Structured reference artifacts such as process flows or side-effect matrices go to Discussion (Reports); long-lived design decisions go to Discussion (Knowledge) or ADR.
+> Refer to the "Investigation / Design Artifacts" section of `rules/output-destinations.md` for destination selection. Best-practice research and technology comparisons default to **Discussion (Research)**. Structured reference artifacts such as process flows or side-effect matrices go to Discussion (Reports); long-lived design decisions go to Discussion (Knowledge) or ADR.
 
 ## Output Format
 

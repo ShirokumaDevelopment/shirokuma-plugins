@@ -50,7 +50,16 @@ Checkability analysis → Propose conventions → Implement rules after adoption
 
 Use TaskCreate for progress tracking (6+ steps). Use `AskUserQuestion` to confirm priority when proposing conventions.
 
-### Step 1-7: See workflow file
+### Step Overview
+
+1. Scope definition + existing rule check
+2. Pattern counting + sample collection
+3. Analyze consistency / inconsistency / missing patterns
+4. Prioritization (P0/P1/P2)
+5. Generate proposal (use template)
+6. Save report + create follow-up Issue
+
+### Detailed Workflow
 
 See [workflows/analyze-codebase.md](workflows/analyze-codebase.md)
 
@@ -241,6 +250,13 @@ shirokuma-flow issue comment {evolution-number} /tmp/shirokuma-flow/{evolution-n
 When discovering patterns reveals deficiencies in existing rules (coverage gaps, ambiguous descriptions, divergence from practice), record them as comments in an Evolution Issue.
 
 ```bash
+# Write to file first, then post via issue comment
+cat > /tmp/shirokuma-flow/{evolution-number}-signal.md <<'EOF'
+**Type:** Missing pattern
+**Target:** {rule name}
+**Context:** {situation when discovered}
+**Proposal:** {improvement suggestion}
+EOF
 shirokuma-flow issue comment {evolution-number} /tmp/shirokuma-flow/{evolution-number}-signal.md
 ```
 

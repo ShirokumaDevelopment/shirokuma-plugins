@@ -34,7 +34,7 @@ shirokuma-flow lint docs
 - エラー（`❌`）: 必須セクション欠落、OVERVIEW.md / ADR 等の構造違反
 - 警告（`⚠️`）: 軽微な構造問題
 
-> **現状の検査範囲**: `lint docs` はファイル存在・必須セクションの検査が中心。Phase 1 (#2496) で実装された `claude-md-budget` / `claude-md-index-drift` ルールは `lint workflow` 側に属し、`workflow.ts` への配線が完了（#2512）するまで `lint docs` の出力には含まれない。本 skill では Step 2c/2d で AI 側でも該当領域を検出する。
+> **現状の検査範囲**: `lint docs` はファイル存在・必須セクションの検査が中心。Phase 1 で実装された `claude-md-budget` / `claude-md-index-drift` ルールは `lint workflow` 側に属し、`workflow.ts` への配線が完了するまで `lint docs` の出力には含まれない。本 skill では Step 2c/2d で AI 側でも該当領域を検出する。
 
 ### 2. AI 判定による構造監査
 
@@ -47,7 +47,7 @@ shirokuma-flow lint docs
 ```bash
 # plugin/shirokuma-skills-ja/rules/ に project rule 相当のものが紛れていないか
 # （他プロジェクトでは意味を持たない、特定リポジトリ固有の内容）
-grep -r "shirokuma-docs" plugin/shirokuma-skills-ja/rules/ --include="*.md" -l
+grep -r "{対象ドキュメント名}" .shirokuma/rules/ --include="*.md" -l
 ```
 
 ```bash
@@ -93,9 +93,9 @@ done | sort -n | head -10
 wc -l CLAUDE.md
 ```
 
-150 行を超えている場合は警告（ADR-v3-021 Phase 1 で設定された予算）。
+150 行を超えている場合は警告（設定された行数予算）。
 
-> **暫定**: `claude-md-budget` lint ルール（Phase 1 (#2496) で実装済み）の `workflow.ts` への配線が完了（#2512）すれば、本チェックは段 1（lint workflow）で機械的に検出される。本 skill では暫定的に AI 側でも確認する。
+> **暫定**: `claude-md-budget` lint ルール（Phase 1 で実装済み）の `workflow.ts` への配線が完了すれば、本チェックは段 1（lint workflow）で機械的に検出される。本 skill では暫定的に AI 側でも確認する。
 
 #### 2e. ADR 漏れの可能性
 
@@ -153,7 +153,7 @@ git log --oneline -20
 
 サマリーレポート（ステップ 4）の規模に基づき、HTML レポート化要否を判定する。本スキル自身は HTML 生成を行わず、呼び出し元または直接実行時のユーザーに**判定情報**を提示する。
 
-**判定基準・テンプレート対応・カテゴリマッピングの正本**: [`.shirokuma/rules/shirokuma-flow/html-report-criteria.md`](../../../../.shirokuma/rules/shirokuma-flow/html-report-criteria.md)（閾値・テンプレート名・カテゴリ名を本ファイルに直書きしない）。
+**判定基準・テンプレート対応・カテゴリマッピングの正本**: [`html-report-criteria.md`](../../rules/html-report-criteria.md)（閾値・テンプレート名・カテゴリ名を本ファイルに直書きしない）。
 
 #### 5-1. 判定情報の生成
 
@@ -211,7 +211,7 @@ cat > /tmp/shirokuma-flow/audit-issue-{slug}.md <<'EOF'
 title: "fix(docs): {問題の要約}"
 priority: "Medium"
 size: "S"
-labels: ["area:docs"]
+labels: ["area:{ドキュメント領域}"]
 ---
 
 ## 目的

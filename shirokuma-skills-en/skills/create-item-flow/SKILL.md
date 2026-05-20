@@ -81,7 +81,7 @@ After the similar-issue search and before issue creation, **auto-discover this p
 
 | Category | Search command | Output sub-section |
 |----------|---------------|-------------------|
-| Canonical docs | `grep -l <keywords> guide/ docs/specs/ docs/portal-design-spec.md CLAUDE.md` → Read the relevant excerpts | `### Canonical Documents` |
+| Canonical docs | `grep -l <keywords> guide/ docs/specs/ CLAUDE.md` → Read the relevant excerpts | `### Canonical Documents` |
 | ADR (Accepted) | `shirokuma-flow discussion adr list` → match by title / body keywords, top 3-5 | `### Related ADRs (Accepted)` |
 | Existing issues / PRs | `shirokuma-flow issue search "<keywords>" --limit 5` | `### Related Existing Issues / PRs` |
 
@@ -105,7 +105,7 @@ Skill: managing-github-items
 Args: create-item --title "{Title}" --issue-type "{Type}" --labels "{area:label}" --priority "{Priority}" --size "{Size}"
 ```
 
-> **Initial Status (ADR-v3-022)**: `INITIAL_STATUSES = ["Backlog"]` — the default Status for new Issues is `Backlog` (uninvestigated/untriaged). Explicitly specifying `--status "In progress"` will be rejected by `validateInitialStatus`.
+> **Initial Status**: `INITIAL_STATUSES = ["Backlog"]` — the default Status for new Issues is `Backlog` (uninvestigated/untriaged). Explicitly specifying `--status "In progress"` will be rejected by `validateInitialStatus`.
 
 ### Step 2b: Requirements Review and Design Assessment (invoke analyze-issue requirements)
 

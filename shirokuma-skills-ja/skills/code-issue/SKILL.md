@@ -39,7 +39,7 @@ shirokuma-flow skills routing coding
 
 | 作業タイプ | 判定条件 | ルート |
 |-----------|---------|--------|
-| フレームワーク固有の実装 | `area:frontend`, `area:cli` + フレームワーク関連 | 発見された `coding-*` スキルに Skill 委任 |
+| フレームワーク固有の実装 | `area:frontend` 等の領域ラベル + フレームワーク関連 | 発見された `coding-*` スキルに Skill 委任 |
 | バグ修正（コード） | コードファイルに影響 | 発見された `coding-*` スキルに Skill 委任 or 直接編集 |
 | Markdown / ドキュメント編集 | `.md` ファイルの変更 | 直接編集 |
 | スキル / ルール / エージェント編集 | `plugin/`, `.claude/` 配下 | 発見された `coding-claude-config` スキルに Skill 委任 |

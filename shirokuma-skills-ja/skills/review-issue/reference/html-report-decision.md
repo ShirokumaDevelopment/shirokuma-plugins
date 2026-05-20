@@ -6,7 +6,7 @@
 
 レポート保存後、本スキル自身は HTML 生成を行わず、呼び出し元オーケストレーター（`review-flow` 等）に**判定情報**を構造化データで返却する。実際の HTML 生成（`writing-html-explainer` の呼び出し）はオーケストレーターの責務。
 
-**判定基準・テンプレート対応・カテゴリマッピングの正本**: [`.shirokuma/rules/shirokuma-flow/html-report-criteria.md`](../../../../../.shirokuma/rules/shirokuma-flow/html-report-criteria.md)（閾値・テンプレート名・カテゴリ名を本ファイルに直書きしないこと）。
+**判定基準・テンプレート対応・カテゴリマッピングの正本**: [`html-report-criteria.md`](../../../rules/html-report-criteria.md)（閾値・テンプレート名・カテゴリ名を本ファイルに直書きしないこと）。
 
 ## 判定スキップ条件
 

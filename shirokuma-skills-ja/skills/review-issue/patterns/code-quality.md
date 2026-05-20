@@ -16,6 +16,12 @@ const data = parseFormData(formData, schema)
 const data = Object.fromEntries(formData) as unknown as T
 ```
 
+**メリット:**
+- Zod スキーマ検証による型安全なパース
+- 一貫したエラーハンドリング
+- ボイラープレートの削減
+- パースロジックの集約
+
 ## トランザクションエラーハンドリング
 
 DB トランザクションは必ず try-catch で囲む:
@@ -36,7 +42,15 @@ await db.transaction(async (tx) => {
 })
 ```
 
+**メリット:**
+- 未処理の reject を防止
+- 一貫したエラーレスポンス
+- ロールバック保護
+- デバッグ容易性の向上
+
 ## 型の整理
+
+型を整理する基準は以下の通り:
 
 ### 共有パッケージ (`@repo/shared`)
 - 2つ以上のアプリで使用される型
@@ -85,7 +99,15 @@ export interface CategoryFormState {
 }
 ```
 
+**メリット:**
+- 一貫したシリアライズ
+- タイムゾーン対応
+- JSON 互換性
+- DB 型との互換性
+
 ## useActionState パターン (React 19)
+
+フォーム処理にはモダンな `useActionState` フックを使用:
 
 ```typescript
 // GOOD: モダンな React 19 パターン
@@ -112,6 +134,13 @@ const handleSubmit = (formData: FormData) => {
   })
 }
 ```
+
+**メリット:**
+- ペンディング状態が組み込み
+- プログレッシブエンハンスメント自動対応
+- エラーハンドリングの改善
+- 型安全な action state
+- よりシンプルな API
 
 ---
 

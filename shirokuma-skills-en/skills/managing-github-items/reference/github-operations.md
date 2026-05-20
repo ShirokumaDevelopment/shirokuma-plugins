@@ -19,7 +19,7 @@ Shared reference for all session/GitHub skills. Single source of truth for CLI c
 |-----------|---------|
 | **Issues** | Task management, `#123` references, history |
 | **Projects** | Status/Priority/Size field management |
-| **Labels** | Supplementary area classification (`area:cli`, `area:plugin`, etc.) |
+| **Labels** | Supplementary area classification (`area:<scope>` form, vocabulary per project) |
 | **Discussions** | ADR, Knowledge, Research, Q&A |
 
 **Status is managed via Projects fields** (not Labels).
@@ -57,13 +57,13 @@ shirokuma-flow issue context {number}                # Fetch details and cache (
 shirokuma-flow issue add /tmp/shirokuma-flow/new-issue.md  # Metadata + body in one file
 shirokuma-flow issue update {number} /tmp/shirokuma-flow/{number}-body.md  # Update body
 shirokuma-flow issue update {number} --title "New title"                           # Update title
-shirokuma-flow issue update {number} --labels "area:cli,area:plugin"               # Update labels
+shirokuma-flow issue update {number} --labels "area:<scope>"               # Update labels
 shirokuma-flow issue update {number} --assignees "@me"                             # Update assignees
 shirokuma-flow begin {number}                                                       # In progress + assign @me (checkpoint, recommended)
 shirokuma-flow submit {number} [--comment <file>]                                   # Move to Review (checkpoint, recommended)
 shirokuma-flow block {number} --reason "..."                                        # Move to Blocked + record reason (checkpoint, recommended)
 shirokuma-flow resume {number} [--comment <file>]                                   # Blocked → In progress (checkpoint, recommended)
-shirokuma-flow approve {number}                                                     # Review → Done (for plan issues, syncParentStatus auto-syncs parent Backlog → ToDo) (checkpoint, recommended; ADR-v3-022)
+shirokuma-flow approve {number}                                                     # Review → Done (for plan issues, syncParentStatus auto-syncs parent Backlog → ToDo) (checkpoint, recommended)
 shirokuma-flow status transition {number} --to "In progress"                        # primitive status transition (use for non-checkpoint targets such as ToDo)
 shirokuma-flow issue comment {number} /tmp/shirokuma-flow/{number}-comment.md
 shirokuma-flow issue comments {number}                   # List comments
@@ -161,7 +161,7 @@ title: Issue Title
 type: Feature
 priority: Medium
 size: M
-labels: [area:cli]
+labels: [area:<scope>]
 ---
 
 Body content goes here.
@@ -192,7 +192,7 @@ Use `<<'EOF'` as heredoc delimiter (single quotes prevent variable expansion). W
 
 ## Status Workflow
 
-GitHub Projects V2 Status has 6 values (ADR-v3-022):
+GitHub Projects V2 Status has 6 values:
 
 ```mermaid
 stateDiagram-v2
@@ -200,12 +200,12 @@ stateDiagram-v2
   Backlog --> ToDo: approve (syncParentStatus for plan issues)
   Backlog --> Review: submit (plan issue child: plan complete)
   ToDo --> InProgress: begin
-  InProgress --> Review: pr create (PR_FORWARD: PR only, ADR-v3-022 D-1)
+  InProgress --> Review: pr create (PR_FORWARD: PR only)
   Review --> Done: approve (plan issue child)
   Review --> Done: pr merge (PR)
   InProgress --> Blocked: block
   Blocked --> InProgress: resume
-  InProgress --> Done: pr merge (task issue child: ADR-v3-022 D-1)
+  InProgress --> Done: pr merge (task issue child)
   Backlog --> Done: cancel (state_reason: not_planned)
   Review --> Backlog: reject (--rollback, plan issue rollback)
   InProgress --> Backlog: reset (--rollback)
@@ -217,7 +217,7 @@ stateDiagram-v2
 | ToDo | Ready to start (auto-transitioned via syncParentStatus after plan approval) | Auto-sync after `approve` (plan issue child) / `status transition --to ToDo` (manual) |
 | In progress | Working (planning / design / implementation) | `begin <N>` |
 | Blocked | Blocked (reason recorded in issue comment) | `block <N> --reason "..."` |
-| Review | Awaiting review (plan review / code review). ADR-v3-022 D-1 constraint: parent issue Review is exclusively for PR review (plan issue child is a separate entity) | `submit <N>` |
+| Review | Awaiting review (plan review / code review). constraint: parent issue Review is exclusively for PR review (plan issue child is a separate entity) | `submit <N>` |
 | Done | Closed / cancelled (cancellations use Done with state_reason: not_planned) | `approve <N>` / `issue cancel <N>` |
 
 Legacy statuses (`Approved` / `Completed` / `Pending` / `Ready` / `On Hold` / `Cancelled`, etc.) are deprecated. Legacy values are read transparently via `LEGACY_STATUS_VALUES`.
@@ -229,7 +229,7 @@ Work type classification is primarily handled by **Issue Types** (Organization-l
 | Mechanism | Role | Example |
 |-----------|------|---------|
 | Issue Types | **What** kind of work | Feature, Bug, Chore, Docs, Research, Evolution |
-| Area labels | **Where** the work applies | `area:cli`, `area:plugin` |
+| Area labels | **Where** the work applies | `area:<scope>` (per project) |
 | Operational labels | Triage / lifecycle | `duplicate`, `invalid`, `wontfix` |
 
 Labels are added manually based on project structure. Status is managed via Projects fields.

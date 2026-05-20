@@ -81,7 +81,7 @@ Load these files for context:
 
 ADR reference trigger conditions (perform when any of the following apply):
 - Issue title or body contains keywords such as "ADR", "architecture", "design decision", "technology selection"
-- Labels include structural area labels such as `area:plugin`, `area:workflow`, `area:cli`, and the body co-contains the above keywords
+- Labels include structural-change area labels (areas touching code structure such as the plugin system, workflow, or CLI), and the body co-contains the above keywords
 
 For the ADR filtering logic, see [docs/adr-filter-logic.md](../docs/adr-filter-logic.md).
 

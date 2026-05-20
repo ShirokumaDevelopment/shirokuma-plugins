@@ -37,7 +37,13 @@ When `review-issue` is invoked with the following keywords, it automatically del
 | "design review", "設計レビュー", "デザインレビュー" | `analyze-issue` design |
 | "research review", "リサーチレビュー" | `analyze-issue` research |
 
-**Behavior**: When a keyword is detected, output `"This role has moved to the analyze-issue skill. Please use \`analyze-issue {role name}\`."` and exit (no Skill delegation).
+**Behavior**: When a keyword is detected, output the following message and exit (no Skill delegation):
+
+```
+This role has moved to the analyze-issue skill. Please use `analyze-issue {role name}`.
+```
+
+Example: when "plan review" is detected → output `"This role has moved to the analyze-issue skill. Please use \`analyze-issue plan\`."` and exit.
 
 ## Workflow
 
@@ -274,6 +280,7 @@ Only save a detailed report to Discussions when there are many critical issues (
 Create Discussion in Reports category (existing behavior):
 
 ```bash
+# Prepare a file with title and category set in the frontmatter, then run
 shirokuma-flow discussion add /tmp/shirokuma-flow/review-report.md
 ```
 
@@ -291,13 +298,21 @@ Report the Discussion URL to the user.
 
 ### 7. HTML Report Decision
 
-After saving the report, this skill itself does not generate HTML. It returns **decision information** as structured data to the calling orchestrator (`review-flow`, etc.). For decision criteria, returned fields, and template selection details, see [reference/html-report-decision.md](reference/html-report-decision.md) (canonical: [`.shirokuma/rules/shirokuma-flow/html-report-criteria.md`](../../../../.shirokuma/rules/shirokuma-flow/html-report-criteria.md)).
+After saving the report, this skill itself does not generate HTML. It returns **decision information** as structured data to the calling orchestrator (`review-flow`, etc.). For decision criteria, returned fields, and template selection details, see [reference/html-report-decision.md](reference/html-report-decision.md) (canonical: [`html-report-criteria.md`](../../rules/html-report-criteria.md)).
 
 > `auditing-security` is a dependency-vulnerability scanner that completes within Issue creation, so it is outside this decision. `reviewing-security` (PR security review) is always an HTML target.
 
 ## Knowledge Update
 
 When user requests `--update`, delegate to knowledge-manager ("ソース更新して"). It updates Next.js/React/Tailwind CSS/Better Auth/OWASP via web search, then redistribute with "配布して".
+
+## Progressive Disclosure
+
+For token efficiency:
+
+1. **Auto-loaded**: `.claude/rules/*.md` (based on the review target's file paths)
+2. **On-demand**: Load knowledge files based on role / findings
+3. **Minimal output**: Summary first; details on request
 
 ## Quick Reference
 
@@ -383,7 +398,7 @@ Review reports (PR comments, Discussions) must follow the language specified in 
 |-----------|-------|
 | `criteria/` | [code-quality](criteria/code-quality.md), [coding-conventions](criteria/coding-conventions.md), [security](criteria/security.md), [testing](criteria/testing.md) |
 | `patterns/` | [server-actions](patterns/server-actions.md), [server-actions-structure](patterns/server-actions-structure.md), [drizzle-orm](patterns/drizzle-orm.md), [better-auth](patterns/better-auth.md), [e2e-testing](patterns/e2e-testing.md), [tailwind-v4](patterns/tailwind-v4.md), [radix-ui-hydration](patterns/radix-ui-hydration.md), [jsdoc](patterns/jsdoc.md), [nextjs-patterns](patterns/nextjs-patterns.md), [i18n](patterns/i18n.md), [code-quality](patterns/code-quality.md), [account-lockout](patterns/account-lockout.md), [audit-logging](patterns/audit-logging.md), [docs-management](patterns/docs-management.md) |
-| `reference/` | [tech-stack](reference/tech-stack.md), [progress-report-examples](reference/progress-report-examples.md), [html-report-decision](reference/html-report-decision.md) |
+| `reference/` | [tech-stack](reference/tech-stack.md), [progress-report-examples](reference/progress-report-examples.md), [review-checklist](reference/review-checklist.md), [html-report-decision](reference/html-report-decision.md) |
 | `roles/` | [code](roles/code.md), [security](roles/security.md), [testing](roles/testing.md), [nextjs](roles/nextjs.md), [docs](roles/docs.md) |
 | `templates/` | [report](templates/report.md) |
 | `docs/setup/` | [auth-setup](docs/setup/auth-setup.md), [database-setup](docs/setup/database-setup.md), [infra-setup](docs/setup/infra-setup.md), [project-init](docs/setup/project-init.md), [styling-setup](docs/setup/styling-setup.md) |

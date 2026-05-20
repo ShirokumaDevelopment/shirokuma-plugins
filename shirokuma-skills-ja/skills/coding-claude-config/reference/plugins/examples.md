@@ -52,6 +52,29 @@ Greet the user warmly and ask how you can help today.
 Please greet the user in a friendly way and ask what they would like to work on.
 ```
 
+### README.md
+
+```markdown
+# My First Plugin
+
+A simple greeting plugin for Claude Code.
+
+## Installation
+
+\```bash
+/plugin marketplace add file:///path/to/marketplace.json
+/plugin install my-first-plugin@test-marketplace
+\```
+
+## Usage
+
+\```bash
+/greet
+\```
+
+Claude will greet you warmly and ask how to help.
+```
+
 ### テスト
 
 1. marketplace.json を作成:
@@ -71,9 +94,13 @@ Please greet the user in a friendly way and ask what they would like to work on.
 }
 ```
 
-2. マーケットプレイスを追加してインストール:
+2. マーケットプレイスを追加:
 ```bash
 /plugin marketplace add file:///absolute/path/to/marketplace.json
+```
+
+3. インストールしてテスト:
+```bash
 /plugin install my-first-plugin@test-marketplace
 /greet
 ```
@@ -119,6 +146,14 @@ description: Analyze code complexity metrics including cyclomatic complexity, ne
 # Analyzing Code Complexity
 
 Analyze code complexity metrics to identify areas needing refactoring.
+
+## When to Use
+
+Automatically invoke when the user:
+- Asks to "analyze complexity" or "check complexity"
+- Mentions "cyclomatic complexity" or "cognitive complexity"
+- Says "is this code too complex?"
+- Wants to "find complex functions"
 
 ## Workflow
 
@@ -168,6 +203,14 @@ description: Generate API documentation, README files, and inline code comments 
 
 Generate comprehensive documentation for code projects.
 
+## When to Use
+
+Automatically invoke when the user:
+- Asks to "generate docs" or "create documentation"
+- Says "write a README" or "document this"
+- Mentions "API documentation" or "code comments"
+- Wants to "add JSDoc" or "write docstrings"
+
 ## Workflow
 
 ### Step 1: Determine Documentation Type
@@ -204,6 +247,44 @@ Include:
 ## Notes
 
 See [reference.md](reference.md) for format specifications per language.
+```
+
+### README.md
+
+```markdown
+# Code Helper Plugin
+
+Skills for code analysis and documentation generation.
+
+## Skills Included
+
+- analyzing-complexity: Analyze code complexity metrics
+- generating-docs: Generate API documentation and comments
+
+## Installation
+
+\```bash
+/plugin install code-helper@company-marketplace
+\```
+
+## Usage
+
+Skills are automatically invoked by natural language:
+
+\```
+"Analyze the complexity of src/utils/parser.ts"
+"Generate API documentation for this class"
+"Check if these functions are too complex"
+\```
+
+## Requirements
+
+- Claude Code 1.0+
+- Project with source code files
+
+## License
+
+MIT
 ```
 
 ---
@@ -247,6 +328,14 @@ description: Manages complex build processes including dependency installation, 
 # Build Manager Agent
 
 Autonomously manages complex build processes with error handling and recovery.
+
+## When to Use
+
+Invoke when:
+- User requests "build the project"
+- Complex multi-step build required
+- Need to handle build errors automatically
+- CI/CD pipeline execution needed
 
 ## Capabilities
 
@@ -292,9 +381,51 @@ If build fails:
 - Test results
 - Warnings summary
 
+## Tool Access
+
+Full access to all tools for build operations.
+
 ## Notes
 
 See [reference.md](reference.md) for supported build tools and error recovery patterns.
+```
+
+### README.md
+
+```markdown
+# DevOps Agents Plugin
+
+Specialized agents for build and deployment automation.
+
+## Agents Included
+
+- **build-manager**: Complex build process management
+- **deployment-coordinator**: Multi-environment deployment workflows
+
+## Installation
+
+\```bash
+/plugin install devops-agents@company-marketplace
+\```
+
+## Usage
+
+Agents are invoked automatically or explicitly:
+
+\```
+"Build the project and fix any errors"
+"Deploy to staging environment"
+"Use the build-manager agent to compile and test"
+\```
+
+## Requirements
+
+- Claude Code 1.5+
+- Build tools installed (npm, make, etc.)
+
+## License
+
+Apache-2.0
 ```
 
 ---
@@ -375,9 +506,47 @@ Please perform security analysis:
 6. Suggest remediation for critical issues
 ```
 
+### README.md
+
+```markdown
+# Quick Commands Plugin
+
+Utility commands for common development tasks.
+
+## Commands Included
+
+- `/format-all`: Format all code files
+- `/clean-deps`: Clean up dependencies
+- `/check-security`: Security vulnerability scan
+
+## Installation
+
+\```bash
+/plugin install quick-commands@company-marketplace
+\```
+
+## Usage
+
+\```bash
+/format-all
+/clean-deps
+/check-security
+\```
+
+## Requirements
+
+- Claude Code 1.0+
+- Formatter tools installed (Prettier, Black, etc.)
+
+## License
+
+MIT
+```
+
 ---
 
 ## 関連リソース
 
 - [高度な例](examples-advanced.md) - 包括的プラグイン、マーケットプレイスセットアップ、チームワークフロー、npm 公開
 - [リファレンスガイド](reference.md) - 完全なプラグイン仕様
+- [ベストプラクティス](best-practices.md) - プラグイン開発ガイドライン

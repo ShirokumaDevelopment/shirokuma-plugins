@@ -20,7 +20,7 @@ implement-flow（マネージャー＝メイン AI）
 
 | 判定条件 | ルート |
 |---------|--------|
-| ラベル: `area:frontend`, `area:cli` + フレームワーク関連 | `code-issue` → 発見された `coding-*` スキル |
+| ラベル: `area:frontend` 等の領域ラベル + フレームワーク関連 | `code-issue` → 発見された `coding-*` スキル |
 | キーワード: `implement`, `create`, `add`, `実装`, `作成`, `追加` | `code-issue` → 発見された `coding-*` スキル |
 | キーワード: `fix`, `bug`, `修正`, `バグ` | `code-issue` → 発見された `coding-*` スキル or 直接編集 |
 | Markdown / ドキュメント | `code-issue` → 直接編集 |

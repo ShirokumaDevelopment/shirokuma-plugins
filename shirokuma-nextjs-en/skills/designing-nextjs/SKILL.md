@@ -137,4 +137,4 @@ Architecture design complete. Next steps:
 - **Build verification is not needed** -- this skill produces design documents, not runnable code
 - When Design Brief is provided, design based on it. When standalone, gather requirements from the issue before designing
 - Always check `known-issues.md` for framework version constraints
-- **Design artifact destinations**: Follow the "Investigation / Design Artifacts" section (#2251) of `shirokuma-skills`'s `rules/output-destinations.md`. Architecture proposals and Server Actions / API Routes design decisions default to **Discussion (Knowledge)** or ADR; screen transition / side-effect matrices default to **Discussion (Reports)**
+- **Design artifact destinations**: Follow the "Investigation / Design Artifacts" section of `shirokuma-skills`'s `rules/output-destinations.md`. Architecture proposals and Server Actions / API Routes design decisions default to **Discussion (Knowledge)** or ADR; screen transition / side-effect matrices default to **Discussion (Reports)**

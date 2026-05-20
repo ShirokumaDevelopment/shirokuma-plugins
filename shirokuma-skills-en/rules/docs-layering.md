@@ -91,7 +91,7 @@ Q6: Is it a human-readable explanation or tutorial?
 
 **Examples**: Build procedures, dev/release switch scripts, local environment setup instructions.
 
-**Location**: Repository-specific dev-environment knowledge is out of scope for this generic rule. Each project defines its own **project-specific layout convention** (e.g. shirokuma-docs uses `.claude/rules/` and `.shirokuma/rules/{project}/docs-layout.md`).
+**Location**: Repository-specific dev-environment knowledge is out of scope for this generic rule. Each project defines its own **project-specific layout convention** (e.g. via a project's `.claude/rules/` and `.shirokuma/rules/{project}/docs-layout.md`).
 
 **Deciding factor**: "Is this valuable for other projects?" → NO = project-specific convention. This generic rule only handles decision criteria that apply across projects.
 

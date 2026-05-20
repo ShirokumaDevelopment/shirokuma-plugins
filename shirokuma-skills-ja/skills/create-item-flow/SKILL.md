@@ -81,7 +81,7 @@ shirokuma-flow issue search "<キーワード>" --limit 5
 
 | カテゴリ | 検索コマンド | 出力先サブセクション |
 |---------|------------|------------------|
-| 正本ドキュメント | `grep -l <keywords> guide/ docs/specs/ docs/portal-design-spec.md CLAUDE.md` で発見 → 該当箇所を Read | `### 正本ドキュメント` |
+| 正本ドキュメント | `grep -l <keywords> guide/ docs/specs/ CLAUDE.md` で発見 → 該当箇所を Read | `### 正本ドキュメント` |
 | ADR (Accepted) | `shirokuma-flow discussion adr list` → タイトル / 本文キーワード照合で上位 3-5 件 | `### 関連 ADR（Accepted）` |
 | 既存 Issue / PR | `shirokuma-flow issue search "<keywords>" --limit 5` | `### 関連既存 Issue / PR` |
 
@@ -105,7 +105,7 @@ Skill: managing-github-items
 Args: create-item --title "{タイトル}" --issue-type "{Type}" --labels "{area:ラベル}" --priority "{Priority}" --size "{Size}"
 ```
 
-> **初期 Status（ADR-v3-022）**: `INITIAL_STATUSES = ["Backlog"]` により、Issue 作成時のデフォルト Status は `Backlog`（未調査・未トリアージ）。`--status "In progress"` の明示指定は `validateInitialStatus` でエラーになる。
+> **初期 Status**: `INITIAL_STATUSES = ["Backlog"]` により、Issue 作成時のデフォルト Status は `Backlog`（未調査・未トリアージ）。`--status "In progress"` の明示指定は `validateInitialStatus` でエラーになる。
 
 ### ステップ 2b: 要件レビューと設計要否判定（analyze-issue requirements 呼び出し）
 

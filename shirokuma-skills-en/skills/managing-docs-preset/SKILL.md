@@ -10,7 +10,7 @@ Skill for adding, updating, and versioning entries in `BUILTIN_PRESETS`.
 
 ## Versioning Convention
 
-Defined in `.shirokuma/rules/shirokuma-flow/docs-preset-versioning.md`. Key points:
+Defined in `.shirokuma/rules/{project}/docs-preset-versioning.md`. Key points:
 
 - Format: `{name}-{version}` (hyphen-separated)
 - Version is determined by **the version introducing new features**

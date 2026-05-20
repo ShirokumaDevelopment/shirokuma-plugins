@@ -34,7 +34,7 @@ Collect from the output:
 - Errors (`❌`): missing required sections, OVERVIEW.md / ADR structural violations
 - Warnings (`⚠️`): minor structural issues
 
-> **Current inspection scope**: `lint docs` focuses on file existence and required section checks. The `claude-md-budget` / `claude-md-index-drift` rules implemented in Phase 1 (#2496) belong to `lint workflow`, and until they are wired into `workflow.ts` (#2512), they do not appear in `lint docs` output. This skill covers those areas via AI inspection in Steps 2c/2d.
+> **Current inspection scope**: `lint docs` focuses on file existence and required section checks. The `claude-md-budget` / `claude-md-index-drift` rules implemented in Phase 1 belong to `lint workflow`, and until they are wired into `workflow.ts`, they do not appear in `lint docs` output. This skill covers those areas via AI inspection in Steps 2c/2d.
 
 ### 2. AI-Driven Structural Audit
 
@@ -47,7 +47,7 @@ Detect placement mismatches:
 ```bash
 # Check if project-rule-level content is mixed into plugin/shirokuma-skills-ja/rules/
 # (repo-specific content that has no meaning in other projects)
-grep -r "shirokuma-docs" plugin/shirokuma-skills-ja/rules/ --include="*.md" -l
+grep -r "{target-doc-name}" .shirokuma/rules/ --include="*.md" -l
 ```
 
 ```bash
@@ -93,9 +93,9 @@ Files with a reference count of **0** are orphan candidates. This also captures 
 wc -l CLAUDE.md
 ```
 
-Warn if over 150 lines (budget set in ADR-v3-021 Phase 1).
+Warn if over 150 lines (configured line budget).
 
-> **Interim**: Once the `claude-md-budget` lint rule (already implemented in Phase 1 (#2496)) is wired into `workflow.ts` (#2512), this check will be performed mechanically by Tier 1 (lint workflow). Until then, this skill provides AI-side coverage.
+> **Interim**: Once the `claude-md-budget` lint rule (already implemented in Phase 1) is wired into `workflow.ts`, this check will be performed mechanically by Tier 1 (lint workflow). Until then, this skill provides AI-side coverage.
 
 #### 2e. Possible Missing ADRs
 
@@ -153,7 +153,7 @@ Report to the user in this format:
 
 Based on the size of the summary report (Step 4), decide whether to promote it to an HTML report. This skill itself does not generate HTML; it presents **decision information** to the caller or, when run directly, to the user.
 
-**Canonical source for decision criteria, template mapping, and category mapping**: [`.shirokuma/rules/shirokuma-flow/html-report-criteria.md`](../../../../.shirokuma/rules/shirokuma-flow/html-report-criteria.md) (do not duplicate threshold values, template names, or category names into this file).
+**Canonical source for decision criteria, template mapping, and category mapping**: [`html-report-criteria.md`](../../rules/html-report-criteria.md) (do not duplicate threshold values, template names, or category names into this file).
 
 #### 5-1. Generate Decision Information
 
@@ -211,7 +211,7 @@ cat > /tmp/shirokuma-flow/audit-issue-{slug}.md <<'EOF'
 title: "fix(docs): {problem summary}"
 priority: "Medium"
 size: "S"
-labels: ["area:docs"]
+labels: ["area:{docs-area}"]
 ---
 
 ## Purpose

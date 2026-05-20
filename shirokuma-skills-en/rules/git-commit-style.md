@@ -27,7 +27,7 @@ priority: required
 
 ## Rules
 
-1. **First line under 72 characters** — `lint workflow`'s `commit-format` flags violations at info level (past offenders: 8 commits in PR #2635 for #2620). Keep the subject as a summary; push issue numbers, sub-issues, and scope details into the body
+1. **First line under 72 characters** — `lint workflow`'s `commit-format` flags violations at info level (past violations occurred). Keep the subject as a summary; push issue numbers, sub-issues, and scope details into the body
 2. **Reference issue number** when applicable: `(#39)`
 3. **Imperative mood** in description: "add feature" not "added feature"
 4. **Body is optional** - Use for complex changes that need explanation
@@ -37,8 +37,8 @@ priority: required
 
 | Bad (over) | Good (≤ 72) |
 |-----------|-------------|
-| `feat(skill): writing-html-explainer adds remaining 5 html-effectiveness parts (decision-card / triage-board / artboard / flag / card-titles) + ?v=12 bump (#2620)` (160 chars) | `feat(skill): add 5 html-effectiveness parts (#2620)` (52 chars) + body with detail |
-| `chore(pages): update submodule pointer (rewrite §5.3 to .milestone-timeline) (#2620)` (84 chars) | `chore(pages): bump submodule (§5.3 → milestone-timeline) (#2620)` (62 chars) |
+| `feat(skill): writing-html-explainer adds remaining 5 html-effectiveness parts (decision-card / triage-board / artboard / flag / card-titles) + ?v=12 bump (#N)` (160 chars) | `feat(skill): add 5 html-effectiveness parts (#N)` (52 chars) + body with detail |
+| `chore(pages): update submodule pointer (rewrite §5.3 to .milestone-timeline) (#N)` (84 chars) | `chore(pages): bump submodule (§5.3 → milestone-timeline) (#N)` (62 chars) |
 
 ### Pre-commit self-check
 

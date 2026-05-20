@@ -95,4 +95,4 @@ Implementation complete. Next steps:
 - **Memorability is the top priority**
 - **Build must pass**
 - When Design Brief is provided, implement based on it. When standalone, confirm aesthetic direction with user before implementation
-- **Design artifact destinations**: Follow the "Investigation / Design Artifacts" section (#2251) of `shirokuma-skills`'s `rules/output-destinations.md`. Design system selection and visual design decisions default to **Discussion (Knowledge)** or ADR; component comparisons and adoption rationale default to **Discussion (Reports)**
+- **Design artifact destinations**: Follow the "Investigation / Design Artifacts" section of `shirokuma-skills`'s `rules/output-destinations.md`. Design system selection and visual design decisions default to **Discussion (Knowledge)** or ADR; component comparisons and adoption rationale default to **Discussion (Reports)**

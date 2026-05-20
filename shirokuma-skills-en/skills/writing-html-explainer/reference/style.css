@@ -110,7 +110,7 @@
 [data-theme="dark"] .diagram svg [stroke="#D1CFC5"] { stroke: #44413c; }
 [data-theme="dark"] .diagram svg [fill="#F0EEE6"] { fill: #2a2724; }
 [data-theme="dark"] .diagram svg [stroke="#F0EEE6"] { stroke: #2a2724; }
-/* #2620: §12-16 .artboard SVG モック向けの ivory/clay オーバーライド */
+/* §12-16 .artboard SVG モック向けの ivory/clay オーバーライド */
 [data-theme="dark"] .diagram svg [fill="#FAF9F5"] { fill: #1f1d1a; }
 [data-theme="dark"] .diagram svg [stroke="#FAF9F5"] { stroke: #1f1d1a; }
 [data-theme="dark"] .diagram svg [fill="#D97757"] { fill: #e89377; }
@@ -464,26 +464,26 @@ li { margin: 0.25rem 0; }
   }
   main { padding: 1.5rem 1rem 4rem; }
 
-  /* 新規構成パターンの 1 カラム化（#2622） */
+  /* 新規構成パターンの 1 カラム化 */
   .toc-grid     { grid-template-columns: 1fr; }
   .card-grid    { grid-template-columns: 1fr; }
   .code-visual  { grid-template-columns: 1fr; }
   .before-after { grid-template-columns: 1fr; }
 
-  /* 報告系部品の 1〜2 カラム化（#2620） */
+  /* 報告系部品の 1〜2 カラム化 */
   .milestone-timeline .card-grid { grid-template-columns: 1fr; }
   .milestone-timeline .milestone { grid-template-columns: 80px 24px 1fr; gap: 0 12px; }
   .milestone-timeline .when      { font-size: 0.72rem; }
   .metric-grid                   { grid-template-columns: 1fr 1fr; }
   .status-header dl              { grid-template-columns: 1fr 1fr; }
 
-  /* html-effectiveness 拡張部品の 1〜2 カラム化（#2620） */
+  /* html-effectiveness 拡張部品の 1〜2 カラム化 */
   .tradeoffs   { grid-template-columns: 1fr; }
   .bubble      { flex-direction: column; }
   .repo-line   { grid-template-columns: 1fr; gap: 0.25rem; }
   .tile-grid   { grid-template-columns: 1fr 1fr; }
 
-  /* html-effectiveness 残り 5 系統部品の 1 カラム化（#2620） */
+  /* html-effectiveness 残り 5 系統部品の 1 カラム化 */
   .decision-deck { grid-template-columns: 1fr; }
   .board         { grid-template-columns: 1fr; }
   .artboards     { grid-template-columns: 1fr; }
@@ -567,7 +567,7 @@ dialog.svg-zoom .svg-zoom-hint {
   pointer-events: none;
 }
 
-/* ===== 11. 新規構成パターン（#2622） =====
+/* ===== 11. 新規構成パターン =====
    既存セレクタ・既存変数を一切変更せず、新規構成部品を追加するセクション。
    すべて既存 CSS 変数で構成し、新規 HEX 値は導入しない。 */
 
@@ -857,7 +857,7 @@ details.collapse > pre {
   margin: 0.3rem 0 0;
 }
 
-/* ===== 12. 報告系部品（#2620） =====
+/* ===== 12. 報告系部品 =====
    レビュー結果 / ポストモーテム / 実装計画レポート用の構成部品。
    既存セレクタ・既存変数を一切変更せず追加のみ。
    すべて既存 CSS 変数で構成し、新規 HEX 値は導入しない。 */

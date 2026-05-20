@@ -17,7 +17,7 @@ allowed-tools: Bash, Agent
 
 ## 設計上のコンテキスト分離
 
-`/simplify` と `reviewing-security` は両方とも大規模な中間出力（コード全体レビュー・diff・指摘リスト）を生成する。これらを Skill ツールでメインコンテキストから連続呼び出しすると、`implement-flow` 末尾でコンテキストが圧迫され auto-compression 直前で処理が停止する（#2612）。`finalize-worker` SubAgent に委任することで、中間出力を SubAgent コンテキストに閉じ込め、メインには変更サマリーのみが戻る。
+`/simplify` と `reviewing-security` は両方とも大規模な中間出力（コード全体レビュー・diff・指摘リスト）を生成する。これらを Skill ツールでメインコンテキストから連続呼び出しすると、`implement-flow` 末尾でコンテキストが圧迫され auto-compression 直前で処理が停止する。`finalize-worker` SubAgent に委任することで、中間出力を SubAgent コンテキストに閉じ込め、メインには変更サマリーのみが戻る。
 
 ## ワークフロー
 

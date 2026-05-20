@@ -20,7 +20,7 @@ Before delegating coding tasks, check for local documentation availability and i
 
 | Condition | Route |
 |-----------|-------|
-| Labels: `area:frontend`, `area:cli` + framework related | `code-issue` → discovered `coding-*` skill |
+| Labels: `area:frontend` and similar area labels + framework related | `code-issue` → discovered `coding-*` skill |
 | Keywords: `implement`, `create`, `add`, `build` | `code-issue` → discovered `coding-*` skill |
 | Keywords: `fix`, `bug` | `code-issue` → discovered `coding-*` skill or direct edit |
 | Markdown / documentation | `code-issue` → direct edit |

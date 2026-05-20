@@ -36,7 +36,7 @@ Exclude the following generic terms:
 
 ### Label Supplementation
 
-Add the value portion of `area:*` labels as additional keywords (e.g., `area:plugin` → `plugin`, `area:cli` → `cli`).
+Add the value portion of `area:*` labels as additional keywords (e.g., `area:<scope>` → `<scope>`).
 
 ## Fallback
 
@@ -67,11 +67,11 @@ shirokuma-flow discussion search "<keyword>"
 
 ## Execution Example
 
-Issue title: "Change the trigger keyword design for skills"
-Labels: `area:plugin`
+Issue title: "Change the storage method for auth tokens"
+Labels: `area:auth`
 
-1. Keyword extraction: "skill", "trigger keyword", "design", "plugin" (4 items)
-2. Search: `shirokuma-flow discussion search "skill trigger keyword"`
-3. Hits: ADR-003 (skill architecture), ADR-007 (branch model) → prioritize ADR-003
+1. Keyword extraction: "authentication", "token", "storage method", "auth" (4 items)
+2. Search: `shirokuma-flow discussion search "authentication token"`
+3. Hits: ADR-003 (auth architecture), ADR-007 (data storage policy) → prioritize ADR-003
 4. Detail retrieval: `shirokuma-flow discussion adr get {ADR-003 discussion number}`
 5. Consistency check: Compare ADR-003 content with the Issue's direction

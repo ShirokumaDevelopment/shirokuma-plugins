@@ -31,9 +31,9 @@ Register **all chain steps** via TaskCreate **before starting work**.
 
 Dependencies: step 2 blockedBy 1, step 3 blockedBy 2, step 4 blockedBy 3, step 5 blockedBy 4, step 6 blockedBy 5.
 
-> **Step 6 positioning (PR state verification only)**: The `pr create` invocation in step 3 transitions the PR itself to **Status: Review** (code review possible). This step only verifies the PR is in Review via `status get <PR>` — it does NOT `submit` the issue or plan issue (per the "DO NOT" list in `project-items.md` Review section — one-Review-per-entity principle / `lifecycle-overview.md` L327-328).
+> **Step 6 positioning (PR state verification only)**: The `pr create` invocation in step 3 transitions the PR itself to **Status: Review** (code review possible). This step only verifies the PR is in Review via `status get <PR>` — it does NOT `submit` the issue or plan issue (per the "DO NOT" list in `project-items.md` Review section — one-Review-per-entity principle).
 >
-> During implementation, the PR itself carries `Status: Review`; the issue and plan issue stay in In progress. They transition directly to `Status: Done` at `pr merge` time (ADR-v3-017).
+> During implementation, the PR itself carries `Status: Review`; the issue and plan issue stay in In progress. They transition directly to `Status: Done` at `pr merge` time.
 >
 > **Fallback when PR is not in Review**: Only if `status get <PR>` reports something other than Review (e.g., the `pr create` auto-transition failed) may you `submit <PR>` to put the PR itself into Review. **Never submit the issue or plan issue.**
 
@@ -155,7 +155,7 @@ Text description → create-item-flow → Issue number → Join Step 1
 
 If issue is not already In Progress: run `shirokuma-flow begin {number}` (transitions status to In progress and assigns @me)
 
-**Transition from Review (Explicit Approval Model — ADR-v3-022)**: When `/implement-flow` is invoked from a Review-status Issue, check the Issue type:
+**Transition from Review (Explicit Approval Model)**: When `/implement-flow` is invoked from a Review-status Issue, check the Issue type:
 
 | Issue Type | Action |
 |-----------|--------|
@@ -171,7 +171,7 @@ To start implementation, please approve the plan first:
   (This transitions the plan issue Review → Done, and syncParentStatus auto-syncs parent Backlog → ToDo)
 ```
 
-> **Note (ADR-v3-022)**: `approve` for plan issues now transitions `Review → Done` (plan complete), not `Review → ToDo`. `syncParentStatus` then automatically syncs the parent issue from `Backlog → ToDo`. After approval, the parent issue is in ToDo status and ready for implementation.
+> **Note**: `approve` for plan issues now transitions `Review → Done` (plan complete), not `Review → ToDo`. `syncParentStatus` then automatically syncs the parent issue from `Backlog → ToDo`. After approval, the parent issue is in ToDo status and ready for implementation.
 
 ### Step 3: Ensure Feature Branch
 
@@ -343,7 +343,7 @@ Applies default behaviors to UCPs and completes the chain without interactive co
 | Already In Progress | Continue without status change |
 | Wrong branch | AskUserQuestion: switch or continue |
 | Chain failure | Report completed/remaining steps, return control. See [reference/chain-recovery.md](reference/chain-recovery.md) |
-| `coding-worker` completes with `changes_made: false` | Skip commit / PR / finalize-changes, post no-changes work summary, confirm status via AskUserQuestion (cancel via `issue cancel` — internally translated to Done + state_reason: not_planned per #2204 / Blocked / ToDo). See "No-Changes Path" in [reference/chain-end-steps.md](reference/chain-end-steps.md) |
+| `coding-worker` completes with `changes_made: false` | Skip commit / PR / finalize-changes, post no-changes work summary, confirm status via AskUserQuestion (cancel via `issue cancel` — internally translated to Done + state_reason: not_planned / Blocked / ToDo). See "No-Changes Path" in [reference/chain-end-steps.md](reference/chain-end-steps.md) |
 | Issue was reverted (after PR revert) | Run `shirokuma-flow issue rollback {plan-issue#} --action revert` to batch-execute revert branch creation, revert PR creation, and reset the plan Issue to ToDo. Then re-implement on a new branch. See [reference/chain-recovery.md](reference/chain-recovery.md) |
 | Sub-issue with no integration branch | Use `develop` as base, warn user |
 | Epic issue selected directly | Check for non-plan child issues; see "Epic Issue Entry Point" below |

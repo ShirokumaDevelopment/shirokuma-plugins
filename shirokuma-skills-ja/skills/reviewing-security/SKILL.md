@@ -110,7 +110,7 @@ diff にスキル / ルール / エージェント / フック / 設定ファイ
 
 PR セキュリティレビューは **常時 HTML 化対象**。本スキルは閾値ベースの判定をスキップし、レビュー実行が成功した場合は必ず HTML レポートを生成する。
 
-**判定基準・テンプレート対応・カテゴリマッピングの正本**: [`.shirokuma/rules/shirokuma-flow/html-report-criteria.md`](../../../../.shirokuma/rules/shirokuma-flow/html-report-criteria.md)（閾値・テンプレート名・カテゴリ名を本ファイルに直書きしない）。
+**判定基準・テンプレート対応・カテゴリマッピングの正本**: [`html-report-criteria.md`](../../rules/html-report-criteria.md)（閾値・テンプレート名・カテゴリ名を本ファイルに直書きしない）。
 
 ### 常時 HTML 化の理由
 

@@ -110,7 +110,7 @@ Check for instructions that direct the AI to invoke tools destructively or outsi
 
 PR security review is an **always-HTML target**. This skill skips threshold-based decisions and always produces an HTML report when the review execution succeeds.
 
-**Canonical source for decision criteria, template mapping, and category mapping**: [`.shirokuma/rules/shirokuma-flow/html-report-criteria.md`](../../../../.shirokuma/rules/shirokuma-flow/html-report-criteria.md) (do not duplicate threshold values, template names, or category names into this file).
+**Canonical source for decision criteria, template mapping, and category mapping**: [`html-report-criteria.md`](../../rules/html-report-criteria.md) (do not duplicate threshold values, template names, or category names into this file).
 
 ### Why Always HTML
 

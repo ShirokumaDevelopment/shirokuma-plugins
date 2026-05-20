@@ -1,6 +1,6 @@
 ---
 name: writing-html-explainer
-description: Write detailed explainers, concept docs, and design reviews as HTML rather than Markdown. Uses a custom template (warm palette + rounded sans-serif + dark mode) to produce a single page that can be self-hosted via Docker nginx + cloudflared named tunnel (`shirokuma-flow-pages.gadget.to`). Triggers: "write a rich HTML doc", "HTML explainer", "Pages document", "concept explainer HTML", "detailed explainer page", "rich doc HTML", "explainer HTML".
+description: Write detailed explainers, concept docs, and design reviews as HTML rather than Markdown. Uses a custom template (warm palette + rounded sans-serif + dark mode) to produce a single page that can be self-hosted via Docker nginx + cloudflared named tunnel. Triggers: "write a rich HTML doc", "HTML explainer", "Pages document", "concept explainer HTML", "detailed explainer page", "rich doc HTML", "explainer HTML".
 allowed-tools: Read, Write, Edit, Bash
 ---
 
@@ -16,7 +16,7 @@ Produce a single HTML page for **long-form explainers, design reviews, and conce
 |-----------|---------|
 | You want to thoroughly explain a design concept | "shirokuma-flow's collaborative phase model" |
 | Visualize workflow / state transitions | "Full Issue lifecycle overview" |
-| Organize past discussions | "Summary of points in Discussion #2378" |
+| Organize past discussions | "Summary of points in Discussion #N" |
 | Reference doc linked from an Issue | "Detailed background for this decision on a separate page" |
 | Markdown is insufficient | Sidebar TOC, color categorization, SVG diagrams, dark mode |
 
@@ -63,7 +63,7 @@ Confirm with the user:
 | Page title | Human-readable title for display |
 | Source | Referenced Issue / Discussion / ADR / existing material |
 
-Operational details: see [`.shirokuma/rules/shirokuma-flow/pages-publishing.md`](../../../../.shirokuma/rules/shirokuma-flow/pages-publishing.md).
+Operational details follow your project's pages publishing setup (submodule and hosting).
 
 ### Template Kind Selection
 
@@ -77,7 +77,7 @@ The caller (orchestrator / user) chooses the template kind via the `--template` 
 | `postmortem` | `postmortem.html` | Incident report (status-header + event-log + metric-grid + RCA + actions) | Incident response (always HTML) |
 | `implementation-plan` | `implementation-plan.html` | Epic plan (hero + milestone-timeline + risks + dataflow) | `prepare-flow` epic plan docs, `plan-issue` Markdown supplement |
 
-**Canonical source for decision criteria, corresponding orchestrators, and output categories**: [`.shirokuma/rules/shirokuma-flow/html-report-criteria.md`](../../../../.shirokuma/rules/shirokuma-flow/html-report-criteria.md)
+**Canonical source for decision criteria, corresponding orchestrators, and output categories**: [`html-report-criteria.md`](../../rules/html-report-criteria.md)
 
 #### Template Selection Flowchart
 
@@ -97,12 +97,12 @@ What is the report type?
 | Case | `--template` | `--category` | `--slug` |
 |------|--------------|--------------|----------|
 | Security review for PR #1234 | `review-summary` | `reviews` | `security-pr-1234` |
-| Design review for Issue #2620 | `design-review` | `reviews` | `design-2620` |
+| Design review for Issue #N | `design-review` | `reviews` | `design-{N}` |
 | Incident report from 2026-05 | `postmortem` | `incidents` | `2026-05-outage` |
-| Epic #2620 plan doc | `implementation-plan` | `issues` | `2620` |
+| Epic #N plan doc | `implementation-plan` | `issues` | `{N}` |
 | Concept explainer | `default` | `explainers` | `concept-workflow` |
 
-The full category ↔ report-type mapping is in [`html-report-criteria.md`](../../../../.shirokuma/rules/shirokuma-flow/html-report-criteria.md) §4.
+The full category ↔ report-type mapping is in [`html-report-criteria.md`](../../rules/html-report-criteria.md) §4.
 
 ### Step 2: Verify Shared Assets and Copy Template
 
@@ -282,8 +282,8 @@ After pushing the submodule, the host-side nginx bind mount **reflects the chang
 ```
 
 Examples:
-- `explainers` → `https://shirokuma-flow-pages.gadget.to/explainers/concept-workflow/`
-- `issues/2620` → `https://shirokuma-flow-pages.gadget.to/issues/2620/`
+- `explainers` → `{baseUrl}/explainers/concept-workflow/`
+- `issues/{number}` → `{baseUrl}/issues/{number}/`
 
 **Example link from an Issue / PR / Discussion:**
 
@@ -342,7 +342,7 @@ When bumping the CSS version, increment `N` in `<link href="assets/style.css?v=N
 
 ## Prerequisites (Submodule Initial Setup)
 
-This skill assumes `pages/` is **already added as a submodule of the parent repo**. If not, follow the "Initial Setup (Manual)" section in [`.shirokuma/rules/shirokuma-flow/pages-publishing.md`](../../../../.shirokuma/rules/shirokuma-flow/pages-publishing.md).
+This skill assumes `pages/` is **already added as a submodule of the parent repo**. If not, follow your project's pages submodule setup procedure.
 
 ## Reference Implementation
 
@@ -352,7 +352,7 @@ This skill assumes `pages/` is **already added as a submodule of the parent repo
 
 - This skill is provided in both **JA** (`plugin/shirokuma-skills-ja/skills/writing-html-explainer/`) and **EN** (this file). Keep them in sync: JA is the source of truth; EN follows.
 - When updating, modify the JA copy first, then translate corresponding sections here. The skill internals (CSS / JS / HTML templates) are language-agnostic; only `SKILL.md` and `snippets.md` natural language is translated.
-- Sync policy follows the EN sync design from `#2621` (HTML reporting template family).
+- Sync policy follows the EN sync design (HTML reporting template family).
 
 ## Related Skills
 

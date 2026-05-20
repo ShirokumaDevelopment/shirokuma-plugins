@@ -448,7 +448,7 @@ Display PR review comments, chat-style feedback, or Q&A in a two-column structur
       <span class="chip blocking">blocking</span>
       <span class="chip">line 142</span>
     </div>
-    <p>Validation inside <code>setItemFields</code> was removed in ADR-v3-022. Do it at each CLI entry point.</p>
+    <p>Validation inside <code>setItemFields</code> was removed. Do it at each CLI entry point.</p>
     <ul class="checklist">
       <li><label><input type="checkbox" checked> Located the affected code</label></li>
       <li><label><input type="checkbox"> Moved validation to the CLI entry point</label></li>
@@ -482,14 +482,14 @@ For weekly status reports, planning reviews, and retros, display **decisions as 
     <p class="decision-context">Decision about SubAgent-izing work that needs context isolation.</p>
     <p class="decision-q"><strong>Q:</strong> Which skills should become SubAgents?</p>
     <p><strong>A:</strong> Introduce finalize-worker that bundles /simplify and reviewing-security.</p>
-    <p class="byline">— @particles7, Discussion #2612</p>
+    <p class="byline">— @author, Discussion #N</p>
   </div>
   <div class="decision-card lean">
     <p class="eyebrow">DECISION · 2026-W12</p>
     <h3>HTML report threshold</h3>
     <p class="decision-q"><strong>Q:</strong> When do we switch to HTML?</p>
     <p><strong>A:</strong> Convert when review body exceeds 80 lines (feature-flag gated).</p>
-    <p class="byline">— @particles7, PR #2635</p>
+    <p class="byline">— @author, PR #N</p>
   </div>
 </div>
 ```
@@ -1474,12 +1474,12 @@ Lay out issues, PRs, or tasks across multiple lanes (Backlog / In progress / Rev
       <span class="count">5</span>
     </header>
     <article class="board-item">
-      <p class="board-item-title">#2620 HTML report rollout</p>
+      <p class="board-item-title">#N HTML report rollout</p>
       <p class="board-item-meta">epic · 8 subs</p>
     </article>
     <article class="board-item">
-      <p class="board-item-title">#2622 Gallery enhancements</p>
-      <p class="board-item-meta">M · area:docs</p>
+      <p class="board-item-title">#N Gallery enhancements</p>
+      <p class="board-item-meta">M · area:api</p>
     </article>
   </section>
   <section class="board-lane">
@@ -1488,8 +1488,8 @@ Lay out issues, PRs, or tasks across multiple lanes (Backlog / In progress / Rev
       <span class="count">3</span>
     </header>
     <article class="board-item">
-      <p class="board-item-title">#2635 Add remaining 5 patterns</p>
-      <p class="board-item-meta">S · area:docs</p>
+      <p class="board-item-title">#N Add remaining 5 patterns</p>
+      <p class="board-item-meta">S · area:api</p>
     </article>
   </section>
   <section class="board-lane">

@@ -63,7 +63,7 @@ Check whether the plan **drops items from the parent's original scope on a one-s
 When a plan is redone, leaving the old plan in `Review` without `cancel` causes `sub-list {parent}` to return two plans — implementers may read the old one and apply the wrong change.
 
 - At plan review start, always run `shirokuma-flow issue sub-list {parent}`
-- If multiple plan Issues coexist, raise **Critical** and require either `issue cancel` for the rejected one (cancel automatically unparents from the parent issue, #2252), or an explicit "discard #X, adopt #Y" comment
+- If multiple plan Issues coexist, raise **Critical** and require either `issue cancel` for the rejected one (cancel automatically unparents from the parent issue), or an explicit "discard #X, adopt #Y" comment
 - Even when the user states the old plan is "already cancelled" as a precondition for re-review, run `shirokuma-flow issue pull {old-plan}` to verify `status` (Done with `state_reason: not_planned`) and `parent` against GitHub state
 
 ## V8: Reachability of Extracted Helpers
@@ -105,7 +105,7 @@ Steps:
 
 ## V11: API Drift in Rule-Doc Sample Code
 
-For new or updated rule files (`.shirokuma/rules/shirokuma-flow/*.md` etc.), verify that TypeScript samples match the implementation.
+For new or updated rule files (`.shirokuma/rules/{project}/*.md` etc.), verify that TypeScript samples match the implementation.
 
 - Cross-check argument count and order via grep (e.g. `getIssueDetail(owner, repo, number, logger)` written when the implementation takes 3 args)
 - Cross-check field names on return types (e.g. `detail?.projectStatus` written when the implementation exposes `.status`)

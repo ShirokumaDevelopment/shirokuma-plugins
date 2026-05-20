@@ -27,7 +27,7 @@ Without arguments: Infer from conversation context:
 | Title | Recent user message | Summarize the problem/feature mentioned before "make this an issue" |
 | **Type classification** | Conversation context | See "Type Classification" below |
 | Type (Issue Types) | Derived from classification | feature → Feature, bug → Bug, chore → Chore, docs → Docs, research → Research, evolution → Evolution (specify via `--issue-type` option) |
-| Label (area) | Conversation context | Infer from impact scope: CLI-related → `area:cli`, plugin-related → `area:plugin`, etc. |
+| Label (area) | Conversation context | Infer an `area:<scope>` label from impact scope (vocabulary follows the project's GitHub Project definition) |
 | Priority | Conversation context | Urgency expressions ("urgent" → High, normal → Medium) |
 | Body | Type template | Structure using the type-specific template from Step 2 |
 | Size | Task estimate | Estimate from task count and impact scope (default S) |
@@ -80,14 +80,9 @@ A well-formed purpose contains **beneficiary + expected outcome + motivation**:
 "{Beneficiary} can {expected outcome}. Because {motivation}."
 ```
 
-Label options (for impact scope classification — area labels):
+Label (for impact scope classification — area labels):
 
-| Label | Purpose |
-|-------|---------|
-| `area:cli` | CLI commands |
-| `area:plugin` | Plugin-related |
-| `area:portal` | Portal site |
-| `area:docs` | Documentation |
+Classify the affected codebase area using the `area:<scope>` form. The concrete label vocabulary **depends on each project's GitHub Project definition** and has no fixed values. Check the target project's existing area labels (e.g., via `shirokuma-flow issue fields`) and apply the one matching the impact scope inferred from context.
 
 ## Step 2: Generate Body
 
@@ -259,7 +254,7 @@ See `epic-workflow` reference for the full epic workflow.
 
 {Summarize the purpose of the Issue in one sentence. Example: "Created an issue to allow CLI users to output the dependency graph in SVG format."}
 
-**Issue:** #123 | **Label:** area:cli | **Priority:** Medium | **Status:** In progress
+**Issue:** #123 | **Label:** area:<scope> | **Priority:** Medium | **Status:** In progress
 
 Review the issue body content on GitHub. If the title, body, or fields need changes, provide instructions.
 ```

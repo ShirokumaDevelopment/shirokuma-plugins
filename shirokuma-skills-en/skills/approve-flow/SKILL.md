@@ -1,19 +1,19 @@
 ---
 name: approve-flow
-description: Explicitly approve a Review-status Issue. Transitions Review → Done (ADR-v3-022 Second Revision). For plan issues (issue itemType), syncParentStatus automatically syncs the parent Issue from Backlog → ToDo. Triggers: "approve", "approve issue", "approve plan".
+description: Explicitly approve a Review-status Issue. Transitions Review → Done. For plan issues (issue itemType), syncParentStatus automatically syncs the parent Issue from Backlog → ToDo. Triggers: "approve", "approve issue", "approve plan".
 allowed-tools: Bash, Read, Edit
 ---
 
 # Approve Issue
 
-Explicitly approve a Review-status Issue. Transitions Review → Done (ADR-v3-022 Second Revision).
+Explicitly approve a Review-status Issue. Transitions Review → Done.
 
 | Issue Type | Transition Target | Description |
 |-----------|-------------------|-------------|
 | Plan Issue (plan/design) | **Done** | Plan complete. `syncParentStatus` auto-syncs parent Issue from Backlog → ToDo |
 | Other Issue Types | **Done** | Approval complete (fails if not in Review) |
 
-**Approval model (ADR-v3-022 Second Revision)**: `approve` transitions Review → Done. The legacy `Review → ToDo` path is abolished. After plan issue (child) `approve`, `syncParentStatus` automatically syncs the parent Issue from Backlog → ToDo (ready to start). When `/implement-flow` is launched, if the task Issue is in ToDo, `begin` transitions it to In progress.
+**Approval model**: `approve` transitions Review → Done. The legacy `Review → ToDo` path is abolished. After plan issue (child) `approve`, `syncParentStatus` automatically syncs the parent Issue from Backlog → ToDo (ready to start). When `/implement-flow` is launched, if the task Issue is in ToDo, `begin` transitions it to In progress.
 
 ## Arguments
 

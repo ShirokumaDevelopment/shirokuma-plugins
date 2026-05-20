@@ -13,6 +13,8 @@ Claude Code 出力スタイルの完全な技術仕様。
 
 ## Frontmatter 仕様
 
+カスタム出力スタイルファイルには、以下のフィールドを含む YAML frontmatter が必要:
+
 ### 必須フィールド
 
 ```yaml
@@ -56,9 +58,23 @@ description: Brief text   # 必須: スタイルの機能（1-2文）
 }
 ```
 
+### ファイル詳細
+
 - 場所: `.claude/settings.local.json`（プロジェクトルート）
+- 形式: JSON
 - `/output-style` コマンド使用時に自動作成
 - `.gitignore` に追加すべき（ローカル設定、共有しない）
+
+### 例
+
+```json
+{
+  "outputStyle": "explanatory",
+  "otherSettings": {
+    "...": "..."
+  }
+}
+```
 
 `outputStyle` フィールドが存在しない、またはファイルが存在しない場合、"default" スタイルが有効。
 
@@ -66,7 +82,7 @@ description: Brief text   # 必須: スタイルの機能（1-2文）
 
 ### ユーザーレベルスタイル
 
-場所: `~/.claude/output-styles/*.md`
+場所: `~/.claude/output-styles/*.md`（例: my-style.md, security-focused.md）
 
 - すべてのプロジェクトで利用可能
 - ホームディレクトリ同期でマシン間移動可能
@@ -74,7 +90,7 @@ description: Brief text   # 必須: スタイルの機能（1-2文）
 
 ### プロジェクトレベルスタイル
 
-場所: `.claude/output-styles/*.md`
+場所: `.claude/output-styles/*.md`（例: team-style.md, api-development.md）
 
 - このプロジェクト内でのみ利用可能
 - git リポジトリでチームと共有
@@ -82,29 +98,54 @@ description: Brief text   # 必須: スタイルの機能（1-2文）
 
 ## ビルトインスタイル
 
+Claude Code には 3 つのビルトイン出力スタイルが含まれる:
+
 ### default
 
 効率的なタスク完了に最適化された標準エンジニアリングモード。
 
-**特性**: 簡潔なコミュニケーション、本番重視、最小限の説明テキスト
+**特性:**
+- 簡潔なコミュニケーション
+- 本番重視
+- 最小限の説明テキスト
+- コード品質とベストプラクティスを強調
 
-**使用場面**: 本番機能構築、時間制約あり、コードベースを十分理解している場合
+**使用場面:**
+- 本番機能の構築
+- 時間制約下での作業
+- コードベースを十分理解している場合
 
 ### explanatory
 
 コーディング活動の間に教育的な "Insights" セクションを追加。
 
-**特性**: アーキテクチャ決定の説明、パターンの強調、教育的コメンタリー
+**特性:**
+- アーキテクチャ決定の説明
+- コードベース内のパターンを強調
+- 教育的なコメンタリー
+- 理解構築の支援
 
-**使用場面**: 新しいコードベースの学習、デザインパターンの理解、プロジェクトオンボーディング
+**使用場面:**
+- 新しいコードベースの学習
+- デザインパターンの理解
+- プロジェクトへのオンボーディング
+- ベストプラクティスの学習
 
 ### learning
 
 `TODO(human)` マーカー付きの協調的ハンズオンアプローチ。
 
-**特性**: Claude が部分的なソリューションを実装、`TODO(human)` で完成部分を指示
+**特性:**
+- Claude が部分的なソリューションを実装
+- `TODO(human)` を追加して完成すべき箇所を指示
+- 何を実装すべきか、その理由を説明
+- インタラクティブなスキル構築
 
-**使用場面**: 新しい言語・フレームワークの学習、特定テクニックの練習、教育目的のペアプログラミング
+**使用場面:**
+- 新しい言語やフレームワークの学習
+- 特定テクニックの練習
+- ハンズオンスキルの構築
+- 教育目的のペアプログラミング
 
 ## カスタムスタイル要件
 
@@ -137,6 +178,7 @@ Brief overview of this style's purpose.
 
 - Principle 1
 - Principle 2
+- Principle 3
 
 ## Modified Behaviors
 
@@ -148,10 +190,22 @@ Brief overview of this style's purpose.
 
 [Instructions for explanations...]
 
+### When Testing
+
+[Instructions for testing approach...]
+
 ## Additional Guidelines
 
 [Any other customizations...]
 ```
+
+### コンテンツガイドライン
+
+- 可読性のため Markdown フォーマットを使用
+- 振る舞いの変更点を具体的に記述
+- 役立つ場合は例を含める
+- フォーカスを保つ（1000 行以下推奨）
+- Claude Code のコア機能と矛盾する内容は避ける
 
 ### カスタマイズ可能な範囲
 
@@ -161,6 +215,7 @@ Brief overview of this style's purpose.
 - コードコメントのアプローチ
 - テスト哲学
 - ドキュメント重視度
+- エラーハンドリングのスタイル
 - フォーカスエリア（セキュリティ、パフォーマンス等）
 
 **オーバーライド不可:**
@@ -168,6 +223,7 @@ Brief overview of this style's purpose.
 - コアセーフティガイドライン
 - ファイル操作の動作
 - Git ワークフロー
+- コマンド実行
 
 ## 優先度とオーバーライドルール
 
@@ -184,6 +240,16 @@ Brief overview of this style's purpose.
 1. **プロジェクトレベル**: `.claude/output-styles/style.md` -- 最高優先度
 2. **ユーザーレベル**: `~/.claude/output-styles/style.md` -- 低優先度
 3. **ビルトイン**: `default`, `explanatory`, `learning` -- オーバーライド不可
+
+例:
+```
+# 両方が存在する場合:
+~/.claude/output-styles/team-style.md
+.claude/output-styles/team-style.md
+
+# /output-style team-style は以下を使用:
+.claude/output-styles/team-style.md  ← プロジェクトレベルが優先
+```
 
 ### 有効化の動作
 
@@ -223,33 +289,69 @@ Brief overview of this style's purpose.
 
 ## よくある YAML エラー
 
-### 無効な frontmatter
+### エラー: 無効な frontmatter
 
+**原因**: YAML の構文エラー
+
+❌ **間違い**:
 ```yaml
-# 間違い
 ---
 name: my style          # name にスペース不可
 description: "Missing closing quote
 ---
+```
 
-# 正しい
+✅ **正しい**:
+```yaml
 ---
-name: my-style          # ハイフンを使用
+name: my-style          # スペースの代わりにハイフン
 description: Proper description here
 ---
 ```
 
-### タブの代わりにスペース
+### エラー: タブの代わりにスペース
 
-YAML はインデントにスペースを要求。タブ文字は使用不可。
+**原因**: YAML はインデントにスペースを要求
 
-### 必須フィールドの欠如
+❌ **間違い**:
+```yaml
+---
+name:	my-style        # タブ文字
+---
+```
 
-`name` と `description` は両方必須。
+✅ **正しい**:
+```yaml
+---
+name: my-style          # スペースのみ
+---
+```
+
+### エラー: 必須フィールドの欠如
+
+**原因**: `name` または `description` フィールドが欠落
+
+❌ **間違い**:
+```yaml
+---
+name: my-style
+# description が欠落
+---
+```
+
+✅ **正しい**:
+```yaml
+---
+name: my-style
+description: Complete frontmatter
+---
+```
 
 ## 高度なテクニック
 
 ### 条件付き指示
+
+複雑な指示を整理するために markdown を使用:
 
 ```markdown
 ---
@@ -282,10 +384,15 @@ description: Adapts based on file type
 
 出力スタイルと CLAUDE.md は連携して動作:
 
-- 出力スタイル: Claude の**振る舞い方**を制御
-- CLAUDE.md: Claude が**知っていること**を制御
+```
+1. システムプロンプト（出力スタイルにより変更される）
+2. CLAUDE.md からのユーザーメッセージ
+3. ユーザーの実際の質問
+```
 
-### バージョン管理
+出力スタイルは Claude の**振る舞い方（how）**に、CLAUDE.md は Claude が**知っていること（what）**に使用する。
+
+### バージョン管理のベストプラクティス
 
 プロジェクトレベルスタイル:
 
@@ -303,5 +410,6 @@ git commit -m "Add team output styles"
 ユーザーレベルスタイルは dotfiles リポジトリでの管理を検討:
 
 ```bash
+# ~/dotfiles/claude/output-styles/
 ln -s ~/dotfiles/claude/output-styles ~/.claude/output-styles
 ```

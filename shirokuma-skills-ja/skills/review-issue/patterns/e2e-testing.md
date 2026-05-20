@@ -35,7 +35,11 @@ export default defineConfig({
 })
 ```
 
+**利点**: 責務の明確化、並列実行、メンテナンス容易性、ターゲットを絞った CI/CD。
+
 ## テスト環境の分離
+
+別のテストデータベースとホストを使用:
 
 | 環境 | ホスト | データベース |
 |------|--------|------------|
@@ -103,17 +107,20 @@ test("should show loading state during login", async ({ page }) => {
     await route.continue()
   })
 
+  // フォーム入力
   await page.getByLabel("Email").fill("test@example.com")
   await page.getByLabel("Password").fill("password")
 
+  // クリック前にボタン参照を取得
   const submitButton = page.getByRole("button", { name: /Log in/i })
   await submitButton.click()
 
-  // ローディング状態の検証 - ボタンテキストが変わる
+  // ローディング状態の検証 - ボタンテキストが変わる！
   const loadingButton = page.getByRole("button", { name: /Logging in/i })
   await expect(loadingButton).toBeVisible()
   await expect(loadingButton).toBeDisabled()
 
+  // リクエストを解放して完了
   resolveRequest!()
 })
 ```
@@ -127,7 +134,7 @@ test("should show loading state during login", async ({ page }) => {
 // ローディング中: "Logging in..."
 
 // 間違い: 元のロケーターはローディング状態で失敗
-await expect(submitButton).toBeDisabled()
+await expect(submitButton).toBeDisabled()  // 失敗 - ロケーターが要素を見つけられない
 
 // 正しい: ローディング状態用の新しいロケーターを使用
 const loadingButton = page.getByRole("button", { name: /Logging in/i })
@@ -140,6 +147,7 @@ await expect(loadingButton).toBeDisabled()
 
 ```typescript
 test("should work after password change", async ({ page }) => {
+  // 前のテストでパスワードが変更されていた場合は複数試す
   const passwords = [originalPassword, newPassword]
   let loggedIn = false
 
@@ -147,6 +155,7 @@ test("should work after password change", async ({ page }) => {
     await page.getByLabel("Password").fill(password)
     await page.getByRole("button", { name: /Log in/i }).click()
 
+    // ログイン成功を確認
     if (page.url().includes("/dashboard")) {
       loggedIn = true
       break
@@ -157,12 +166,16 @@ test("should work after password change", async ({ page }) => {
 })
 ```
 
-## i18n 対応のアサーション
+## E2E テストにおける i18n
+
+両言語をアサーションで処理:
 
 ```typescript
 // 日英両方にマッチ
 await expect(page.getByRole("button", { name: /Log in|ログイン/i })).toBeVisible()
 await expect(page.getByText(/Invalid email or password|認証エラー/i)).toBeVisible()
+
+// リンクテキストも言語で変わる
 await expect(page.getByRole("link", { name: /Forgot password\?|パスワードをお忘れですか/i })).toBeVisible()
 ```
 
@@ -187,8 +200,11 @@ await page.locator(".submit-button").click()
 
 ```typescript
 test.beforeEach(async ({ page, context }) => {
+  // テスト分離のために Cookie をクリア
   await context.clearCookies()
+  // レート制限をクリア
   await redisHelper.clearRateLimits("ratelimit:*")
+  // 開始ページへ遷移
   await page.goto("/login")
 })
 ```
@@ -303,6 +319,8 @@ await page.getByRole("button", { name: /Permanently Delete|完全削除/i }).cli
 
 ## ネットワークインターセプト
 
+ネットワークリクエストのインターセプトとモック:
+
 ```typescript
 // API レスポンスのモック
 await page.route("**/api/posts", async (route) => {
@@ -325,7 +343,7 @@ await page.route("**/api/fail", async (route) => {
 })
 ```
 
-## デバッグ
+## デバッグのコツ
 
 ```typescript
 // 失敗時にスクリーンショットを取得
@@ -389,7 +407,7 @@ test.use({ viewport: { width: 375, height: 667 } })  // モバイルビュー
 await link.click()
 ```
 
-### 条件付き test.skip()
+### データが存在するときの条件付き test.skip()
 
 ```typescript
 // Bad: シードデータが存在すべき場合のスキップ
@@ -436,15 +454,16 @@ await page.locator('input[type="password"]').first().fill("...")
 await page.getByLabel(/^Password$/i).fill("...")
 ```
 
-### Combobox/Select
+### Combobox/Select コンポーネント
 
 ```typescript
+// shadcn Select コンポーネント
 const select = page.getByRole("combobox").first()
 await select.click()
 await page.getByRole("option").first().click()
 ```
 
-### Switch
+### Switch コンポーネント
 
 ```typescript
 const publishSwitch = page.getByRole("switch", { name: /Published/i })
@@ -453,7 +472,7 @@ await publishSwitch.click()
 await expect(publishSwitch).toBeChecked()
 ```
 
-### Pagination
+### Pagination コンポーネント
 
 ```typescript
 const pagination = page.getByRole("navigation", { name: "pagination" })
@@ -480,6 +499,8 @@ const ogLocale = page.locator('meta[property="og:locale"]')
 
 ## テストフィクスチャパターン
 
+再利用可能なテストデータ用フィクスチャを作成:
+
 ```typescript
 // tests/helpers/fixtures.ts
 import { testDb } from "./database"
@@ -494,17 +515,20 @@ export interface MetadataTestFixtures {
 export async function createMetadataTestFixtures(): Promise<MetadataTestFixtures> {
   await testDb.connect()
 
+  // 管理者ユーザー取得
   const [admin] = await testDb.query<{ id: string }>(
     "SELECT id FROM users WHERE email = $1",
     ["admin@example.com"]
   )
 
+  // カテゴリー作成
   const [category] = await testDb.query<{ id: string; name: string; slug: string }>(
     `INSERT INTO categories (id, name, slug, created_at, updated_at)
      VALUES (gen_random_uuid(), $1, $2, NOW(), NOW()) RETURNING id, name, slug`,
     [`Test Category ${Date.now()}`, `test-category-${Date.now()}`]
   )
 
+  // 投稿作成
   const [post] = await testDb.query<{ id: string; title: string; slug: string }>(
     `INSERT INTO posts (id, title, slug, content, published, published_at, author_id, category_id, created_at, updated_at)
      VALUES (gen_random_uuid(), $1, $2, $3, true, NOW(), $4, $5, NOW(), NOW())
@@ -583,19 +607,23 @@ test.describe("Comment functionality", () => {
   })
 
   test("authenticated user should see comment form", async ({ page }) => {
+    // 先にログイン
     await page.goto("/login")
     await page.getByRole("textbox", { name: /Email|メール/i }).fill(TEST_USERS.user.email)
     await page.getByLabel(/^Password$|^パスワード$/i).fill(TEST_USERS.user.password)
     await page.getByRole("button", { name: /Login|ログイン/i }).click()
     await expect(page).toHaveURL(/\/$/, { timeout: 15000 })
 
+    // 投稿へ遷移
     await page.goto("/posts")
     const readMoreLink = page.getByRole("link", { name: /続きを読む|Read more/i }).first()
     await readMoreLink.click()
     await page.waitForLoadState("networkidle")
 
+    // コメントセクションへスクロール
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
 
+    // コメントフォーム検証
     const commentInput = page.getByPlaceholder(/コメントを入力|Enter your comment/i)
     await expect(commentInput).toBeVisible({ timeout: 15000 })
   })
@@ -604,29 +632,59 @@ test.describe("Comment functionality", () => {
 
 ## Mailpit メールテスト統合
 
+メール検証フローには Mailpit ヘルパーを使用:
+
 ```typescript
 import { mailpit } from "../helpers/mailpit"
 
 test.describe("Password Reset Flow", () => {
   test("should send password reset email", async ({ page }) => {
+    // テスト前に全メールをクリア
     await mailpit.deleteAllMessages()
 
+    // パスワードリセットを要求
     await page.goto("/forgot-password")
     await page.getByLabel("Email").fill("user@example.com")
     await page.getByRole("button", { name: /Send Reset Link/i }).click()
 
+    // 成功メッセージを待機
     await expect(page.getByText(/Check your email/i)).toBeVisible()
 
+    // メール送信を検証
     const messages = await mailpit.getMessages()
     expect(messages.length).toBe(1)
     expect(messages[0].to[0].address).toBe("user@example.com")
     expect(messages[0].subject).toMatch(/Password Reset/i)
 
+    // 検証リンクを抽出
     const verifyLink = extractVerificationLink(messages[0].body)
     expect(verifyLink).toBeTruthy()
 
+    // 検証リンクへ遷移
     await page.goto(verifyLink)
     await expect(page.getByText(/Enter new password/i)).toBeVisible()
+  })
+
+  test("should verify email for new user", async ({ page }) => {
+    await mailpit.deleteAllMessages()
+
+    // 新規ユーザー登録
+    await page.goto("/register")
+    const testEmail = `test-${Date.now()}@example.com`
+    await page.getByLabel("Email").fill(testEmail)
+    await page.getByLabel("Password").fill("Test@Pass123")
+    await page.getByRole("button", { name: /Sign Up/i }).click()
+
+    // 検証メールを取得
+    const messages = await mailpit.getMessages()
+    expect(messages.length).toBe(1)
+
+    const emailBody = messages[0].body
+    const verifyLink = extractVerificationLink(emailBody)
+
+    // 検証リンクをクリック
+    await page.goto(verifyLink)
+    await expect(page.getByText(/Email verified/i)).toBeVisible()
   })
 })
 
@@ -681,12 +739,14 @@ import { redisHelper } from "../helpers/redis"
 
 test.describe("Login Rate Limiting", () => {
   test.beforeEach(async () => {
+    // 各テスト前に全テスト状態をクリア
     await redisHelper.clearAllTestState()
   })
 
   test("should lock account after 5 failed attempts", async ({ page }) => {
     await page.goto("/login")
 
+    // 5回のログイン失敗を試行
     for (let i = 0; i < 5; i++) {
       await page.getByLabel("Email").fill("user@example.com")
       await page.getByLabel("Password").fill("wrongpassword")
@@ -694,10 +754,30 @@ test.describe("Login Rate Limiting", () => {
       await expect(page.getByText(/Invalid credentials/i)).toBeVisible()
     }
 
+    // 6回目はロックアウトメッセージを表示すべき
     await page.getByLabel("Email").fill("user@example.com")
     await page.getByLabel("Password").fill("wrongpassword")
     await page.getByRole("button", { name: /Log in/i }).click()
     await expect(page.getByText(/Account locked/i)).toBeVisible()
+  })
+
+  test("should allow login after clearing lockout", async ({ page }) => {
+    // アカウントロックアウトをシミュレート
+    await page.goto("/login")
+    for (let i = 0; i < 6; i++) {
+      await page.getByLabel("Email").fill("user@example.com")
+      await page.getByLabel("Password").fill("wrongpassword")
+      await page.getByRole("button", { name: /Log in/i }).click()
+    }
+
+    // ヘルパー経由でレート制限をクリア
+    await redisHelper.clearRateLimits()
+
+    // 正しいパスワードでログイン可能になるはず
+    await page.getByLabel("Email").fill("user@example.com")
+    await page.getByLabel("Password").fill("User@Test2024!")
+    await page.getByRole("button", { name: /Log in/i }).click()
+    await expect(page).toHaveURL(/\/$/, { timeout: 15000 })
   })
 })
 ```
@@ -732,10 +812,11 @@ class RedisTestHelper {
     }
   }
 
-  /** テスト関連の全状態をクリア */
+  /** テスト関連の全状態をクリア（レート制限、ロックアウト、セッション等） */
   async clearAllTestState(): Promise<void> {
     if (!this.client) throw new Error("Not connected")
     await this.clearRateLimits()
+    // 必要に応じて他のクリーンアップを追加
   }
 }
 
@@ -744,6 +825,8 @@ export const redisHelper = new RedisTestHelper()
 
 ## リクエストブロッキングによるローディング状態テスト（応用）
 
+Promise ベースのリクエストブロッキングでローディング状態を確実にテスト:
+
 ```typescript
 test("should show loading state during form submission", async ({ page }) => {
   let resolveRequest: () => void
@@ -751,6 +834,7 @@ test("should show loading state during form submission", async ({ page }) => {
     resolveRequest = resolve
   })
 
+  // API リクエストをブロックしてローディング状態を可視化
   await page.route("**/api/posts", async (route) => {
     await requestPromise
     await route.continue()
@@ -760,15 +844,19 @@ test("should show loading state during form submission", async ({ page }) => {
   await page.getByLabel("Title").fill("Test Post")
   await page.getByLabel("Content").fill("Test content")
 
+  // クリック前にボタン参照を取得
   const submitButton = page.getByRole("button", { name: /Publish/i })
   await submitButton.click()
 
+  // ローディング状態の検証 - ボタンテキストが "Publishing..." に変わる
   const loadingButton = page.getByRole("button", { name: /Publishing/i })
   await expect(loadingButton).toBeVisible()
   await expect(loadingButton).toBeDisabled()
 
+  // リクエストを解放して完了
   resolveRequest!()
 
+  // 成功を検証
   await expect(page).toHaveURL(/\/posts\/[^/]+$/, { timeout: 10000 })
 })
 ```
@@ -783,11 +871,13 @@ test("should show loading for multi-step operation", async ({ page }) => {
   const step1Promise = new Promise<void>(r => { resolveStep1 = r })
   const step2Promise = new Promise<void>(r => { resolveStep2 = r })
 
+  // 最初の API 呼び出しをブロック
   await page.route("**/api/validate", async (route) => {
     await step1Promise
     await route.continue()
   })
 
+  // 2 番目の API 呼び出しをブロック
   await page.route("**/api/submit", async (route) => {
     await step2Promise
     await route.continue()
@@ -795,12 +885,15 @@ test("should show loading for multi-step operation", async ({ page }) => {
 
   await page.getByRole("button", { name: /Submit/i }).click()
 
+  // ステップ 1: Validating
   await expect(page.getByText(/Validating/i)).toBeVisible()
   resolveStep1!()
 
+  // ステップ 2: Submitting
   await expect(page.getByText(/Submitting/i)).toBeVisible()
   resolveStep2!()
 
+  // 完了
   await expect(page.getByText(/Success/i)).toBeVisible()
 })
 ```

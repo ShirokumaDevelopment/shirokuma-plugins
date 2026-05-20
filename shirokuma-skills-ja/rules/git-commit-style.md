@@ -27,7 +27,7 @@ priority: required
 
 ## ルール
 
-1. **1行目は72文字以内** — `lint workflow` の `commit-format` が info で検出する（過去違反例: #2620 PR #2635 で 8 件）。長くなりそうな変更は件名を要約に絞り、Issue 番号・サブ Issue・統合範囲などの詳細は body へ送る
+1. **1行目は72文字以内** — `lint workflow` の `commit-format` が info で検出する（過去に違反例あり）。長くなりそうな変更は件名を要約に絞り、Issue 番号・サブ Issue・統合範囲などの詳細は body へ送る
 2. **Issue 番号を参照** する（該当する場合）: `(#39)`
 3. **命令形** で記述: "add feature"（"added feature" ではない）
 4. **本文は任意** — 説明が必要な複雑な変更に使用
@@ -37,8 +37,8 @@ priority: required
 
 | Bad（超過） | Good（72字以内） |
 |------------|----------------|
-| `feat(skill): writing-html-explainer に html-effectiveness 残り 5 系統部品を追加（decision-card / triage-board / artboard / flag / card-titles）+ ?v=12 一括 (#2620)` (149字) | `feat(skill): writing-html-explainer に html-effectiveness 5 系統追加 (#2620)` (66字) + body に詳細 |
-| `chore(pages): submodule ポインタを更新（§5.3 を .milestone-timeline に書き換え） (#2620)` (73字) | `chore(pages): submodule 更新 (§5.3 を .milestone-timeline 化) (#2620)` (60字) |
+| `feat(skill): writing-html-explainer に html-effectiveness 残り 5 系統部品を追加（decision-card / triage-board / artboard / flag / card-titles）+ ?v=12 一括 (#N)` (149字) | `feat(skill): writing-html-explainer に html-effectiveness 5 系統追加 (#N)` (66字) + body に詳細 |
+| `chore(pages): submodule ポインタを更新（§5.3 を .milestone-timeline に書き換え） (#N)` (73字) | `chore(pages): submodule 更新 (§5.3 を .milestone-timeline 化) (#N)` (60字) |
 
 ### コミット前のセルフチェック
 
