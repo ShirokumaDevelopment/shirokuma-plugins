@@ -220,10 +220,21 @@ Pick patterns from the component catalog in `reference/snippets.md` and insert c
 
 - [ ] Update the sidebar TOC to match actual content
 - [ ] Add an `id=""` to each `<h2>` (for TOC links)
-- [ ] When you add an SVG, register **unregistered colors** under the `[data-theme="dark"]` section of CSS
+- [ ] **Pick SVG fill/stroke colors from the "SVG color palette (dark-ready)"** (see "Adding and Customizing Components"). For any color not in that table, you **must** add the dark pair `[data-theme="dark"] .diagram svg [fill="..."] / [stroke="..."]` to style.css
+- [ ] After adding an SVG, **verify there are no unregistered colors using the command below** (don't rely on visual inspection alone)
 - [ ] Always set `fill` on SVG `<text>` (or intentionally omit it to follow body color)
 - [ ] Wrap only identifiers and short commands in `<code>`
 - [ ] Avoid overusing `<strong>` (at most 1–2 per paragraph)
+
+**Verify SVG dark-mode coverage** (mechanically detect unregistered colors; run from `pages/`):
+
+```bash
+for c in $(grep -oE '(fill|stroke)="#[0-9A-Fa-f]{3,6}"' ${CATEGORY}/${TOPIC}/index.html \
+            | grep -oE '#[0-9A-Fa-f]{3,6}' | sort -u); do
+  grep -q "\[fill=\"$c\"\]\|\[stroke=\"$c\"\]" assets/style.css || echo "unregistered: $c"
+done
+# No output means every color follows dark mode
+```
 
 ### Step 4: Local Verification
 
@@ -330,6 +341,23 @@ When **adding a new selector** to the base style.css:
 3. When using a new color in SVG, add the `[data-theme="dark"] .diagram svg [fill="..."]` rule
 
 When bumping the CSS version, increment `N` in `<link href="assets/style.css?v=N">` (browser cache busting).
+
+### SVG color palette (dark-ready)
+
+Prefer SVG `fill` / `stroke` colors from this table. **Each already has a `[data-theme="dark"]` dark pair in style.css, so it follows dark mode automatically — no registration needed.** Map them to meaning (phase / category).
+
+| Role | Light bg (box) | Mid (line / marker) | Dark (heading text) |
+|------|----------------|---------------------|---------------------|
+| Neutral | `#F0EEE6` / `#FAF9F5` | `#87867F` | `#3D3D3A` |
+| Purple (accent) | `#e6dde9` | `#856ea3` | `#4b3680` |
+| Blue (info) | `#dde5ef` | `#4d7299` | `#2c4d75` |
+| Green (ok) | `#dde5d0` | `#788C5D` | `#4f5f3d` |
+| Amber (warn) | `#f0e3c0` / `#f0e3b8` | `#b08838` | `#6e5417` |
+| Red-brown (danger) | `#ecd6cd` | `#a85040` | `#6e2f25` |
+| Tan / clay | `#E3DACC` | `#D97757` | — |
+
+- For simple diagrams, use **CSS variables** like `fill="var(--bg-soft)"` / `fill="var(--fg-strong)"` / `stroke="var(--border)"` — these follow the theme automatically with no registration (see the `.artboard` example).
+- If you must use a color not in the table above, add its `[data-theme="dark"]` dark pair to style.css and **confirm zero unregistered colors with the verification command above**. Skipping this causes the classic "visible in light, washed-out background in dark" bug.
 
 ## Anti-patterns
 
