@@ -45,4 +45,4 @@
 
 ## 責務に関する注記
 
-このフローでのサブ Issue 作成は `shirokuma-flow issue add` を直接使用する（`create-item-flow` ではない）。計画でサブ Issue の詳細が確定済みのため、`create-item-flow` の推論ロジックは不要。
+このフローでのサブ Issue 作成は `shirokuma-flow issue add` を直接使用する（`issue-flow` ではない）。計画でサブ Issue の詳細が確定済みのため、`issue-flow` の推論ロジックは不要。

@@ -1,6 +1,6 @@
 ---
-name: create-item-flow
-description: 会話コンテキストからGitHub Issue/Discussionを自動推定して作成し、要件レビューを自動実行して次フローに誘導します。トリガー: 「Issue にして」「Issue 作って」「フォローアップ Issue」「新規 Issue」。仕様・ADR の作成・要件定義プロセス全体が目的の場合は /requirements-flow を使用してください。
+name: issue-flow
+description: 会話コンテキストからGitHub Issue/Discussionを自動推定して作成し、要件レビューを自動実行して次フローに誘導します。課題 Issue のトリアージ Status（Backlog→Review→ToDo）を進める役割も担います。トリガー: 「Issue にして」「Issue 作って」「フォローアップ Issue」「新規 Issue」。仕様・ADR の作成・要件定義プロセス全体が目的の場合は /requirements-flow を使用してください。
 allowed-tools: Bash, Skill, AskUserQuestion, Read, Write, TaskCreate, TaskUpdate, TaskGet, TaskList
 ---
 
@@ -12,7 +12,7 @@ allowed-tools: Bash, Skill, AskUserQuestion, Read, Write, TaskCreate, TaskUpdate
 
 | レイヤー | 責務 |
 |---------|------|
-| `create-item-flow` | ユーザーインターフェース。コンテキスト分析、メタデータ推定、**正本ドキュメント・ADR・既存 Issue の事前探索**、チェーン制御 |
+| `issue-flow` | ユーザーインターフェース。コンテキスト分析、メタデータ推定、**正本ドキュメント・ADR・既存 Issue の事前探索**、チェーン制御 |
 | `managing-github-items` | 内部エンジン。CLI コマンド実行、フィールド設定、バリデーション |
 
 ### `analyze-issue requirements` との責務境界
@@ -179,12 +179,24 @@ Discussion 作成完了: #{number}
 
 チェーン判定の詳細は [reference/chain-rules.md](reference/chain-rules.md) 参照。
 
+## トリアージ Status の進行（Backlog → Review → ToDo）
+
+このスキルは新規作成（ステップ 1〜3）に加え、**既存の課題 Issue のトリアージ Status を進める役割**も担う。トリアージとは「未調査・未トリアージ（Backlog）の課題 Issue を、人間が承認すべき着手候補（Review）に提出し、承認を経て着手準備完了（ToDo）に進める」プロセスである。対象は **課題 Issue（通常 Issue）** のみ。
+
+| 遷移 | コマンド | 補足 |
+|------|---------|------|
+| (b) `Backlog → Review`（トリアージ提出） | `shirokuma-flow submit {number}` | Backlog 以外は CLI が `result: "error"` で拒否 |
+| (c) `Review → ToDo`（トリアージ承認） | 基本は GitHub Web で人間が承認。AI 自発時のみ `approve-flow` に委譲 | 課題 Issue（normal）は `Review → ToDo`。ToDo 到達後 `/implement-flow` を案内 |
+
+トリガー条件・DO NOT ルール・コメント付き提出・承認時の AskUserQuestion 推奨など詳細は [reference/triage-status.md](reference/triage-status.md) 参照。
+
 ## スキル内ドキュメント
 
 | ドキュメント | 内容 | 読み込みタイミング |
 |-------------|------|-------------------|
 | [reference/chain-rules.md](reference/chain-rules.md) | チェーン判定ルール・推定ロジック | アイテム作成時 |
 | [reference/purpose-criteria.md](reference/purpose-criteria.md) | 手段 vs 目的の判定基準（JTBD ベース） | コンテキスト分析時（目的明確性チェック） |
+| [reference/triage-status.md](reference/triage-status.md) | トリアージ Status 進行（Backlog → Review → ToDo）の詳細手順 | 既存課題 Issue のトリアージ時 |
 | [../../rules/doc-search-rules.md](../../rules/doc-search-rules.md) | 正本ドキュメント・ADR 探索のキーワード生成・分割ルール・配置仕様・フォールバック | ステップ 1c 実行時 |
 
 ## 次のステップ
@@ -207,15 +219,15 @@ Issue のタイトル・本文は `output-language` ルールと `github-writing
 
 | 目的 | 使うべきスキル |
 |------|--------------|
-| 「この会話の内容を Issue として登録したい」「フォローアップ Issue を作りたい」 | `create-item-flow`（このスキル） |
+| 「この会話の内容を Issue として登録したい」「フォローアップ Issue を作りたい」 | `issue-flow`（このスキル） |
 | 「仕様・ADR を作成してから Issue 化したい」「要件定義プロセス全体を実行したい」 | `/requirements-flow` |
 | 「ADR を書きたい」「技術選定を記録したい」 | `/requirements-flow` |
 
-**判断基準**: 「今すぐ GitHub Issue/Discussion として登録する」ことが目的なら `create-item-flow`。「要件定義・ADR 作成というプロセス全体を実行する」ことが目的なら `requirements-flow`。
+**判断基準**: 「今すぐ GitHub Issue/Discussion として登録する」ことが目的なら `issue-flow`。「要件定義・ADR 作成というプロセス全体を実行する」ことが目的なら `requirements-flow`。
 
 ### `requirements-flow` との責務境界
 
-- `create-item-flow` は **UI レイヤー** であり、既存の会話コンテキストをもとに Issue/Discussion を即時登録する
+- `issue-flow` は **UI レイヤー** であり、既存の会話コンテキストをもとに Issue/Discussion を即時登録する
 - `requirements-flow` は **要件定義フェーズのオーケストレーター** であり、既存 ADR・Discussion の検索・整合確認→ write-adr / 仕様 Discussion 作成→次フロー案内までを統括する
 - 「仕様 Discussion を作ってほしい」という発話は `requirements-flow` にルーティングする。このスキルは仕様の要件定義プロセスを担当しない
 

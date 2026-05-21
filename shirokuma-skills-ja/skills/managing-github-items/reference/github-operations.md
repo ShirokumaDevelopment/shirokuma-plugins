@@ -63,7 +63,7 @@ shirokuma-flow begin {number}                                                   
 shirokuma-flow submit {number} [--comment <file>]                                   # Review 遷移（checkpoint、推奨）
 shirokuma-flow block {number} --reason "..."                                        # Blocked 遷移 + reason 記録（checkpoint、推奨）
 shirokuma-flow resume {number} [--comment <file>]                                   # Blocked → In progress 復帰（checkpoint、推奨）
-shirokuma-flow approve {number}                                                     # Review → Done（計画 Issue の場合は syncParentStatus で親が Backlog → ToDo に同期）（checkpoint、推奨）
+shirokuma-flow approve {number}                                                     # 課題 Issue: Review → ToDo（トリアージ承認）/ 計画・設計 Issue 子: Review → Done（syncParentStatus で親が Backlog → ToDo に同期）（checkpoint、推奨）
 shirokuma-flow status transition {number} --to "In progress"                        # primitive ステータス遷移（checkpoint 未対応の ToDo 遷移等で使用）
 shirokuma-flow issue comment {number} /tmp/shirokuma-flow/{number}-comment.md
 shirokuma-flow issue comments {number}                   # コメント一覧
@@ -199,10 +199,11 @@ GitHub Projects V2 の Status は 6 値:
 stateDiagram-v2
   [*] --> Backlog: issue add（INITIAL_STATUSES）
   Backlog --> ToDo: approve（計画 Issue の syncParentStatus）
-  Backlog --> Review: submit（計画 Issue 子: 計画策定完了）
+  Backlog --> Review: submit（計画/設計 Issue 子 or 課題 Issue トリアージ）
   ToDo --> InProgress: begin
   InProgress --> Review: pr create（PR_FORWARD: PR のみ）
-  Review --> Done: approve（計画 Issue 子）
+  Review --> ToDo: approve（課題 Issue トリアージ承認: normal）
+  Review --> Done: approve（計画/設計 Issue 子）
   Review --> Done: pr merge（PR）
   InProgress --> Blocked: block
   Blocked --> InProgress: resume
@@ -218,8 +219,8 @@ stateDiagram-v2
 | ToDo | 着手準備完了（計画承認後に syncParentStatus で自動遷移） | `approve` 後の親 Issue 自動同期（計画 Issue 子）/ `status transition --to ToDo`（手動） |
 | In progress | 作業中（計画 / 設計 / 実装すべて） | `begin <N>` |
 | Blocked | 中断中（理由を Issue コメントに記録） | `block <N> --reason "..."` |
-| Review | レビュー待ち（計画レビュー / コードレビュー）。制約: 親 Issue の Review は PR レビュー専用（計画 Issue 子は別エンティティ） | `submit <N>` |
-| Done | 完了（キャンセルも `state_reason: not_planned` で Done に統一） | `approve <N>` / `issue cancel <N>` |
+| Review | 人間判断待ち（課題 Issue トリアージ承認待ち / 計画・設計レビュー / PR コードレビュー）。課題 Issue の Review はトリアージ承認待ち（`approve` で ToDo へ）または PR レビュー（PR は別エンティティ） | `submit <N>` |
+| Done | 完了（キャンセルも `state_reason: not_planned` で Done に統一） | `approve <N>`（計画/設計 Issue 子） / `pr merge` / `issue cancel <N>` |
 
 旧ステータス（`Approved` / `Completed` / `Pending` / `Ready` / `On Hold` / `Cancelled` 等）は廃止。LEGACY 値は `LEGACY_STATUS_VALUES` で透過読み取りされる。
 

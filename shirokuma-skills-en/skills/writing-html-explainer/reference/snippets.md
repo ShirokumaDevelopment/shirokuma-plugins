@@ -277,9 +277,17 @@ Aggregate a section summary, key point, or confirmed fact into a single block. T
 
 ```html
 <div class="qbox">A point you want to discuss. You can also include <code>code</code> and <strong>emphasis</strong>.</div>
+
+<!-- Resolved point (green + check) -->
+<div class="qbox resolved">A resolved point. Records an approved / finalized design decision.</div>
 ```
 
 Purple frame with a `Q` badge on the left. Highlights "I need a decision here" in the body.
+`.qbox.resolved` (green + `✓`) is for **resolved** points.
+
+**Design-points section convention**: In sections like "Design points" / "Open questions", separate **open (`.qbox`) on top, resolved (`.qbox.resolved`) at the bottom**, divided by `### Open` / `### Resolved` subheadings. Sinking resolved items to the bottom keeps "what needs a decision now" at the top and improves readability.
+
+**Always include a proposal in each open point**: An open `.qbox` should state not just `Problem:` (what the question is) but also a **`Proposal:` (the recommended decision)**. A point without a proposal leaves the reader unsure what to decide next and tends to be left unresolved. Don't stop at "needs sorting out" / "to be considered" — write a concrete straw-man conclusion.
 
 ### Callout Blockquotes
 

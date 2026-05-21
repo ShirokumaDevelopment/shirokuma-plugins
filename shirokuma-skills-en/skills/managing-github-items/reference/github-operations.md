@@ -63,7 +63,7 @@ shirokuma-flow begin {number}                                                   
 shirokuma-flow submit {number} [--comment <file>]                                   # Move to Review (checkpoint, recommended)
 shirokuma-flow block {number} --reason "..."                                        # Move to Blocked + record reason (checkpoint, recommended)
 shirokuma-flow resume {number} [--comment <file>]                                   # Blocked → In progress (checkpoint, recommended)
-shirokuma-flow approve {number}                                                     # Review → Done (for plan issues, syncParentStatus auto-syncs parent Backlog → ToDo) (checkpoint, recommended)
+shirokuma-flow approve {number}                                                     # task issue: Review → ToDo (triage approval) / plan/design issue child: Review → Done (syncParentStatus auto-syncs parent Backlog → ToDo) (checkpoint, recommended)
 shirokuma-flow status transition {number} --to "In progress"                        # primitive status transition (use for non-checkpoint targets such as ToDo)
 shirokuma-flow issue comment {number} /tmp/shirokuma-flow/{number}-comment.md
 shirokuma-flow issue comments {number}                   # List comments
@@ -198,10 +198,11 @@ GitHub Projects V2 Status has 6 values:
 stateDiagram-v2
   [*] --> Backlog: issue add (INITIAL_STATUSES)
   Backlog --> ToDo: approve (syncParentStatus for plan issues)
-  Backlog --> Review: submit (plan issue child: plan complete)
+  Backlog --> Review: submit (plan/design issue child or task issue triage)
   ToDo --> InProgress: begin
   InProgress --> Review: pr create (PR_FORWARD: PR only)
-  Review --> Done: approve (plan issue child)
+  Review --> ToDo: approve (task issue triage approval: normal)
+  Review --> Done: approve (plan/design issue child)
   Review --> Done: pr merge (PR)
   InProgress --> Blocked: block
   Blocked --> InProgress: resume
@@ -217,8 +218,8 @@ stateDiagram-v2
 | ToDo | Ready to start (auto-transitioned via syncParentStatus after plan approval) | Auto-sync after `approve` (plan issue child) / `status transition --to ToDo` (manual) |
 | In progress | Working (planning / design / implementation) | `begin <N>` |
 | Blocked | Blocked (reason recorded in issue comment) | `block <N> --reason "..."` |
-| Review | Awaiting review (plan review / code review). constraint: parent issue Review is exclusively for PR review (plan issue child is a separate entity) | `submit <N>` |
-| Done | Closed / cancelled (cancellations use Done with state_reason: not_planned) | `approve <N>` / `issue cancel <N>` |
+| Review | Awaiting human decision (task issue triage approval / plan/design review / PR code review). For a task issue, Review means triage-pending (`approve` → ToDo) or PR review (PR is a separate entity) | `submit <N>` |
+| Done | Closed / cancelled (cancellations use Done with state_reason: not_planned) | `approve <N>` (plan/design issue child) / `pr merge` / `issue cancel <N>` |
 
 Legacy statuses (`Approved` / `Completed` / `Pending` / `Ready` / `On Hold` / `Cancelled`, etc.) are deprecated. Legacy values are read transparently via `LEGACY_STATUS_VALUES`.
 

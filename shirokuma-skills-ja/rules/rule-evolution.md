@@ -53,7 +53,7 @@ Evolution Issue にシグナルをコメントとして蓄積する。
 | 予防的 | シグナル記録時にパターンを認識 | コメントに提案を含めて記録 |
 | 定期的 | ユーザーが `evolving-rules` を明示的に起動 | 蓄積シグナル全体を分析 |
 | ダッシュボード表示時 | `/show-dashboard`（`showing-github`）がシグナル蓄積を提示 | `evolving-rules` の起動を推奨（自動実行しない） |
-| スキル完了時 | `implement-flow`、`prepare-flow`、`create-item-flow`、`design-flow`、`review-flow` の完了時 | 検出チェックリストで自動記録。シグナル未検出時はリマインド表示（フォールバック） |
+| スキル完了時 | `implement-flow`、`prepare-flow`、`issue-flow`、`design-flow`、`review-flow` の完了時 | 検出チェックリストで自動記録。シグナル未検出時はリマインド表示（フォールバック） |
 | eval 失敗時 | `skill eval` または `skill optimize` で失敗が発生 | eval 結果パターンを Evolution シグナルとして記録。`evolving-rules` で説明改善を提案 |
 
 ## 責務境界

@@ -1,6 +1,6 @@
 ---
 name: managing-github-items
-description: GitHubプロジェクトアイテム（Issue / Discussion）を作成・管理する内部エンジン。create-item-flow スキルから委任されて使用。直接起動は非推奨（create-item-flow を使用）。
+description: GitHubプロジェクトアイテム（Issue / Discussion）を作成・管理する内部エンジン。issue-flow スキルから委任されて使用。直接起動は非推奨（issue-flow を使用）。
 allowed-tools: Bash, AskUserQuestion, Read, Write
 ---
 

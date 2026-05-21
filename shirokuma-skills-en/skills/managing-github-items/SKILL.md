@@ -1,6 +1,6 @@
 ---
 name: managing-github-items
-description: Internal engine for creating and managing GitHub project items (Issues / Discussions). Delegated from create-item-flow skill. Direct invocation is deprecated (use create-item-flow).
+description: Internal engine for creating and managing GitHub project items (Issues / Discussions). Delegated from issue-flow skill. Direct invocation is deprecated (use issue-flow).
 allowed-tools: Bash, AskUserQuestion, Read, Write
 ---
 

@@ -43,22 +43,32 @@ title, body, type, priority, size, labels, コメントを確認。
 
 ### ステップ 1b: ステータスを In Progress に更新 + アサイン
 
-Issue のステータスに応じて以下のように分岐する。アサインは冪等なので常に実行する。
+課題 Issue のステータス別「着手挙動」は **`project-items` ルールの「次フロー共通ゲート」節が正本**。以下はその要約（同一遷移）。アサインは冪等なので常に実行する。
 
-| 現在ステータス | アクション |
-|--------------|----------|
-| ToDo | In progress に遷移して計画開始を記録 |
-| In progress | スキップ（計画継続） |
-| Review | **AskUserQuestion で再計画開始を確認** → 「はい」なら In progress に戻す（計画レビュー完了状態の上書きを防ぐため明示確認が必要） |
+| 課題 Issue の現在ステータス | アクション |
+|---------------------------|----------|
+| `Backlog`（未トリアージ） | 着手 NG。トリアージ未完了のため `Review`（トリアージ承認待ち）へ進めるよう案内して停止 |
+| `Review`（トリアージ承認待ち） | AskUserQuestion で承認確認 → 承認なら `approve`（normal 分岐）で `Review → ToDo` → `begin` で In progress |
+| `ToDo`（承認済み） | そのまま `begin` で In progress |
+| `In progress` | スキップ（計画継続） |
 
 ```bash
-# ToDo または Review (再計画承諾後) の場合: status In progress + 自己アサインを 1 コマンドで実行
+# ToDo または承認後の場合: status In progress + 自己アサインを 1 コマンドで実行
 shirokuma-flow begin {number}
 ```
 
 > `begin` は内部で `status transition --to "In progress"` と `issue assign @me` を順次実行する checkpoint コマンド。primitive を直接呼ぶ場合は `shirokuma-flow status transition {number} --to "In progress"` + `shirokuma-flow issue assign {number} "@me"` と同等。
 
-> **Review 状態での再計画**: Review は「計画レビュー完了・着手待ち」を意味する明示シグナルであり、再計画はユーザー意図の確認が必要。`AskUserQuestion` で「Issue は Review (着手待ち) です。再計画を開始しますか？」を提示し、「はい」を選んだ場合のみ In progress に戻す。「いいえ」の場合は計画作業をキャンセルし呼び出し元に戻る。
+#### Review 分岐の区別（課題 Issue トリアージ vs 計画 Issue 子の再計画）
+
+`prepare-flow` では Review の意味が対象 Issue 種別で異なるため、**2 ケースを区別**する:
+
+| Review の対象 | 意味 | アクション |
+|-------------|------|----------|
+| **課題 Issue**（親） | トリアージ承認待ち | AskUserQuestion で「Issue は Review（トリアージ承認待ち）です。承認して着手しますか？」→ 承認なら `approve {number}`（normal 分岐で Review → ToDo）→ `begin` で In progress。「いいえ」なら計画作業をキャンセルし呼び出し元に戻る |
+| **計画 Issue**（子） | 計画レビュー完了・着手待ち | AskUserQuestion で「計画 Issue は Review（着手待ち）です。再計画を開始しますか？」→ 「はい」なら In progress に戻す（計画レビュー完了状態の上書きを防ぐため明示確認が必要）。「いいえ」なら計画作業をキャンセルし呼び出し元に戻る |
+
+> 詳細は `project-items` ルールの「次フロー共通ゲート」節を参照。
 
 ### ステップ 2: リサーチトリガー判定（条件付き）
 
@@ -348,7 +358,7 @@ shirokuma-flow submit {plan-issue-number}
 
 | 参照元 | 用途 |
 |--------|------|
-| `project-items` ルール | In Progress/Review ステータスの運用 |
+| `project-items` ルール | In Progress/Review ステータスの運用、「次フロー共通ゲート」節（着手挙動の正本） |
 | `output-language` ルール | Issue コメント・本文の出力言語 |
 | `github-writing-style` ルール | 箇条書き vs 散文のガイドライン |
 | `implement-flow` スキル | Worker 完了後の統一パターン、UCP チェック |

@@ -1,6 +1,6 @@
 ---
-name: create-item-flow
-description: Creates GitHub Issues or Discussions with auto-inferred metadata from conversation context, automatically runs requirements review, and routes to the next flow. Triggers: "create issue", "make this an issue", "follow-up issue", "new issue", "file an issue". For creating specs, ADRs, or running the full requirements definition process, use /requirements-flow instead.
+name: issue-flow
+description: Creates GitHub Issues or Discussions with auto-inferred metadata from conversation context, automatically runs requirements review, and routes to the next flow. Also advances the triage Status (Backlog→Review→ToDo) of issue items. Triggers: "create issue", "make this an issue", "follow-up issue", "new issue", "file an issue". For creating specs, ADRs, or running the full requirements definition process, use /requirements-flow instead.
 allowed-tools: Bash, Skill, AskUserQuestion, Read, Write, TaskCreate, TaskUpdate, TaskGet, TaskList
 ---
 
@@ -12,7 +12,7 @@ Auto-infer Issue metadata from conversation context and delegate creation to `ma
 
 | Layer | Responsibility |
 |-------|---------------|
-| `create-item-flow` | User interface. Context analysis, metadata inference, **proactive search of canonical docs / ADRs / existing issues**, chain control |
+| `issue-flow` | User interface. Context analysis, metadata inference, **proactive search of canonical docs / ADRs / existing issues**, chain control |
 | `managing-github-items` | Internal engine. CLI command execution, field setting, validation |
 
 ### Boundary with `analyze-issue requirements`
@@ -179,12 +179,24 @@ Design assessment (NEEDED / NOT_NEEDED) takes priority over Size assessment. If 
 
 See [reference/chain-rules.md](reference/chain-rules.md) for chain decision details.
 
+## Advancing Triage Status (Backlog → Review → ToDo)
+
+In addition to new-item creation (Steps 1–3), this skill is also responsible for **advancing the triage Status of existing issue items**. Triage is the process of "submitting an uninvestigated/untriaged (Backlog) issue as a work candidate for human approval (Review), then advancing it to ready-to-start (ToDo) once approved." It applies only to **issue items (normal issues)**.
+
+| Transition | Command | Notes |
+|------------|---------|-------|
+| (b) `Backlog → Review` (triage submission) | `shirokuma-flow submit {number}` | The CLI rejects non-Backlog with `result: "error"` |
+| (c) `Review → ToDo` (triage approval) | Normally a human approves on GitHub Web. Delegate to `approve-flow` only on AI-initiated approval | A normal issue transitions `Review → ToDo`; guide to `/implement-flow` once it reaches ToDo |
+
+See [reference/triage-status.md](reference/triage-status.md) for details: triggers, DO NOT rules, submission with a comment, and the recommended AskUserQuestion before approval.
+
 ## Reference Documents
 
 | Document | Content | When to Read |
 |----------|---------|--------------|
 | [reference/chain-rules.md](reference/chain-rules.md) | Chain decision rules and inference logic | Item creation |
 | [reference/purpose-criteria.md](reference/purpose-criteria.md) | Means vs purpose criteria (JTBD-based) | Context analysis (purpose clarity check) |
+| [reference/triage-status.md](reference/triage-status.md) | Triage Status advancement (Backlog → Review → ToDo) detailed steps | Triaging an existing issue |
 | [../../rules/doc-search-rules.md](../../rules/doc-search-rules.md) | Canonical-doc / ADR discovery: keyword generation, splitting rules, placement spec, fallbacks | Step 1c execution |
 
 ## Next Steps
@@ -207,15 +219,15 @@ This skill and `requirements-flow` can both create GitHub items, but they serve 
 
 | Goal | Which skill to use |
 |------|-------------------|
-| "I want to register this conversation as an Issue" / "I need a follow-up Issue" | `create-item-flow` (this skill) |
+| "I want to register this conversation as an Issue" / "I need a follow-up Issue" | `issue-flow` (this skill) |
 | "I want to create a spec or ADR first, then track it as an Issue" / "I want to run the full requirements definition process" | `/requirements-flow` |
 | "I want to write an ADR" / "I want to record a technology decision" | `/requirements-flow` |
 
-**Decision rule**: If the goal is "register this as a GitHub Issue/Discussion right now," use `create-item-flow`. If the goal is "run the requirements definition / ADR creation process," use `requirements-flow`.
+**Decision rule**: If the goal is "register this as a GitHub Issue/Discussion right now," use `issue-flow`. If the goal is "run the requirements definition / ADR creation process," use `requirements-flow`.
 
 ### Responsibility Boundary with `requirements-flow`
 
-- `create-item-flow` is the **UI layer** — it immediately registers an Issue/Discussion based on the current conversation context
+- `issue-flow` is the **UI layer** — it immediately registers an Issue/Discussion based on the current conversation context
 - `requirements-flow` is the **requirements phase orchestrator** — it handles the full pipeline: searching existing ADRs/Discussions for consistency → creating ADRs and spec Discussions → guiding next steps
 - A request like "create a spec Discussion" should be routed to `requirements-flow`. This skill does not handle the requirements definition process for specs
 

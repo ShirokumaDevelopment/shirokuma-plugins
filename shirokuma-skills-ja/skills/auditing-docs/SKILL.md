@@ -233,7 +233,7 @@ EOF
 shirokuma-flow issue add /tmp/shirokuma-flow/audit-issue-{slug}.md
 ```
 
-要件分析・サブ Issue 構成判定が必要な大型タスクの場合は `create-item-flow` を呼び出してもよい（推論ロジックを活用したい場合のみ）。
+要件分析・サブ Issue 構成判定が必要な大型タスクの場合は `issue-flow` を呼び出してもよい（推論ロジックを活用したい場合のみ）。
 
 ## GitHub Actions での定期実行（参考）
 

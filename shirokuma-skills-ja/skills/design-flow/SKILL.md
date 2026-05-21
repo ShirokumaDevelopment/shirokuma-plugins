@@ -47,13 +47,20 @@ shirokuma-flow issue context {number}
 
 ### Phase 1b: ステータスを In Progress に更新
 
-Issue のステータスが ToDo の場合、In progress に遷移して設計開始を記録する。
+課題 Issue のステータス別「着手挙動」は **`project-items` ルールの「次フロー共通ゲート」節が正本**。以下はその要約（同一遷移）。
+
+| 課題 Issue の現在ステータス | アクション |
+|---------------------------|----------|
+| `Backlog`（未トリアージ） | 着手 NG。トリアージ未完了のため `Review`（トリアージ承認待ち）へ進めるよう案内して停止 |
+| `Review`（トリアージ承認待ち） | AskUserQuestion で承認確認 → 承認なら `approve`（normal 分岐）で `Review → ToDo` → `begin` で In progress |
+| `ToDo`（承認済み） | そのまま `begin` で In progress |
+| `In progress` | スキップ（設計継続） |
 
 ```bash
 shirokuma-flow begin {number}
 ```
 
-既に In Progress / Review の場合はステータス更新をスキップ（冪等）。`begin` は status を In progress に遷移し、@me を担当者にアサインする。
+`begin` は status を In progress に遷移し、@me を担当者にアサインする。詳細は `project-items` ルールの「次フロー共通ゲート」節を参照。
 
 ### Phase 2: デザインディスカバリー
 
@@ -173,7 +180,7 @@ shirokuma-flow submit {design-issue-number}
 
 ## 注意事項
 
-- `create-item-flow` の完了レポートから `/design-flow` で起動（`analyze-issue requirements` による設計要否判定後の推奨チェーン）
+- `issue-flow` の完了レポートから `/design-flow` で起動（`analyze-issue requirements` による設計要否判定後の推奨チェーン）
 - `discovering-design` と `evaluating-design` は `AskUserQuestion` を使用するため Skill ツール（メインコンテキスト）で呼び出す（Agent 委任は不可）
 - 視覚評価ループは最大 3 イテレーション
 - 委任先の設計スキルがビルド検証を実施（このスキルでは不要）

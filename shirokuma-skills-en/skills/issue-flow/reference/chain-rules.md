@@ -46,7 +46,7 @@ Default recommended chain target after creation (3-way branching based on `analy
 
 ## Review Execution Conditions
 
-After Issue creation, `create-item-flow` Step 2b **automatically runs** `analyze-issue requirements` (skipped for Discussion).
+After Issue creation, `issue-flow` Step 2b **automatically runs** `analyze-issue requirements` (skipped for Discussion).
 
 | Condition | Auto-execute | Reason |
 |-----------|--------------|--------|
@@ -72,6 +72,6 @@ Keep in ToDo without chaining when:
 
 ## Relationship with `implement-flow` Step 1a
 
-When `implement-flow` is invoked with text description only (no issue number), Step 1a calls `create-item-flow`. `create-item-flow` creates the Issue and returns the number, and `implement-flow` continues. In this case, chain decision is not needed (as `implement-flow` automatically continues).
+When `implement-flow` is invoked with text description only (no issue number), Step 1a calls `issue-flow`. `issue-flow` creates the Issue and returns the number, and `implement-flow` continues. In this case, chain decision is not needed (as `implement-flow` automatically continues).
 
-> **Note:** When design assessment (`analyze-issue requirements`) returns NEEDED, `create-item-flow` guides to `/design-flow` first. After design completion, the chain proceeds to `/prepare-flow` → `/implement-flow`.
+> **Note:** When design assessment (`analyze-issue requirements`) returns NEEDED, `issue-flow` guides to `/design-flow` first. After design completion, the chain proceeds to `/prepare-flow` → `/implement-flow`.

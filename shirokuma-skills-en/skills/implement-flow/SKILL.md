@@ -118,7 +118,7 @@ shirokuma-flow issue context {plan-issue-number}
 # → Read .shirokuma/github/{org}/{repo}/issues/{plan-issue-number}/body.md to get plan content
 ```
 
-**XS/S direct implementation path criteria:** Apply when the Issue Size field is XS or S, and the title and body clearly indicate what needs to be changed (mechanical transformation such as pattern replacement, type fix, rename). Sub-issues (`parentIssue` field present) always require a plan regardless of size. Additionally, issues with Review status are excluded from this path (the Review status priority path is evaluated first). If Size is unset, requirements are ambiguous, the issue is a sub-issue, or judgment is uncertain, delegate to `prepare-flow`. See the `create-item-flow` skill "Requirements Clarity Criteria" for the canonical definition.
+**XS/S direct implementation path criteria:** Apply when the Issue Size field is XS or S, and the title and body clearly indicate what needs to be changed (mechanical transformation such as pattern replacement, type fix, rename). Sub-issues (`parentIssue` field present) always require a plan regardless of size. Additionally, issues with Review status are excluded from this path (the Review status priority path is evaluated first). If Size is unset, requirements are ambiguous, the issue is a sub-issue, or judgment is uncertain, delegate to `prepare-flow`. See the `issue-flow` skill "Requirements Clarity Criteria" for the canonical definition.
 
 #### Reading Phase / PR Timing from the Plan (Required)
 
@@ -145,22 +145,26 @@ The prompt passed to `coding-worker` (Agent) must include **all phases that shou
 
 ### Step 1a: Issue Resolution (text description only)
 
-When called with text only, delegate to `create-item-flow` skill to ensure an issue exists.
+When called with text only, delegate to `issue-flow` skill to ensure an issue exists.
 
 ```text
-Text description → create-item-flow → Issue number → Join Step 1
+Text description → issue-flow → Issue number → Join Step 1
 ```
 
 ### Step 2: Update Status
 
 If issue is not already In Progress: run `shirokuma-flow begin {number}` (transitions status to In progress and assigns @me)
 
-**Transition from Review (Explicit Approval Model)**: When `/implement-flow` is invoked from a Review-status Issue, check the Issue type:
+**Start-work behavior (Next-Flow Common Gate)**: The "start-work behavior" of a task Issue by status is **canonically defined in the "Next-Flow Common Gate" section of the `project-items` rule**. The summary below uses identical transitions.
 
-| Issue Type | Action |
-|-----------|--------|
-| plan / design Issue | Verify the plan/design Issue is `ToDo` (approved via `Review → Done`, which auto-syncs parent to `Backlog → ToDo`). If still in Review, display "Please approve the plan before starting implementation" and stop |
-| Normal Issue | Transition Review → In progress directly (approval happens via PR merge → Done) |
+| Current task Issue Status | Action |
+|---------------------------|--------|
+| `Backlog` (untriaged) | Cannot start. Triage incomplete — guide the user to advance to `Review` (triage-pending) and stop |
+| `Review` (triage-pending) | Confirm approval via AskUserQuestion → if approved, `approve` (normal branch) for `Review → ToDo` → `begin {plan-issue-number}` for In progress and start implementation |
+| `ToDo` (approved) | Run `begin {plan-issue-number}` directly for In progress and start implementation |
+| `In progress` (continuing) | Skip status update and continue implementation |
+
+> **Distinction from the plan issue child's Review**: The table above is the common gate for the **task Issue (parent)** status. When `/implement-flow` is invoked from a **plan Issue (child)** in Review, first prompt `approve {plan-issue-number}` (`Review → Done`, parent auto-synced `Backlog → ToDo`), then run `begin` on the parent Issue. See the "Next-Flow Common Gate" section of the `project-items` rule for details.
 
 Guidance message when plan Issue is still in Review:
 
@@ -171,7 +175,7 @@ To start implementation, please approve the plan first:
   (This transitions the plan issue Review → Done, and syncParentStatus auto-syncs parent Backlog → ToDo)
 ```
 
-> **Note**: `approve` for plan issues now transitions `Review → Done` (plan complete), not `Review → ToDo`. `syncParentStatus` then automatically syncs the parent issue from `Backlog → ToDo`. After approval, the parent issue is in ToDo status and ready for implementation.
+> **Note**: `approve` branches by `issue_kind`. For plan/design issues it transitions `Review → Done` (plan/design complete), and `syncParentStatus` then auto-syncs the parent issue from `Backlog → ToDo`. For task issues (normal branch = triage approval) it transitions `Review → ToDo` (ready to start, no parent sync).
 
 ### Step 3: Ensure Feature Branch
 
@@ -319,7 +323,7 @@ Multiple issues (e.g., `#101 #102 #103`) are processed sequentially in a single 
 |--------|---------|----------|
 | Issue number | `#42` | Fetch issue, analyze type |
 | Multiple issues | `#101 #102 #103` | Sequential batch mode |
-| Description | `implement dashboard` | Text classification → `create-item-flow` |
+| Description | `implement dashboard` | Text classification → `issue-flow` |
 | No argument | — | AskUserQuestion |
 
 ### Flags
@@ -368,7 +372,7 @@ See [reference/epic-entry.md](reference/epic-entry.md) for details (precondition
 | `branch-workflow` | Branch naming, creation from `develop`, integration branch |
 | `batch-workflow` | Batch eligibility, quality standards, branch naming |
 | `epic-workflow` reference | Epic/sub-issue workflow overview |
-| `project-items` | Status workflow, field requirements |
+| `project-items` | Status workflow, field requirements, "Next-Flow Common Gate" section (canonical start-work behavior) |
 | `git-commit-style` | Commit message format |
 | `output-language` | GitHub output language convention |
 | `github-writing-style` | Bullet-point vs prose guidelines |

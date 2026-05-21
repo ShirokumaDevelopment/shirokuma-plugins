@@ -43,22 +43,32 @@ Review title, body, type, priority, size, labels, and comments.
 
 ### Step 1b: Set Status to In Progress + Assign
 
-Branch by current Issue status. Assignee is idempotent, so always execute.
+The "start-work behavior" of a task Issue by status is **canonically defined in the "Next-Flow Common Gate" section of the `project-items` rule**. The summary below uses identical transitions. Assignee is idempotent, so always execute.
 
-| Current Status | Action |
-|----------------|--------|
-| ToDo | Transition to In progress to record the planning start |
-| In progress | Skip (continuing planning) |
-| Review | **Confirm re-planning via AskUserQuestion** → if "Yes", transition back to In progress (explicit confirmation prevents overwriting a completed plan-review state) |
+| Current task Issue Status | Action |
+|---------------------------|--------|
+| `Backlog` (untriaged) | Cannot start. Triage incomplete — guide the user to advance to `Review` (triage-pending) and stop |
+| `Review` (triage-pending) | Confirm approval via AskUserQuestion → if approved, `approve` (normal branch) for `Review → ToDo` → `begin` for In progress |
+| `ToDo` (approved) | Run `begin` directly for In progress |
+| `In progress` | Skip (continuing planning) |
 
 ```bash
-# When ToDo, or Review with re-plan confirmed: status In progress + self-assign in one command
+# When ToDo, or after approval: status In progress + self-assign in one command
 shirokuma-flow begin {number}
 ```
 
 > `begin` is a checkpoint command that runs `status transition --to "In progress"` and `issue assign @me` in sequence. Equivalent primitive form: `shirokuma-flow status transition {number} --to "In progress"` + `shirokuma-flow issue assign {number} "@me"`.
 
-> **Re-planning from Review**: Review is the explicit signal "plan review complete, awaiting implementation approval"; re-planning requires deliberate user intent. Use `AskUserQuestion` with "Issue is in Review (awaiting implementation approval). Start re-planning?", and only revert to In Progress if the user answers "Yes". On "No", cancel the planning step and return control to the caller.
+#### Distinguishing the Review branch (task issue triage vs plan issue child re-planning)
+
+In `prepare-flow`, the meaning of Review differs by target Issue type, so **distinguish two cases**:
+
+| Review target | Meaning | Action |
+|---------------|---------|--------|
+| **Task Issue** (parent) | Triage approval pending | Use AskUserQuestion: "Issue is in Review (triage-pending). Approve and start work?" → if approved, `approve {number}` (normal branch: Review → ToDo) → `begin` for In progress. On "No", cancel the planning step and return control to the caller |
+| **Plan Issue** (child) | Plan review complete, awaiting implementation | Use AskUserQuestion: "Plan Issue is in Review (awaiting implementation approval). Start re-planning?" → if "Yes", revert to In progress (explicit confirmation prevents overwriting a completed plan-review state). On "No", cancel the planning step and return control to the caller |
+
+> See the "Next-Flow Common Gate" section of the `project-items` rule for details.
 
 ### Step 2: Research Trigger Assessment (Conditional)
 
@@ -309,7 +319,7 @@ Show a summary matching the plan depth level. Follow the `completion-report-styl
 | Epic (non-plan sub-issues already created) | Guide each sub-issue number with `/implement-flow #{sub-number}` (creates integration branch, proposes order) |
 | Epic (no non-plan sub-issues yet) | Guide each sub-issue number with `/implement-flow #{sub-number}` (creates sub-issues, integration branch, proposes order) |
 
-> **Unified rule**: Always create a plan Issue regardless of plan level, and present `#{plan number}`. The Lightweight-without-plan-issue path is removed. Design guidance (`/design-flow`) is `create-item-flow`'s responsibility and must not appear in `prepare-flow` next steps.
+> **Unified rule**: Always create a plan Issue regardless of plan level, and present `#{plan number}`. The Lightweight-without-plan-issue path is removed. Design guidance (`/design-flow`) is `issue-flow`'s responsibility and must not appear in `prepare-flow` next steps.
 
 Always ask the user to review the plan and provide feedback if changes are needed.
 
@@ -339,7 +349,7 @@ At the end of the plan completion report, auto-record Evolution signals followin
 
 | Reference | Usage |
 |-----------|-------|
-| `project-items` rule | In Progress/Review status workflow |
+| `project-items` rule | In Progress/Review status workflow, "Next-Flow Common Gate" section (canonical start-work behavior) |
 | `output-language` rule | Output language for issue comments and body |
 | `github-writing-style` rule | Bullet-point vs prose guidelines |
 | `implement-flow` skill | Worker completion unified pattern, UCP check |

@@ -118,7 +118,7 @@ shirokuma-flow issue context {plan-issue-number}
 # → .shirokuma/github/{org}/{repo}/issues/{plan-issue-number}/body.md を Read ツールで読み込み計画内容を取得
 ```
 
-**XS/S 直接実装パスの判定:** Issue の Size フィールドが XS または S であり、かつタイトルと本文から変更内容が明確に読み取れる場合（パターン置換、型修正、リネーム等の機械的変換）に適用する。ただし、サブ Issue（`parentIssue` フィールドあり）は Size に関わらず計画が必須であるため、このパスの対象外とする。また、Review ステータスの場合はこのパスの対象外（Review ステータス優先パスが先に評価される）。Size が未設定、要件に曖昧さがある、サブ Issue である、または判断が難しい場合は `prepare-flow` に委任する。正規の判定基準は `create-item-flow` スキルの「要件明確性の判定」セクションを参照。
+**XS/S 直接実装パスの判定:** Issue の Size フィールドが XS または S であり、かつタイトルと本文から変更内容が明確に読み取れる場合（パターン置換、型修正、リネーム等の機械的変換）に適用する。ただし、サブ Issue（`parentIssue` フィールドあり）は Size に関わらず計画が必須であるため、このパスの対象外とする。また、Review ステータスの場合はこのパスの対象外（Review ステータス優先パスが先に評価される）。Size が未設定、要件に曖昧さがある、サブ Issue である、または判断が難しい場合は `prepare-flow` に委任する。正規の判定基準は `issue-flow` スキルの「要件明確性の判定」セクションを参照。
 
 #### 計画書の Phase / PR タイミングの読み取り（必須）
 
@@ -145,10 +145,10 @@ shirokuma-flow issue context {plan-issue-number}
 
 ### ステップ 1a: Issue 解決（テキスト説明のみの場合）
 
-テキスト説明のみで呼ばれた場合、`create-item-flow` スキルに委任して Issue を確保する。
+テキスト説明のみで呼ばれた場合、`issue-flow` スキルに委任して Issue を確保する。
 
 ```text
-テキスト説明のみ → create-item-flow → Issue 番号取得 → ステップ 1 に合流
+テキスト説明のみ → issue-flow → Issue 番号取得 → ステップ 1 に合流
 ```
 
 ### ステップ 2: ステータス更新
@@ -162,15 +162,18 @@ shirokuma-flow issue context {plan-issue-number}
 
 > **`pr create` の自動遷移**: `pr create` が `Closes #N` を解析し、PR 前進遷移（PR_FORWARD）により PR を `In progress → Review` に遷移させる。計画 Issue・課題 Issue は Review に遷移させない（1 エンティティ 1 Review 原則）。
 
-> **approve の意味変更**: 計画 Issue (子) の `approve` は `Review → Done`（計画完了）を意味する。これにより `syncParentStatus` が自動的に親 Issue を `Backlog → ToDo` に同期する。旧仕様の `approve = Review → ToDo` は廃止。
+> **approve の `issue_kind` 分岐**: 計画/設計 Issue (子) の `approve` は `Review → Done`（計画/設計完了）を意味し、`syncParentStatus` が親 Issue を `Backlog → ToDo` に同期する。課題 Issue (normal 分岐 = トリアージ承認) の `approve` は `Review → ToDo`（着手可、親同期なし）を意味する。
 
-**Review / ToDo からの遷移**: Review 状態の Issue から `/implement-flow` が呼ばれた場合、`approve` を促してから `begin` を実行する:
+**着手挙動（次フロー共通ゲート）**: 課題 Issue のステータス別「着手挙動」は **`project-items` ルールの「次フロー共通ゲート」節が正本**。以下はその要約（同一遷移）。
 
-| Issue の状態 | アクション |
-|-----------|---------|
-| Review（承認前） | 「先に `approve {number}` で承認してください（`Review → Done` に遷移し、親 Issue が `Backlog → ToDo` に自動同期される）」を提示して停止 |
-| ToDo（承認済み）| `begin {plan-issue-number}` で In progress に遷移して実装開始 |
-| In progress（実装継続） | ステータス更新をスキップして実装を継続 |
+| 課題 Issue の現在ステータス | アクション |
+|---------------------------|---------|
+| `Backlog`（未トリアージ） | 着手 NG。トリアージ未完了のため `Review`（トリアージ承認待ち）へ進めるよう案内して停止 |
+| `Review`（トリアージ承認待ち） | AskUserQuestion で承認確認 → 承認なら `approve`（normal 分岐）で `Review → ToDo` → `begin` で In progress |
+| `ToDo`（承認済み） | そのまま `begin {plan-issue-number}` で In progress に遷移して実装開始 |
+| `In progress`（実装継続） | ステータス更新をスキップして実装を継続 |
+
+> **計画 Issue 子の Review との区別**: 上表は**課題 Issue（親）**のステータスに対する共通ゲート。`/implement-flow` が**計画 Issue（子）**の Review から呼ばれた場合は、先に `approve {plan-issue-number}`（`Review → Done`、親 Issue が `Backlog → ToDo` に自動同期）を促してから親 Issue で `begin` を実行する。詳細は `project-items` ルールの「次フロー共通ゲート」節を参照。
 
 ### ステップ 3: フィーチャーブランチの確保
 
@@ -318,7 +321,7 @@ TDD 共通ワークフローの詳細は [docs/tdd-workflow.md](docs/tdd-workflo
 |------|---|------|
 | Issue 番号 | `#42` | Issue 取得、タイプ分析 |
 | 複数 Issue | `#101 #102 #103` | 逐次バッチモード |
-| 説明文 | `implement dashboard` | テキスト分類 → `create-item-flow` 経由 |
+| 説明文 | `implement dashboard` | テキスト分類 → `issue-flow` 経由 |
 | 引数なし | — | AskUserQuestion で確認 |
 
 ### フラグ
@@ -367,7 +370,7 @@ PR revert 後のリカバリーおよびチェーン復旧手順の詳細は [re
 | `branch-workflow` | ブランチ命名、`develop` からの作成、integration ブランチ |
 | `batch-workflow` | バッチ適格性、品質基準、ブランチ命名 |
 | `epic-workflow` リファレンス | エピック・サブ Issue ワークフロー全体像 |
-| `project-items` | ステータスワークフロー、フィールド要件 |
+| `project-items` | ステータスワークフロー、フィールド要件、「次フロー共通ゲート」節（着手挙動の正本） |
 | `git-commit-style` | コミットメッセージ形式 |
 | `output-language` | GitHub 出力の言語規約 |
 | `github-writing-style` | 箇条書き vs 散文のガイドライン |

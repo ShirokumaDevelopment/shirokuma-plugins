@@ -44,4 +44,4 @@ The epic must have a plan issue (child issue with title starting with "Plan:" or
 
 ## Responsibility Note
 
-Sub-issue creation in this flow uses `shirokuma-flow issue add` directly (not `create-item-flow`). The plan already specifies sub-issue details, so `create-item-flow`'s inference logic is unnecessary.
+Sub-issue creation in this flow uses `shirokuma-flow issue add` directly (not `issue-flow`). The plan already specifies sub-issue details, so `issue-flow`'s inference logic is unnecessary.

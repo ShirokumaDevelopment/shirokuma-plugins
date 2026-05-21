@@ -1,9 +1,9 @@
 ---
 paths:
-  - "**/skills/create-item-flow/**/*.md"
+  - "**/skills/issue-flow/**/*.md"
   - "**/skills/requirements-flow/**/*.md"
 # Scope note: This rule defines the auto-discovery logic for canonical docs / ADRs / related issues.
-# It is shared between create-item-flow (Issue / Discussion creation) and requirements-flow
+# It is shared between issue-flow (Issue / Discussion creation) and requirements-flow
 # (ADR / spec Discussion creation), so we use a paths scope that loads only when editing these skills.
 ---
 
@@ -15,7 +15,7 @@ Defines the shared logic for auto-discovering related canonical docs, ADRs, and 
 
 | Skill | Step | Output target |
 |-------|------|--------------|
-| `create-item-flow` | Step 1c | Issue body (between `## Purpose` and `## Summary`) |
+| `issue-flow` | Step 1c | Issue body (between `## Purpose` and `## Summary`) |
 | `requirements-flow` | Step 2 extension | Discussion body (placement depends on ADR / spec template) |
 
 ## Design Principles
@@ -54,7 +54,7 @@ Skip morphological analysis; use these simple rules:
 
 | Input title | Tokens (candidate keywords) |
 |-------------|----------------------------|
-| `feat(skill): create-item-flow に正本ドキュメント・ADR 自動探索ステップを追加` | `create-item-flow`, `正本ドキュメント`, `ADR`, `自動探索`, `ステップ`, `追加` |
+| `feat(skill): issue-flow に正本ドキュメント・ADR 自動探索ステップを追加` | `issue-flow`, `正本ドキュメント`, `ADR`, `自動探索`, `ステップ`, `追加` |
 | `fix: Review 遷移仕様乖離を解消` | `Review`, `遷移仕様`, `乖離`, `解消` |
 | `chore: 依存パッケージを更新` | `依存パッケージ`, `更新` |
 
@@ -74,9 +74,9 @@ Record these signals as Issue comments or as Evolution Issues (evaluate after ac
 
 | Skill / Type | Placement |
 |--------------|-----------|
-| `create-item-flow` (Issue / Discussion) | Between `## Purpose` and `## Summary` |
+| `issue-flow` (Issue / Discussion) | Between `## Purpose` and `## Summary` |
 | `requirements-flow` (ADR) | Between `## Status` and `## Context` |
-| `requirements-flow` (spec Discussion) | Between `## Purpose` and `## Summary` (same as create-item-flow) |
+| `requirements-flow` (spec Discussion) | Between `## Purpose` and `## Summary` (same as issue-flow) |
 
 ### Common Template
 
@@ -126,7 +126,7 @@ In the "Relevant section" column, write a line range plus a short summary. Avoid
 | `guide/<doc>.md` | Relevant section L<start>-<end> | Relation to this issue / ADR |
 ```
 
-## Boundary with `analyze-issue requirements` (when applied via create-item-flow)
+## Boundary with `analyze-issue requirements` (when applied via issue-flow)
 
 Pre-creation discovery (this rule) and `analyze-issue requirements`'s project-requirement-consistency check (post-creation verification) play **complementary roles separated by time and purpose**. Do not merge them; preserve both.
 

@@ -53,7 +53,7 @@ Decision:
 |--------|--------|
 | **PASS** | Proceed to the next step (improvement commit) |
 | **Error detected (inline-fixable)** | Fix within the same PR, then proceed. Criteria: **3 or fewer additional files need fixing, Markdown / config files only (`.md` / `.yaml` / `.yml` / `.json` / `.toml`)**. Files already being edited as part of the PR's main work do not count toward the threshold. When in doubt, prefer inline fix |
-| **Error detected (large-scale / structural)** | Create a derived Issue via `create-item-flow` (or record manually). Treat the current PR's work as complete and address in the derived Issue |
+| **Error detected (large-scale / structural)** | Create a derived Issue via `issue-flow` (or record manually). Treat the current PR's work as complete and address in the derived Issue |
 
 > **Error handling**: Distinguish the two cases below.
 >

@@ -324,7 +324,7 @@ Quick reference for when to use each component in `reference/snippets.md`:
 | Collapse long code or supplementary info | `details.collapse` (0.2 s chevron rotation) |
 | Card-ify a chapter | `.phase-card` (color variants) |
 | Show ordered steps | `.timeline` + type chips |
-| Highlight a discussion point | `.qbox` |
+| Highlight a discussion point | `.qbox` (open) / `.qbox.resolved` (resolved, green ✓). Separate open on top, resolved at bottom |
 | Known issue / caution | `blockquote.warn` |
 | Confirmed success / verified hypothesis | `blockquote.callout` |
 | Short identifier | `<code>` |
@@ -366,6 +366,7 @@ Prefer SVG `fill` / `stroke` colors from this table. **Each already has a `[data
 - ❌ Dynamic rendering via JavaScript — keep it as static HTML
 - ❌ Pure `#fff` / `#000` colors — maintain the warm palette
 - ❌ Omitting `fill` on SVG `<text>` — leaves it invisible in dark mode
+- ❌ Applying `text-transform: uppercase` to headings (`h2`–`h4`) — identifiers get crushed into `SYNCPARENTSTATUS` and become unreadable. Reserve uppercase for decorative labels (`.eyebrow` / `.tag` / `.label`); wrap identifiers in `<code>` and protect them with `code { text-transform: none }`
 - ❌ Adding more Google Font families — stick to the 3 declared families
 
 ## Prerequisites (Submodule Initial Setup)

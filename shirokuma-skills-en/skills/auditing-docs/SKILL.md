@@ -233,7 +233,7 @@ EOF
 shirokuma-flow issue add /tmp/shirokuma-flow/audit-issue-{slug}.md
 ```
 
-For larger tasks that require requirement analysis or sub-Issue decomposition, you may invoke `create-item-flow` instead (only when you want to leverage its inference logic).
+For larger tasks that require requirement analysis or sub-Issue decomposition, you may invoke `issue-flow` instead (only when you want to leverage its inference logic).
 
 ## Periodic Execution via GitHub Actions (Reference)
 

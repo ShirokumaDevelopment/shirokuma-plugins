@@ -47,13 +47,20 @@ shirokuma-flow issue context {number}
 
 ### Phase 1b: Update Status to In Progress
 
-If the Issue status is ToDo, transition to In progress to record the start of design work.
+The "start-work behavior" of a task Issue by status is **canonically defined in the "Next-Flow Common Gate" section of the `project-items` rule**. The summary below uses identical transitions.
+
+| Current task Issue Status | Action |
+|---------------------------|--------|
+| `Backlog` (untriaged) | Cannot start. Triage incomplete — guide the user to advance to `Review` (triage-pending) and stop |
+| `Review` (triage-pending) | Confirm approval via AskUserQuestion → if approved, `approve` (normal branch) for `Review → ToDo` → `begin` for In progress |
+| `ToDo` (approved) | Run `begin` directly for In progress |
+| `In progress` | Skip (continuing design) |
 
 ```bash
 shirokuma-flow begin {number}
 ```
 
-Skip status update if already In Progress / Review (idempotent). `begin` transitions status to In progress and assigns @me.
+`begin` transitions status to In progress and assigns @me. See the "Next-Flow Common Gate" section of the `project-items` rule for details.
 
 ### Phase 2: Design Discovery
 
@@ -173,7 +180,7 @@ Design skills are discovered dynamically via `shirokuma-flow skills routing desi
 
 ## Notes
 
-- Invoked via `/design-flow` from `create-item-flow` completion report (recommended chain after design assessment by `analyze-issue requirements`)
+- Invoked via `/design-flow` from `issue-flow` completion report (recommended chain after design assessment by `analyze-issue requirements`)
 - `discovering-design` and `evaluating-design` use `AskUserQuestion` and must be called via Skill tool (main context); Agent delegation is not allowed
 - Visual evaluation loop limited to 3 iterations maximum
 - The delegated design skill handles build verification (not needed in this skill)
