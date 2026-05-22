@@ -164,7 +164,7 @@ If issue is not already In Progress: run `shirokuma-flow begin {number}` (transi
 | `ToDo` (approved) | Run `begin {plan-issue-number}` directly for In progress and start implementation |
 | `In progress` (continuing) | Skip status update and continue implementation |
 
-> **Distinction from the plan issue child's Review**: The table above is the common gate for the **task Issue (parent)** status. When `/implement-flow` is invoked from a **plan Issue (child)** in Review, first prompt `approve {plan-issue-number}` (`Review → Done`, parent auto-synced `Backlog → ToDo`), then run `begin` on the parent Issue. See the "Next-Flow Common Gate" section of the `project-items` rule for details.
+> **Distinction from the plan issue child's Review**: The table above is the common gate for the **task Issue (parent)** status. When `/implement-flow` is invoked from a **plan Issue (child)** in Review, first prompt `approve {plan-issue-number}` (`Review → ToDo`; the plan issue is the implementation unit, so it is not set to Done), then run `begin` (`ToDo → In progress`) on the **plan Issue itself**. The parent (task) Issue is not operated directly — `syncParentStatus` derives it from its children. See the "Next-Flow Common Gate" section of the `project-items` rule for details.
 
 Guidance message when plan Issue is still in Review:
 
@@ -172,10 +172,10 @@ Guidance message when plan Issue is still in Review:
 Plan Issue #{plan-number} is in Review status.
 To start implementation, please approve the plan first:
   shirokuma-flow approve {plan-number}
-  (This transitions the plan issue Review → Done, and syncParentStatus auto-syncs parent Backlog → ToDo)
+  (This transitions the plan issue Review → ToDo; syncParentStatus then derives the parent from its children)
 ```
 
-> **Note**: `approve` branches by `issue_kind`. For plan/design issues it transitions `Review → Done` (plan/design complete), and `syncParentStatus` then auto-syncs the parent issue from `Backlog → ToDo`. For task issues (normal branch = triage approval) it transitions `Review → ToDo` (ready to start, no parent sync).
+> **Note**: `approve` branches by `issue_kind`. For plan/design issues it transitions `Review → ToDo` (plan/design approved, ready to start — not set to Done in the planning phase), and `syncParentStatus` then derives the parent issue from its children. For a plan issue's approve, approval inheritance additionally cascades sibling implementation sub-issues under the same parent from `Backlog → ToDo`. For task issues (normal branch = triage approval) it also transitions `Review → ToDo` (ready to start).
 
 ### Step 3: Ensure Feature Branch
 

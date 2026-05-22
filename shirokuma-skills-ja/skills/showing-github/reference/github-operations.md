@@ -63,7 +63,7 @@ shirokuma-flow begin {number}                                                   
 shirokuma-flow submit {number} [--comment <file>]                                   # Review 遷移（checkpoint、推奨）
 shirokuma-flow block {number} --reason "..."                                        # Blocked 遷移 + reason 記録（checkpoint、推奨）
 shirokuma-flow resume {number} [--comment <file>]                                   # Blocked → In progress 復帰（checkpoint、推奨）
-shirokuma-flow approve {number}                                                     # 課題 Issue: Review → ToDo（トリアージ承認）/ 計画・設計 Issue 子: Review → Done（syncParentStatus で親が Backlog → ToDo に同期）（checkpoint、推奨）
+shirokuma-flow approve {number}                                                     # 課題 Issue: Review → ToDo（トリアージ承認）/ 計画・設計 Issue 子: Review → ToDo（syncParentStatus で親を子から導出。計画 approve は実装サブ Issue を Backlog → ToDo にカスケード）（checkpoint、推奨）
 shirokuma-flow status transition {number} --to "In progress"                        # primitive ステータス遷移（checkpoint 未対応の ToDo 遷移等で使用）
 shirokuma-flow issue comment {number} /tmp/shirokuma-flow/{number}-comment.md
 shirokuma-flow issue comments {number}                   # コメント一覧
@@ -198,12 +198,11 @@ GitHub Projects V2 の Status は 6 値:
 ```mermaid
 stateDiagram-v2
   [*] --> Backlog: issue add（INITIAL_STATUSES）
-  Backlog --> ToDo: approve（計画 Issue の syncParentStatus）
+  Backlog --> ToDo: approve 承認継承（計画 approve で実装サブ Issue を一括）
   Backlog --> Review: submit（計画/設計 Issue 子 or 課題 Issue トリアージ）
   ToDo --> InProgress: begin
   InProgress --> Review: pr create（PR_FORWARD: PR のみ）
-  Review --> ToDo: approve（課題 Issue トリアージ承認: normal）
-  Review --> Done: approve（計画/設計 Issue 子）
+  Review --> ToDo: approve（計画/設計 Issue 子・課題 Issue トリアージ共通）
   Review --> Done: pr merge（PR）
   InProgress --> Blocked: block
   Blocked --> InProgress: resume

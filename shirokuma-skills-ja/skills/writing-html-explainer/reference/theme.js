@@ -1,17 +1,29 @@
 // ページ全体の対話機能
+//  0. サイドバー <aside class="toc"> を JS 生成（テーマトグル + 目次 + ナビゲーション）
 //  1. ダークモード切替（localStorage 永続化 + prefers-color-scheme 反映）
-//  2. SVG クリック → モーダル拡大（<dialog> ベース、ESC / 背景 / × で閉じる）
+//  2. サイドバー TOC を本文の <h2> から自動生成（手書き不要）
+//  3. SVG クリック → モーダル拡大（<dialog> ベース、ESC / 背景 / × で閉じる）
+//
+// ページ HTML 側に必要なのは <main> 本文のみ。親（上位）ページへのリンクが要る場合は
+// <body data-parent-href="/explainers/skills-overview/" data-parent-label="全体索引"> のように定義する。
+// ドキュメントルート（/）へのリンクは常に自動付与される。索引ページ（body.index-page）は対象外。
 
 (function () {
+  const htmlEl = document.documentElement;
+  const lang = (htmlEl.getAttribute('lang') || 'ja').toLowerCase().startsWith('en') ? 'en' : 'ja';
+  const t = (ja, en) => (lang === 'en' ? en : ja);
+
+  /* ===== 0. サイドバー（aside.toc）を生成 ===== */
+  buildSidebar();
+
   /* ===== 1. theme toggle ===== */
-  const html  = document.documentElement;
   const btn   = document.getElementById('theme-toggle');
   const icon  = document.getElementById('theme-icon');
   const label = document.getElementById('theme-label');
   const KEY   = 'explainer-theme';
 
   const applyTheme = (theme) => {
-    html.setAttribute('data-theme', theme);
+    htmlEl.setAttribute('data-theme', theme);
     if (icon)  icon.textContent  = theme === 'dark' ? '☀️' : '🌙';
     if (label) label.textContent = theme === 'dark' ? 'Light mode' : 'Dark mode';
     try { localStorage.setItem(KEY, theme); } catch (e) {}
@@ -21,11 +33,57 @@
   applyTheme(stored || (prefersDark ? 'dark' : 'light'));
   if (btn) {
     btn.addEventListener('click', () => {
-      applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+      applyTheme(htmlEl.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
     });
   }
 
-  /* ===== 2. SVG zoom dialog ===== */
+  /* ===== 2. auto TOC（本文の <h2> から目次を生成） =====
+     - 対象は <main> 直下の見出し階層 <h2> のみ（h3 以下は対象外）
+     - id が無い <h2> には本文から slug を自動付与（既存の手書き id は尊重）
+     - 表示テキストは先頭の "N. " 番号を除去（"1. 概要" → "概要"）           */
+  (function buildToc() {
+    const toc  = document.querySelector('aside.toc');
+    const main = document.querySelector('main');
+    if (!toc || !main) return;
+
+    const heads = main.querySelectorAll('h2');
+    if (heads.length === 0) return;
+
+    const used = Object.create(null);
+    const slugify = (text) => {
+      // 文字（日本語含む）と数字以外を除去、空白はハイフンに（Unicode property escape）
+      let s = text.trim().toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^\p{L}\p{N}\-]+/gu, '');
+      if (!s) s = 'section';
+      if (s in used) { used[s] += 1; s = s + '-' + used[s]; } else { used[s] = 0; }
+      return s;
+    };
+
+    let ol = toc.querySelector('ol');
+    if (!ol) {
+      ol = document.createElement('ol');
+      const heading = toc.querySelector('h2');
+      if (heading && heading.nextSibling) {
+        toc.insertBefore(ol, heading.nextSibling);
+      } else {
+        toc.appendChild(ol);
+      }
+    }
+    ol.innerHTML = '';
+
+    heads.forEach((h) => {
+      if (!h.id) h.id = slugify(h.textContent);
+      const li = document.createElement('li');
+      const a  = document.createElement('a');
+      a.href = '#' + h.id;
+      a.textContent = h.textContent.replace(/^\s*\d+\.\s*/, '').trim();
+      li.appendChild(a);
+      ol.appendChild(li);
+    });
+  })();
+
+  /* ===== 3. SVG zoom dialog ===== */
   const svgs = document.querySelectorAll('.diagram svg');
   if (svgs.length === 0) return;
 
@@ -65,4 +123,62 @@
     // ダイアログ自身の領域外（backdrop 領域）をクリックで閉じる
     if (e.target === dialog) dialog.close();
   });
+
+  /* ---- サイドバー生成の本体 ---- */
+  function buildSidebar() {
+    const body = document.body;
+    if (!body) return;
+    if (body.classList.contains('index-page')) return; // 索引ページは独自レイアウト
+    if (document.querySelector('aside.toc')) return;    // 既に存在するならそれを使う
+    if (!document.querySelector('main')) return;        // 本文が無いページは対象外
+
+    const aside = document.createElement('aside');
+    aside.className = 'toc';
+
+    // テーマトグル
+    const toggle = document.createElement('button');
+    toggle.id = 'theme-toggle';
+    toggle.className = 'theme-toggle';
+    toggle.type = 'button';
+    toggle.setAttribute('aria-label', t('テーマ切替', 'Toggle theme'));
+    const ti = document.createElement('span');
+    ti.className = 'icon';
+    ti.id = 'theme-icon';
+    ti.textContent = '🌙';
+    const tl = document.createElement('span');
+    tl.id = 'theme-label';
+    tl.textContent = 'Dark mode';
+    toggle.appendChild(ti);
+    toggle.appendChild(tl);
+    aside.appendChild(toggle);
+
+    // 目次見出し
+    const heading = document.createElement('h2');
+    heading.textContent = t('目次', 'Contents');
+    aside.appendChild(heading);
+
+    // 目次本体（buildToc が後で埋める）
+    aside.appendChild(document.createElement('ol'));
+
+    // ナビゲーション: ドキュメントルート（常時）+ 親ページ（定義時のみ）
+    const nav = document.createElement('nav');
+    nav.className = 'toc-nav';
+    const rootLink = document.createElement('a');
+    rootLink.href = '/';
+    rootLink.className = 'toc-nav-root';
+    rootLink.textContent = t('🏠 ドキュメントルート', '🏠 Documentation root');
+    nav.appendChild(rootLink);
+
+    const parentHref = body.getAttribute('data-parent-href');
+    if (parentHref) {
+      const parentLink = document.createElement('a');
+      parentLink.href = parentHref;
+      parentLink.className = 'toc-nav-parent';
+      parentLink.textContent = '← ' + (body.getAttribute('data-parent-label') || t('索引', 'Index'));
+      nav.appendChild(parentLink);
+    }
+    aside.appendChild(nav);
+
+    body.insertBefore(aside, body.firstChild);
+  }
 })();

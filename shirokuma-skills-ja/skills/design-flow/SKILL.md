@@ -151,7 +151,7 @@ Skill(skill: "evaluating-design")
 shirokuma-flow submit {design-issue-number}
 ```
 
-> **ステータス遷移**: 課題 Issue（親 Issue）を `In progress → Review` に遷移させてはならない。親 Issue の Review は PR レビュー専用。設計完了は設計成果物 Issue (子) の `Backlog → Review` で表現する。設計 Issue (子) の `approve`（`Review → Done`）後に `syncParentStatus` が親 Issue の Status を自動同期する。
+> **ステータス遷移**: 課題 Issue（親 Issue）を `In progress → Review` に遷移させてはならない。親 Issue の Review は PR レビュー専用。設計完了は設計成果物 Issue (子) の `Backlog → Review` で表現する。設計 Issue (子) の `approve` は `Review → ToDo`（設計 Issue は中間箱であり Done にしない）であり、その後 `syncParentStatus` が親 Issue の Status を子から導出・自動同期する。
 
 ## 次のステップ
 

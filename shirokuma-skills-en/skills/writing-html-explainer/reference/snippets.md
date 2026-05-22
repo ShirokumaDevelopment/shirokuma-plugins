@@ -52,25 +52,22 @@ Lay out a list of sections as cards at the top of the page. Use it in addition t
 
 ### Sidebar TOC (`aside.toc`)
 
-A persistent TOC for long pages. Always visible thanks to `position: sticky`.
+A persistent TOC for long pages. Always visible thanks to `position: sticky`. **Do not hand-write `<aside class="toc">`** — `theme.js` generates the whole thing (theme toggle, the TOC auto-built from the page's `<h2>` headings, and the navigation). The page HTML only needs the `<main>` body.
 
 ```html
-<aside class="toc">
-  <button id="theme-toggle" class="theme-toggle" type="button">...</button>
-  <h2>Contents</h2>
-  <ol>
-    <li><a href="#sec-1">1. Top-level item</a>
-      <ol>
-        <li><a href="#sec-1-1">1.1 Sub-item</a></li>
-        <li><a href="#sec-1-2">1.2 Sub-item</a></li>
-      </ol>
-    </li>
-    <li><a href="#sec-2">2. Top-level item</a></li>
-  </ol>
-</aside>
+<!-- HTML only needs this; theme.js injects the aside under <body> -->
+<body data-parent-href="/explainers/skills-overview/" data-parent-label="Skills overview">
+<main>
+  <h1>...</h1>
+  <h2 id="sec-1">Top-level item</h2>   <!-- ← TOC is built from these <h2> -->
+  ...
+</main>
+</body>
 ```
 
-- No auto-numbering (write the numbers as strings)
+- The TOC is auto-generated from `<h2>` directly under `<main>` only (h3 and deeper are not listed). Leading "N. " numbering is stripped from the displayed text
+- Add an `id` to each `<h2>` for a stable anchor (JS auto-slugs missing ones)
+- Navigation: a link to the **documentation root (`/`) is always added**. If a parent page is needed, define it via `<body data-parent-href="..." data-parent-label="...">` (omit the attributes when there is none)
 - Switches to `position: static` and folds to the top below 900 px
 
 ---

@@ -162,7 +162,7 @@ shirokuma-flow issue context {plan-issue-number}
 
 > **`pr create` の自動遷移**: `pr create` が `Closes #N` を解析し、PR 前進遷移（PR_FORWARD）により PR を `In progress → Review` に遷移させる。計画 Issue・課題 Issue は Review に遷移させない（1 エンティティ 1 Review 原則）。
 
-> **approve の `issue_kind` 分岐**: 計画/設計 Issue (子) の `approve` は `Review → Done`（計画/設計完了）を意味し、`syncParentStatus` が親 Issue を `Backlog → ToDo` に同期する。課題 Issue (normal 分岐 = トリアージ承認) の `approve` は `Review → ToDo`（着手可、親同期なし）を意味する。
+> **approve の `issue_kind` 分岐**: 計画/設計 Issue (子) の `approve` は `Review → ToDo`（計画/設計承認・着手可。計画フェーズで Done にしない）を意味し、`syncParentStatus` が親 Issue を子から導出して同期する。さらに**計画 Issue の approve では承認継承**により、同じ親配下の実装サブ Issue（兄弟）が `Backlog → ToDo` にカスケードする。課題 Issue (normal 分岐 = トリアージ承認) の `approve` も `Review → ToDo`（着手可）を意味する。
 
 **着手挙動（次フロー共通ゲート）**: 課題 Issue のステータス別「着手挙動」は **`project-items` ルールの「次フロー共通ゲート」節が正本**。以下はその要約（同一遷移）。
 
@@ -173,7 +173,7 @@ shirokuma-flow issue context {plan-issue-number}
 | `ToDo`（承認済み） | そのまま `begin {plan-issue-number}` で In progress に遷移して実装開始 |
 | `In progress`（実装継続） | ステータス更新をスキップして実装を継続 |
 
-> **計画 Issue 子の Review との区別**: 上表は**課題 Issue（親）**のステータスに対する共通ゲート。`/implement-flow` が**計画 Issue（子）**の Review から呼ばれた場合は、先に `approve {plan-issue-number}`（`Review → Done`、親 Issue が `Backlog → ToDo` に自動同期）を促してから親 Issue で `begin` を実行する。詳細は `project-items` ルールの「次フロー共通ゲート」節を参照。
+> **計画 Issue 子の Review との区別**: 上表は**課題 Issue（親）**のステータスに対する共通ゲート。`/implement-flow` が**計画 Issue（子）**の Review から呼ばれた場合は、先に `approve {plan-issue-number}`（`Review → ToDo`。計画 Issue は実装単位なので Done にしない）を促してから、**計画 Issue 自身**で `begin`（`ToDo → In progress`）を実行する。親 Issue（課題）は直接操作せず `syncParentStatus` が子から導出する。詳細は `project-items` ルールの「次フロー共通ゲート」節を参照。
 
 ### ステップ 3: フィーチャーブランチの確保
 

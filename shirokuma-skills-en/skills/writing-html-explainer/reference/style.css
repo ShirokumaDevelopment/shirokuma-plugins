@@ -1,3 +1,7 @@
+/* ブラウザ既定スタイルのリセット土台（modern-normalize v3.0.1, MIT）。
+   @import は他の全ルールより前に置く必要がある。更新時は ?v を上げる。 */
+@import "modern-normalize.css?v=1";
+
 :root {
   /* Anthropic-inspired warm palette + semantic phase colors */
   --ivory:    #FAF9F5;      /* page background */
@@ -110,11 +114,37 @@
 [data-theme="dark"] .diagram svg [stroke="#D1CFC5"] { stroke: #44413c; }
 [data-theme="dark"] .diagram svg [fill="#F0EEE6"] { fill: #2a2724; }
 [data-theme="dark"] .diagram svg [stroke="#F0EEE6"] { stroke: #2a2724; }
-/* §12-16 .artboard SVG モック向けの ivory/clay オーバーライド */
+/* #2620: §12-16 .artboard SVG モック向けの ivory/clay オーバーライド */
 [data-theme="dark"] .diagram svg [fill="#FAF9F5"] { fill: #1f1d1a; }
 [data-theme="dark"] .diagram svg [stroke="#FAF9F5"] { stroke: #1f1d1a; }
 [data-theme="dark"] .diagram svg [fill="#D97757"] { fill: #e89377; }
 [data-theme="dark"] .diagram svg [stroke="#D97757"] { stroke: #e89377; }
+/* issue-flow トリアージ再設計の図で追加した配色のダーク対応 */
+[data-theme="dark"] .diagram svg [fill="#efe8db"] { fill: #2a2724; }
+[data-theme="dark"] .diagram svg [fill="#8a8378"] { fill: #9b988d; }
+[data-theme="dark"] .diagram svg [stroke="#8a8378"] { stroke: #9b988d; }
+[data-theme="dark"] .diagram svg [fill="#fbeee0"] { fill: #3d3320; }
+[data-theme="dark"] .diagram svg [stroke="#c08a3e"] { stroke: #d4a648; }
+[data-theme="dark"] .diagram svg [fill="#7a4a14"] { fill: #e8c073; }
+[data-theme="dark"] .diagram svg [fill="#f3f6ef"] { fill: #34392a; }
+[data-theme="dark"] .diagram svg [fill="#3d6627"] { fill: #a5b07e; }
+[data-theme="dark"] .diagram svg [stroke="#3d6627"] { stroke: #a5b07e; }
+[data-theme="dark"] .diagram svg [fill="#2c4a1c"] { fill: #c8d29f; }
+[data-theme="dark"] .diagram svg [fill="#1e5e76"] { fill: #79b3c5; }
+[data-theme="dark"] .diagram svg [stroke="#1e5e76"] { stroke: #79b3c5; }
+[data-theme="dark"] .diagram svg [fill="#7a2b3a"] { fill: #d98b97; }
+[data-theme="dark"] .diagram svg [stroke="#7a2b3a"] { stroke: #d98b97; }
+[data-theme="dark"] .diagram svg [fill="#b3402f"] { fill: #e8917b; }
+[data-theme="dark"] .diagram svg [stroke="#b3402f"] { stroke: #e8917b; }
+/* 既存図（implement / prepare / approve / design / review / requirements flow）の未対応色を補完 */
+[data-theme="dark"] .diagram svg [fill="#a8a39b"] { fill: #5a564f; }
+[data-theme="dark"] .diagram svg [stroke="#a8a39b"] { stroke: #5a564f; }
+[data-theme="dark"] .diagram svg [fill="#8a4d00"] { fill: #e0a85a; }
+[data-theme="dark"] .diagram svg [stroke="#8a4d00"] { stroke: #e0a85a; }
+[data-theme="dark"] .diagram svg [fill="#dde9ec"] { fill: #25333a; }
+[data-theme="dark"] .diagram svg [fill="#dee9d9"] { fill: #2c3526; }
+[data-theme="dark"] .diagram svg [fill="#ecdadd"] { fill: #382a2d; }
+[data-theme="dark"] .diagram svg [fill="#ffe2c8"] { fill: #3d2e1a; }
 
 /* テーマ切替ボタン */
 .theme-toggle {
@@ -146,9 +176,13 @@ body {
   -webkit-font-smoothing: antialiased;
   margin: 0;
   padding: 0;
+  min-height: 100vh;
+}
+/* サイドバー（aside.toc は theme.js が生成）がある時だけ 2 カラムグリッドにする。
+   生成前 / JS 無効時は単一カラムで本文が全幅表示され、レイアウトシフトを避けられる。 */
+body:has(aside.toc) {
   display: grid;
   grid-template-columns: 240px 1fr;
-  min-height: 100vh;
 }
 
 aside.toc {
@@ -200,8 +234,26 @@ aside.toc a:hover {
   color: var(--slate);
 }
 
+/* サイドバー下部のナビゲーション（ドキュメントルート / 親ページへのリンク）。
+   theme.js が生成する。 */
+aside.toc .toc-nav {
+  margin-top: 1.25rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  font-size: 0.85rem;
+}
+aside.toc .toc-nav a {
+  color: var(--muted);
+}
+aside.toc .toc-nav a:hover {
+  color: var(--slate);
+}
+
 main {
-  max-width: 920px;
+  max-width: 1200px;
   padding: 2rem 2rem 5rem;
   width: 100%;
 }
@@ -235,7 +287,7 @@ h3 {
   font-weight: 600;
   font-size: 1.25rem;
   color: var(--slate);
-  margin-top: 2rem;
+  margin: 2rem 0 0.5rem;
   scroll-margin-top: 1rem;
 }
 
@@ -278,7 +330,7 @@ code {
   font-size: 0.95em;          /* Ubuntu Mono は字幅が狭めなので少し大きく */
   letter-spacing: 0.01em;     /* 字間に余裕を持たせる */
   color: var(--gray-700);
-  text-transform: none;       /* identifiers never transform even if an ancestor is uppercase (code in headings) */
+  text-transform: none;       /* 識別子は親が uppercase でも変換しない（見出し内の code 対策） */
 }
 
 table {
@@ -298,6 +350,38 @@ th, td {
 th {
   background: var(--bg-soft);
   font-weight: 600;
+}
+
+/* 短い識別子・パス・コマンドが入った cell（単独 <code>）は折返さない */
+td:has(> code:only-child),
+th:has(> code:only-child) {
+  white-space: nowrap;
+}
+
+/* 手動 opt-in: 任意のセル/列を nowrap 化 */
+td.nw, th.nw { white-space: nowrap; }
+
+/* リンク（本文・cta-link 等の独自スタイルは個別セレクタが上書き） */
+main a {
+  color: var(--accent-dark);
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+  transition: color 120ms ease, text-decoration-thickness 120ms ease;
+}
+main a:hover {
+  color: var(--accent);
+  text-decoration-color: var(--accent-dark);
+  text-decoration-thickness: 2px;
+}
+main a:visited {
+  color: var(--purple-dark);
+  text-decoration-color: var(--purple);
+}
+main a:visited:hover {
+  color: var(--purple);
+  text-decoration-color: var(--purple-dark);
 }
 
 ul, ol { padding-left: 1.5rem; }
@@ -341,6 +425,13 @@ li { margin: 0.25rem 0; }
   font-family: var(--display);
   color: var(--slate);
   border-bottom: 1px solid var(--border);
+}
+/* ヘッダー内の見出しは padding で間隔を制御するためマージンを持たせない。
+   フォントはヘッダー自身の指定を継承させる。 */
+.phase-card > header h3 {
+  margin: 0;
+  font: inherit;
+  color: inherit;
 }
 .phase-card.designing > header { background: var(--accent-soft); }
 .phase-card.preparing > header { background: var(--accent-soft); }
@@ -393,7 +484,7 @@ li { margin: 0.25rem 0; }
   line-height: 1.4rem;
   font-size: 0.85rem;
 }
-/* Resolved design point (green / check badge). Separate from open .qbox and place below. CSS-variable-based, so it follows dark mode automatically */
+/* 決定済の論点（緑系・✓バッジ）。CSS 変数ベースのためダークモードは自動追従 */
 .qbox.resolved {
   border-color: var(--ok);
   background: var(--ok-soft);
@@ -464,7 +555,7 @@ li { margin: 0.25rem 0; }
 }
 
 @media (max-width: 900px) {
-  body { grid-template-columns: 1fr; }
+  body:has(aside.toc) { grid-template-columns: 1fr; }
   aside.toc {
     position: static;
     height: auto;
@@ -473,26 +564,26 @@ li { margin: 0.25rem 0; }
   }
   main { padding: 1.5rem 1rem 4rem; }
 
-  /* 新規構成パターンの 1 カラム化 */
+  /* 新規構成パターンの 1 カラム化（#2622） */
   .toc-grid     { grid-template-columns: 1fr; }
   .card-grid    { grid-template-columns: 1fr; }
   .code-visual  { grid-template-columns: 1fr; }
   .before-after { grid-template-columns: 1fr; }
 
-  /* 報告系部品の 1〜2 カラム化 */
+  /* 報告系部品の 1〜2 カラム化（#2620） */
   .milestone-timeline .card-grid { grid-template-columns: 1fr; }
   .milestone-timeline .milestone { grid-template-columns: 80px 24px 1fr; gap: 0 12px; }
   .milestone-timeline .when      { font-size: 0.72rem; }
   .metric-grid                   { grid-template-columns: 1fr 1fr; }
   .status-header dl              { grid-template-columns: 1fr 1fr; }
 
-  /* html-effectiveness 拡張部品の 1〜2 カラム化 */
+  /* html-effectiveness 拡張部品の 1〜2 カラム化（#2620） */
   .tradeoffs   { grid-template-columns: 1fr; }
   .bubble      { flex-direction: column; }
   .repo-line   { grid-template-columns: 1fr; gap: 0.25rem; }
   .tile-grid   { grid-template-columns: 1fr 1fr; }
 
-  /* html-effectiveness 残り 5 系統部品の 1 カラム化 */
+  /* html-effectiveness 残り 5 系統部品の 1 カラム化（#2620） */
   .decision-deck { grid-template-columns: 1fr; }
   .board         { grid-template-columns: 1fr; }
   .artboards     { grid-template-columns: 1fr; }
@@ -576,7 +667,7 @@ dialog.svg-zoom .svg-zoom-hint {
   pointer-events: none;
 }
 
-/* ===== 11. 新規構成パターン =====
+/* ===== 11. 新規構成パターン（#2622） =====
    既存セレクタ・既存変数を一切変更せず、新規構成部品を追加するセクション。
    すべて既存 CSS 変数で構成し、新規 HEX 値は導入しない。 */
 
@@ -866,7 +957,7 @@ details.collapse > pre {
   margin: 0.3rem 0 0;
 }
 
-/* ===== 12. 報告系部品 =====
+/* ===== 12. 報告系部品（#2620） =====
    レビュー結果 / ポストモーテム / 実装計画レポート用の構成部品。
    既存セレクタ・既存変数を一切変更せず追加のみ。
    すべて既存 CSS 変数で構成し、新規 HEX 値は導入しない。 */

@@ -292,7 +292,7 @@ shirokuma-flow submit {plan-issue-number}
 
 > `submit` transitions the plan issue (child) from `Backlog → Review`, expressing "plan review ready (awaiting human review)". To post a comment together, pass `--comment <file>` (comment is posted before the transition).
 
-> **Constraint**: Do NOT transition the parent (task) issue to `Review`. The parent issue's `Review` status is reserved exclusively for PR review. Plan review completion is expressed via the plan issue (child) `Backlog → Review`. After `approve` on the plan issue (child) (`Review → Done`), `syncParentStatus` automatically syncs the parent issue from `Backlog → ToDo`.
+> **Constraint**: Do NOT transition the parent (task) issue to `Review`. The parent issue's `Review` status is reserved exclusively for PR review. Plan review completion is expressed via the plan issue (child) `Backlog → Review`. After `approve` on the plan issue (child) (`Review → ToDo`), `syncParentStatus` derives the parent from its children and syncs it from `Backlog → ToDo` (the plan issue is the implementation unit, so it is not set to Done in the planning phase).
 
 ### Step 6: Return to User
 

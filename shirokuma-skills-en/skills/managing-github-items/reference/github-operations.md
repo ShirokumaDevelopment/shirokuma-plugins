@@ -63,7 +63,7 @@ shirokuma-flow begin {number}                                                   
 shirokuma-flow submit {number} [--comment <file>]                                   # Move to Review (checkpoint, recommended)
 shirokuma-flow block {number} --reason "..."                                        # Move to Blocked + record reason (checkpoint, recommended)
 shirokuma-flow resume {number} [--comment <file>]                                   # Blocked → In progress (checkpoint, recommended)
-shirokuma-flow approve {number}                                                     # task issue: Review → ToDo (triage approval) / plan/design issue child: Review → Done (syncParentStatus auto-syncs parent Backlog → ToDo) (checkpoint, recommended)
+shirokuma-flow approve {number}                                                     # task issue: Review → ToDo (triage approval) / plan/design issue child: Review → ToDo (syncParentStatus derives parent from children; plan approve cascades impl sub-issues Backlog → ToDo) (checkpoint, recommended)
 shirokuma-flow status transition {number} --to "In progress"                        # primitive status transition (use for non-checkpoint targets such as ToDo)
 shirokuma-flow issue comment {number} /tmp/shirokuma-flow/{number}-comment.md
 shirokuma-flow issue comments {number}                   # List comments
@@ -197,12 +197,11 @@ GitHub Projects V2 Status has 6 values:
 ```mermaid
 stateDiagram-v2
   [*] --> Backlog: issue add (INITIAL_STATUSES)
-  Backlog --> ToDo: approve (syncParentStatus for plan issues)
+  Backlog --> ToDo: approve approval-inheritance (plan approve cascades impl sub-issues)
   Backlog --> Review: submit (plan/design issue child or task issue triage)
   ToDo --> InProgress: begin
   InProgress --> Review: pr create (PR_FORWARD: PR only)
-  Review --> ToDo: approve (task issue triage approval: normal)
-  Review --> Done: approve (plan/design issue child)
+  Review --> ToDo: approve (plan/design child & task triage)
   Review --> Done: pr merge (PR)
   InProgress --> Blocked: block
   Blocked --> InProgress: resume

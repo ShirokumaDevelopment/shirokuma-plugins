@@ -34,23 +34,17 @@ Skip this step if no issue number is associated with the work.
 
 **Standalone completion**: When `implement-flow` completes its chain (standalone or within a session), the Work Summary is automatically posted.
 
-## Status Update (End of Chain)
+## Status (End of Chain)
 
-**IMPORTANT**: Do NOT update Status to Review at PR creation time. The `finalize-changes` post-processing step must complete first. Update Status only after work summary is posted.
+> **New model (ADR-v3-022 fourth revision)**: The implementation unit (the plan Issue, or the task Issue for XS/S direct implementation) stays `In progress` during implement. **Code review is carried by the PR's Review** (`open-pr-issue`'s `pr create` transitions the PR `In progress → Review`). Per the 1-entity-1-Review principle, the implementation unit Issue is NOT transitioned to Review (the old-model `submit {number}` / `status transition {number} --to Review` is not performed; in the new model `ISSUE_FORWARD` has no `In progress → Review` and it would fail).
 
-Update Status to Review for issues with a number:
+Only post the work summary Issue comment (previous section); do not change the implementation unit Issue's Status at the end of the chain.
 
-```bash
-shirokuma-flow submit {number}
-```
+## Plan Issue Done (Reached on PR Merge)
 
-**Status fallback verification**: After chain completion, if the transition was skipped or failed, run `shirokuma-flow submit {number}` again (idempotent: re-updating to Review when already Review is harmless).
+> The plan Issue is the implementation unit. implement runs `begin` (`ToDo → In progress`) and opens a PR. **The plan Issue reaches Done on PR merge** (review-flow / `pr merge` transitions the PR `Review → Done`, `Closes #N` closes the plan Issue, and `syncParentStatus` derives the parent from its children). At the end of the implement-flow chain the plan Issue stays `In progress` (awaiting PR review); no Done update is performed here.
 
-## Plan Issue Done Update (End of Chain)
-
-> **Not required from Phase 5 onward**: The plan Issue is already transitioned to Done(Open) by `status approve {plan-number}` in Step 2 ("Review explicit approval"). No additional update is needed at the end of the chain.
-
-If no plan issue exists (e.g., XS/S direct implementation path), always skip this step. Because `STATUS_TRANSITIONS[IN_PROGRESS]` does not include `DONE`, `status transition {plan-number} --to Done` will error out. If the plan issue is still In Progress at this point, it indicates that the implicit approval step was missed — log a warning and do not attempt automatic remediation.
+The XS/S direct path (no plan Issue) is the same: the task Issue stays `In progress` and reaches Done on PR merge.
 
 ## Next Steps Suggestion (End of Chain)
 

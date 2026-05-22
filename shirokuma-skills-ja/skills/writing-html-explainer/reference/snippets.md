@@ -52,25 +52,22 @@ HTML を埋めるときは以下のパターンから選択してコピーし、
 
 ### サイドバー目次（`aside.toc`）
 
-長文ページの常設目次。`position: sticky` で常に見える。
+長文ページの常設目次。`position: sticky` で常に見える。**`<aside class="toc">` は手書きしない** — `theme.js` がテーマトグル・目次（本文の `<h2>` から自動生成）・ナビゲーションを含めて丸ごと生成する。ページ HTML 側に必要なのは `<main>` 本文のみ。
 
 ```html
-<aside class="toc">
-  <button id="theme-toggle" class="theme-toggle" type="button">...</button>
-  <h2>目次</h2>
-  <ol>
-    <li><a href="#sec-1">1. 大項目</a>
-      <ol>
-        <li><a href="#sec-1-1">1.1 小項目</a></li>
-        <li><a href="#sec-1-2">1.2 小項目</a></li>
-      </ol>
-    </li>
-    <li><a href="#sec-2">2. 大項目</a></li>
-  </ol>
-</aside>
+<!-- HTML 側はこれだけ。aside は theme.js が <body> 直下に生成する -->
+<body data-parent-href="/explainers/skills-overview/" data-parent-label="全体索引">
+<main>
+  <h1>...</h1>
+  <h2 id="sec-1">大項目</h2>   <!-- ← 目次はこの <h2> から作られる -->
+  ...
+</main>
+</body>
 ```
 
-- 自動採番なし（番号は文字列で書く）
+- 目次は `<main>` 直下の `<h2>` のみを対象に自動生成（h3 以下は載らない）。表示テキストは先頭の "N. " 番号を除去
+- `<h2>` に `id` を付けると安定アンカーになる（未指定なら JS が slug を自動付与）
+- ナビゲーション: **ドキュメントルート（`/`）へのリンクは常に自動付与**。親（上位）ページが必要なら `<body data-parent-href="..." data-parent-label="...">` で定義する（不要なら属性ごと省略）
 - モバイル幅（< 900px）で `position: static` に切替・上部に折り畳み
 
 ---

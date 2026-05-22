@@ -1,6 +1,6 @@
 ---
 name: writing-html-explainer
-description: 詳細な解説・コンセプト・設計レビューを Markdown ではなく HTML で執筆する。warm パレット + 丸ゴシック + ダークモード対応の独自テンプレートを使い、Docker nginx + cloudflared named tunnel でセルフホスト公開可能な単一ページを生成する。トリガー: 「HTML で詳しく書いて」「HTML 解説」「Pages 用ドキュメント」「コンセプト解説 HTML」「詳細解説ページ」「explainer HTML」「rich doc HTML」。
+description: 詳細な解説・コンセプト・設計レビューを Markdown ではなく HTML で執筆する。warm パレット + 丸ゴシック + ダークモード対応の独自テンプレートを使い、`pages/` submodule で公開する単一ページを生成する（公開方式はプロジェクトのホスティング設定に従う）。トリガー: 「HTML で詳しく書いて」「HTML 解説」「Pages 用ドキュメント」「コンセプト解説 HTML」「詳細解説ページ」「explainer HTML」「rich doc HTML」。
 allowed-tools: Read, Write, Edit, Bash
 ---
 
@@ -63,7 +63,7 @@ Markdown では表現しきれない**長文の解説・設計レビュー・コ
 | ページタイトル | 表示用の人間可読タイトル |
 | 元情報 | 参照する Issue / Discussion / ADR / 既存資料 |
 
-詳細運用はプロジェクトの pages publishing 設定（submodule・ホスティング）に従う。
+submodule・カテゴリ・初期セットアップ・公開ワークフローの正本は [`pages-publishing.md`](../../rules/pages-publishing.md)。詳細はそちらに従う。
 
 ### テンプレート種別の選択
 
@@ -106,15 +106,18 @@ Markdown では表現しきれない**長文の解説・設計レビュー・コ
 
 ### ステップ 2: 共通アセットの確認・テンプレートコピー
 
-`pages/assets/` には **全ページ共通**の `style.css` と `theme.js` が置かれる。HTML 側からは絶対パス `/assets/style.css` `/assets/theme.js` で参照する。
+`pages/assets/` には **全ページ共通**の `style.css` / `theme.js` / `modern-normalize.css` が置かれる。HTML 側からは絶対パス `/assets/style.css` `/assets/theme.js` で参照する（`modern-normalize.css` は `style.css` 冒頭の `@import` で読み込まれるため HTML から直接 link しない）。`theme.js` は **サイドバー（`<aside class="toc">`）をテーマトグル・目次（本文の `<h2>` から自動生成）・ナビゲーションごと生成**する。ページ HTML 側に必要なのは `<main>` 本文のみで、`<aside>` は書かない。
 
 ```bash
 SKILL=plugin/shirokuma-skills-ja/skills/writing-html-explainer/reference
 
 # 共通 assets を初回のみ配置（既に存在する場合はスタイル更新時のみ上書き）
 mkdir -p pages/assets
-[ -f pages/assets/style.css ] || cp $SKILL/style.css pages/assets/style.css
-[ -f pages/assets/theme.js ]  || cp $SKILL/theme.js  pages/assets/theme.js
+[ -f pages/assets/style.css ]            || cp $SKILL/style.css            pages/assets/style.css
+[ -f pages/assets/theme.js ]             || cp $SKILL/theme.js             pages/assets/theme.js
+[ -f pages/assets/modern-normalize.css ] || cp $SKILL/modern-normalize.css pages/assets/modern-normalize.css
+# 索引ビルダーを初回のみ配置（ステップ 5 で使用）
+[ -f scripts/build-pages-index.mjs ]     || cp $SKILL/build-pages-index.mjs scripts/build-pages-index.mjs
 
 # 例: explainers カテゴリで topic="concept-workflow" の場合
 CATEGORY=explainers
@@ -144,6 +147,7 @@ cp $SKILL/${TEMPLATE_FILE} ${OUTDIR}/index.html
 | `{{TITLE}}` | ページタイトル（h1 + `<title>` の 2 箇所） |
 | `{{OUTPUT_PATH}}` | `pages/{category}/{slug}/index.html` |
 | `{{PURPOSE}}` | このドキュメントの用途を 1 行で |
+| `{{PARENT_HREF}}` / `{{PARENT_LABEL}}` | `<body>` の親ページリンク定義（例: `/explainers/skills-overview/` / `全体索引`）。上位ページが無ければ `data-parent-*` 属性ごと削除。ドキュメントルート `/` へのリンクは自動付与 |
 
 **テンプレート固有プレースホルダ:**
 
@@ -168,27 +172,31 @@ cp $SKILL/${TEMPLATE_FILE} ${OUTDIR}/index.html
 
 ```bash
 # 1. リファレンス側で編集
-$EDITOR $SKILL/style.css     # or theme.js
+$EDITOR $SKILL/style.css     # or theme.js / modern-normalize.css
 # 2. submodule に同期 + キャッシュバスター更新
-cp $SKILL/style.css pages/assets/style.css
-cp $SKILL/theme.js  pages/assets/theme.js
-# 3. 下記「?v=N Bumping ポリシー」に従い 4 箇所を同じ値で +1 インクリメント
+cp $SKILL/style.css            pages/assets/style.css
+cp $SKILL/theme.js             pages/assets/theme.js
+cp $SKILL/modern-normalize.css pages/assets/modern-normalize.css
+# 3. 下記「?v=N Bumping ポリシー」に従い style.css / theme.js の ?v を同じ値で +1 インクリメント
+#    （modern-normalize.css を変えた場合は style.css 冒頭の @import "...?v=K" を +1）
 ```
 
 #### `?v=N` Bumping ポリシー（キャッシュバスター）
 
-`pages/assets/style.css` または `pages/assets/theme.js` を更新したら、以下 4 箇所の `?v=N` を**同じ値で +1 インクリメント**する。値がズレるとブラウザキャッシュが選択的にしか更新されず、UI が部分的に古いまま表示される。
+`pages/assets/style.css` または `pages/assets/theme.js` を更新したら、以下の `?v=N` を**同じ値で +1 インクリメント**する。値がズレるとブラウザキャッシュが選択的にしか更新されず、UI が部分的に古いまま表示される。
+
+> `modern-normalize.css` は `style.css` 冒頭の `@import "modern-normalize.css?v=K"` で読み込まれる別アセット。これを更新した場合は **その `@import` 行の `?v=K` のみ** を +1 する（HTML 側の `?v=N` とは独立。HTML に直接リンクが無いため）。
 
 | ファイル | 更新する `?v=N` の対象 |
 |---------|----------------------|
 | `pages/explainers/*/index.html`, `pages/issues/*/index.html` 等の全ページ | `<link href="/assets/style.css?v=N">` / `<script src="/assets/theme.js?v=N">` |
-| `pages/index.html`（索引ページ） | 同上（`build-pages-index.mjs` の出力テンプレート内 `?v=N`） |
+| `pages/index.html`（索引ページ） | ビルダー再実行で再生成される（手動編集不要。下記ビルダーの `?v` を更新してから再実行する） |
 | `plugin/shirokuma-skills-ja/skills/writing-html-explainer/reference/template.html` | 新規生成時の初期値として揃える |
 | `plugin/shirokuma-skills-ja/skills/writing-html-explainer/reference/review-summary.html` | 同上（報告系テンプレート） |
 | `plugin/shirokuma-skills-ja/skills/writing-html-explainer/reference/design-review.html` | 同上 |
 | `plugin/shirokuma-skills-ja/skills/writing-html-explainer/reference/postmortem.html` | 同上 |
 | `plugin/shirokuma-skills-ja/skills/writing-html-explainer/reference/implementation-plan.html` | 同上 |
-| `scripts/build-pages-index.mjs` | 索引再生成時のテンプレート埋め込み値 |
+| `plugin/shirokuma-skills-ja/skills/writing-html-explainer/reference/build-pages-index.mjs`（正本）+ プロジェクトにコピーした `scripts/build-pages-index.mjs` | 索引シェル `renderShell()` 内の `?v=N` |
 
 確認コマンド:
 
@@ -218,8 +226,9 @@ grep -rnE 'style\.css\?v=|theme\.js\?v=' pages/ plugin/shirokuma-skills-ja/skill
 
 **書く時のチェックリスト**:
 
-- [ ] サイドバー TOC を実コンテンツに合わせて更新
-- [ ] 各 `<h2>` に `id=""` を付与（TOC リンク用）
+- [ ] サイドバー（`<aside class="toc">`）は **`theme.js` が丸ごと生成**する。HTML には書かず、本文は `<main>` のみにする
+- [ ] 親（上位）ページが要る場合は `<body data-parent-href="..." data-parent-label="...">` で定義（ドキュメントルート `/` へのリンクは自動付与。不要なら属性ごと省略）
+- [ ] 各 `<h2>` に `id=""` を付与（安定アンカー用。未付与でも JS が slug を自動生成するが、外部からの deep link 用に明示推奨）
 - [ ] SVG の塗り/線は**「SVG カラーパレット（ダーク対応済み）」から選ぶ**（「部品の追加・カスタマイズ」参照）。表に無い新規色を使う場合は `[data-theme="dark"] .diagram svg [fill="..."] / [stroke="..."]` の暗色ペアを **style.css に必ず追加**
 - [ ] SVG 追加後、**未対応色が無いか下記の検証コマンドで確認**（目視だけに頼らない）
 - [ ] SVG `<text>` に `fill` を必ず指定（または意図的に省略して本文色追従）
@@ -251,30 +260,36 @@ python3 -m http.server 8080
 - [ ] ライトモード表示
 - [ ] テーマトグルでダークモードに切替
 - [ ] TOC リンクで各セクションへスクロール
+- [ ] サイドバー下部にドキュメントルート（`/`）リンク（親ページ定義時は `← {親}` も）が表示される
 - [ ] SVG 図がライト/ダーク両方で読める
 - [ ] **SVG クリックで拡大ダイアログが開く・ESC で閉じる**
 - [ ] モバイル幅（< 900px）で TOC が上部に折り畳まれる
 
 ### ステップ 5: 索引ページの再生成
 
-新規ページ追加・既存ページのタイトル変更時は、**全ページを横断するトップ索引** `pages/index.html` を再生成する:
+新規ページ追加・既存ページのタイトル変更時は、**全ページを横断するトップ索引**を再生成する。ビルダー（`reference/build-pages-index.mjs`）をプロジェクトに配置済みである前提（→「前提条件」）:
 
 ```bash
-node scripts/build-pages-index.mjs
+node scripts/build-pages-index.mjs --title "<サイト名>" --lang ja   # --lang en も可
 ```
 
-スクリプトが `pages/{category}/{topic}/index.html` を全スキャンしてカテゴリ別グルーピング + ライブ検索付き索引を生成。出力は `pages/index.html`。
+ビルダーが `pages/{category}/{topic}/index.html` を全スキャンし、**2 ファイル**を生成する:
 
-### ステップ 6: submodule コミット + 親リポポインタ更新
+- `pages/index.json` — 全エントリのマニフェスト（データ）
+- `pages/index.html` — 検索 UI の軽量シェル（`index.json` を fetch して描画）
 
-`pages/` は submodule なので、**submodule 内でコミット → push** してから親リポでポインタを更新する。
+エントリを JSON に分離するため、ページ数が増えても `index.html` は一定サイズで初期ロードが重くならない。**`index.json` も忘れず submodule にコミットする**（ステップ 6）。
+
+### ステップ 6: submodule コミット + `main` への push（必須）
+
+`pages/` は submodule。**`pages/` を更新したら必ず submodule 内でコミットし、`main` へ push する。** 公開ホスティングは `main` ブランチを配信するため、push しない限り変更は反映されない（生成・コミットだけで止めない／後回しにしない）。push 後に親リポで submodule ポインタを進める。
 
 ```bash
-# 6-1. submodule 側（新規ページ + 再生成された index.html を一緒に）
+# 6-1. submodule 側で必ず main へ push（新規ページ + 再生成された index.html / index.json を一緒に）
 cd pages
-git add ${CATEGORY}/${TOPIC}/ index.html
+git add ${CATEGORY}/${TOPIC}/ index.html index.json
 git commit -m "docs(${CATEGORY}): add ${TOPIC}"
-git push origin main
+git push origin main          # ← 必須。これで公開ホスティングに反映される
 
 # 6-2. 親リポへ戻り submodule ポインタを進める
 cd ..
@@ -282,11 +297,11 @@ git add pages
 git commit -m "chore(pages): bump submodule for ${CATEGORY}/${TOPIC}"
 ```
 
-親リポへの push は通常の implement-flow / commit-issue に委ねる（PR ベース）。
+親リポへの push は通常の implement-flow / commit-issue に委ねる（PR ベース）。**submodule（`pages/`）側の `main` push だけは PR を待たずその場で必ず実行する**（公開反映のため）。
 
 ### ステップ 7: 公開 URL を提示
 
-submodule への push 完了後、ホスト側 nginx の bind mount により**即時反映**される（外部ビルド不要）。cloudflared named tunnel 経由で固定 URL からアクセス可能。`pages.baseUrl` を組み合わせて URL を生成:
+`main` への push 完了後、**プロジェクトのホスティング設定（`.shirokuma/config.yaml` の `pages` セクション）に従って公開**される（具体的な配信方式・反映タイミングはプロジェクトの pages publishing ルールを参照）。`pages.baseUrl` を組み合わせて URL を生成:
 
 ```
 {baseUrl}/{category}/{topic}/
@@ -371,7 +386,11 @@ SVG の `fill` / `stroke` は原則この表の色から選ぶ。**いずれも 
 
 ## 前提条件（submodule 初期セットアップ）
 
-このスキルは `pages/` が **submodule として親リポに追加済み**であることを前提とする。未セットアップの場合はプロジェクトの pages submodule セットアップ手順に従う。
+このスキルは `pages/` が **submodule として親リポに追加済み**で、共通アセットと索引ビルダーが配置済みであることを前提とする。未セットアップの場合は [`pages-publishing.md`](../../rules/pages-publishing.md) の「初期セットアップ」に従う（公開リポ作成・submodule 追加・`pages` config 定義・`.nojekyll`・GitHub Pages 有効化・独自ドメイン）。要点:
+
+- 共通アセット `reference/{style.css,theme.js,modern-normalize.css}` を `pages/assets/` に配置
+- 索引ビルダー `reference/build-pages-index.mjs` をプロジェクト（例: `scripts/`）に配置
+- **配信方式は問わない**（GitHub Pages なら `main` への push でデプロイ）。スキル・ルールは機構を意識せず `main` へ push することだけを守る
 
 ## 参考実装
 

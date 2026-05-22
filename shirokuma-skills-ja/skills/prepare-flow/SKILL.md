@@ -303,7 +303,7 @@ shirokuma-flow submit {plan-issue-number}
 
 > `submit` は計画 Issue (子) の Status を `Backlog → Review` に遷移させる checkpoint コマンド。計画レビュー待ち（人間レビュー可能）を表現する。コメントとセットで投稿したい場合は `--comment <file>` を指定（コメント投稿 → ステータス遷移の順）。
 
-> **計画 Issue 中心モデル**: `prepare-flow` が管理するのは「**計画 Issue (子)** を Backlog → Review に遷移させること」のみ。課題 Issue（親 Issue）を `In progress → Review` に遷移させてはならない（親 Issue の Review は PR レビュー専用）。計画 Issue (子) の `approve`（`Review → Done`）による `syncParentStatus` が親 Issue を `Backlog → ToDo` に自動同期する。
+> **計画 Issue 中心モデル**: `prepare-flow` が管理するのは「**計画 Issue (子)** を Backlog → Review に遷移させること」のみ。課題 Issue（親 Issue）を `In progress → Review` に遷移させてはならない（親 Issue の Review は PR レビュー専用）。計画 Issue (子) の `approve`（`Review → ToDo`）後、`syncParentStatus` が親 Issue を子から導出して `Backlog → ToDo` に同期する（計画 Issue は実装単位なので計画フェーズで Done にしない）。
 
 ### ステップ 6: ユーザーに返す
 

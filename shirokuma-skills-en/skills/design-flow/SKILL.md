@@ -151,7 +151,7 @@ Design work is complete once approved. Transition the design artifact issue (chi
 shirokuma-flow submit {design-issue-number}
 ```
 
-> **Status transition**: Do NOT transition the parent (task) issue to `Review`. The parent issue's `Review` is reserved exclusively for PR review. Design completion is expressed by transitioning the design artifact issue (child) from `Backlog → Review`. After `approve` on the design issue (child) (`Review → Done`), `syncParentStatus` automatically syncs the parent issue's status.
+> **Status transition**: Do NOT transition the parent (task) issue to `Review`. The parent issue's `Review` is reserved exclusively for PR review. Design completion is expressed by transitioning the design artifact issue (child) from `Backlog → Review`. `approve` on the design issue (child) is `Review → ToDo` (the design Issue is an intermediate box and is not set to Done); afterward `syncParentStatus` derives and syncs the parent issue's status from its children.
 
 ## Next Steps
 

@@ -1,6 +1,6 @@
 ---
 name: writing-html-explainer
-description: Write detailed explainers, concept docs, and design reviews as HTML rather than Markdown. Uses a custom template (warm palette + rounded sans-serif + dark mode) to produce a single page that can be self-hosted via Docker nginx + cloudflared named tunnel. Triggers: "write a rich HTML doc", "HTML explainer", "Pages document", "concept explainer HTML", "detailed explainer page", "rich doc HTML", "explainer HTML".
+description: Write detailed explainers, concept docs, and design reviews as HTML rather than Markdown. Uses a custom template (warm palette + rounded sans-serif + dark mode) to produce a single page published via the `pages/` submodule (the hosting method follows the project's configuration). Triggers: "write a rich HTML doc", "HTML explainer", "Pages document", "concept explainer HTML", "detailed explainer page", "rich doc HTML", "explainer HTML".
 allowed-tools: Read, Write, Edit, Bash
 ---
 
@@ -63,7 +63,7 @@ Confirm with the user:
 | Page title | Human-readable title for display |
 | Source | Referenced Issue / Discussion / ADR / existing material |
 
-Operational details follow your project's pages publishing setup (submodule and hosting).
+The source of truth for the submodule, categories, initial setup, and publishing workflow is [`pages-publishing.md`](../../rules/pages-publishing.md). Follow it for details.
 
 ### Template Kind Selection
 
@@ -106,15 +106,18 @@ The full category ↔ report-type mapping is in [`html-report-criteria.md`](../.
 
 ### Step 2: Verify Shared Assets and Copy Template
 
-`pages/assets/` holds the **shared** `style.css` and `theme.js`. HTML files reference them via absolute paths `/assets/style.css` and `/assets/theme.js`.
+`pages/assets/` holds the **shared** `style.css`, `theme.js`, and `modern-normalize.css`. HTML files reference `style.css` and `theme.js` via absolute paths `/assets/style.css` and `/assets/theme.js` (`modern-normalize.css` is loaded via an `@import` at the top of `style.css`, so HTML does not link it directly). `theme.js` **generates the entire sidebar (`<aside class="toc">`)** — theme toggle, the TOC (auto-built from the page's `<h2>` headings), and the navigation. The page HTML only needs the `<main>` body; do not write the `<aside>`.
 
 ```bash
 SKILL=plugin/shirokuma-skills-en/skills/writing-html-explainer/reference
 
 # Place shared assets only on first run (overwrite only when updating styles)
 mkdir -p pages/assets
-[ -f pages/assets/style.css ] || cp $SKILL/style.css pages/assets/style.css
-[ -f pages/assets/theme.js ]  || cp $SKILL/theme.js  pages/assets/theme.js
+[ -f pages/assets/style.css ]            || cp $SKILL/style.css            pages/assets/style.css
+[ -f pages/assets/theme.js ]             || cp $SKILL/theme.js             pages/assets/theme.js
+[ -f pages/assets/modern-normalize.css ] || cp $SKILL/modern-normalize.css pages/assets/modern-normalize.css
+# Place the index builder on first run (used in Step 5)
+[ -f scripts/build-pages-index.mjs ]     || cp $SKILL/build-pages-index.mjs scripts/build-pages-index.mjs
 
 # Example: explainers category with topic="concept-workflow"
 CATEGORY=explainers
@@ -144,6 +147,7 @@ Replace the placeholders inside the template:
 | `{{TITLE}}` | Page title (used both in h1 and `<title>`) |
 | `{{OUTPUT_PATH}}` | `pages/{category}/{slug}/index.html` |
 | `{{PURPOSE}}` | One-line statement of the document's purpose |
+| `{{PARENT_HREF}}` / `{{PARENT_LABEL}}` | Parent-page link on `<body>` (e.g. `/explainers/skills-overview/` / `Skills overview`). Delete the `data-parent-*` attributes if there is no parent page. The documentation-root (`/`) link is added automatically |
 
 **Template-specific placeholders:**
 
@@ -168,27 +172,31 @@ Delete unused placeholder scaffolding; replace only the placeholders you need wi
 
 ```bash
 # 1. Edit the reference side
-$EDITOR $SKILL/style.css     # or theme.js
+$EDITOR $SKILL/style.css     # or theme.js / modern-normalize.css
 # 2. Mirror to the submodule + bump the cache buster
-cp $SKILL/style.css pages/assets/style.css
-cp $SKILL/theme.js  pages/assets/theme.js
-# 3. Increment all 4 locations by +1 to the same value per the "?v=N Bumping policy" below
+cp $SKILL/style.css            pages/assets/style.css
+cp $SKILL/theme.js             pages/assets/theme.js
+cp $SKILL/modern-normalize.css pages/assets/modern-normalize.css
+# 3. Increment the ?v of style.css / theme.js by +1 to the same value per the "?v=N Bumping policy" below
+#    (if you changed modern-normalize.css, bump the @import "...?v=K" at the top of style.css instead)
 ```
 
 #### `?v=N` Bumping Policy (Cache Buster)
 
-When you update `pages/assets/style.css` or `pages/assets/theme.js`, **increment the `?v=N` in the 4 locations below by +1 to the same value**. If the values diverge, browsers selectively miss the cache and the UI shows partially stale state.
+When you update `pages/assets/style.css` or `pages/assets/theme.js`, **increment the `?v=N` in the locations below by +1 to the same value**. If the values diverge, browsers selectively miss the cache and the UI shows partially stale state.
+
+> `modern-normalize.css` is a separate asset loaded via `@import "modern-normalize.css?v=K"` at the top of `style.css`. If you change it, bump **only the `?v=K` on that `@import` line** (independent of the HTML-side `?v=N`, since HTML never links it directly).
 
 | File | `?v=N` to update |
 |------|-----------------|
 | Every page under `pages/explainers/*/index.html`, `pages/issues/*/index.html`, etc. | `<link href="/assets/style.css?v=N">` / `<script src="/assets/theme.js?v=N">` |
-| `pages/index.html` (root index) | Same as above (the `?v=N` embedded in the output template of `build-pages-index.mjs`) |
+| `pages/index.html` (root index) | Regenerated by re-running the builder (no manual edit; bump the builder's `?v` below, then re-run) |
 | `plugin/shirokuma-skills-en/skills/writing-html-explainer/reference/template.html` | Initial value at file-generation time, kept in sync |
 | `plugin/shirokuma-skills-en/skills/writing-html-explainer/reference/review-summary.html` | Same as above (review-style templates) |
 | `plugin/shirokuma-skills-en/skills/writing-html-explainer/reference/design-review.html` | Same as above |
 | `plugin/shirokuma-skills-en/skills/writing-html-explainer/reference/postmortem.html` | Same as above |
 | `plugin/shirokuma-skills-en/skills/writing-html-explainer/reference/implementation-plan.html` | Same as above |
-| `scripts/build-pages-index.mjs` | Embedded template value used when regenerating the index |
+| `plugin/shirokuma-skills-en/skills/writing-html-explainer/reference/build-pages-index.mjs` (source) + the `scripts/build-pages-index.mjs` copied into the project | The `?v=N` inside the index shell `renderShell()` |
 
 Verification command:
 
@@ -218,8 +226,9 @@ Pick patterns from the component catalog in `reference/snippets.md` and insert c
 
 **Checklist while writing:**
 
-- [ ] Update the sidebar TOC to match actual content
-- [ ] Add an `id=""` to each `<h2>` (for TOC links)
+- [ ] The sidebar (`<aside class="toc">`) is **generated entirely by `theme.js`**. Do not write it in HTML; the body should contain only `<main>`
+- [ ] If a parent page is needed, define it via `<body data-parent-href="..." data-parent-label="...">` (the documentation-root `/` link is added automatically; omit the attributes when there is none)
+- [ ] Add an `id=""` to each `<h2>` (for stable anchors; JS auto-slugs missing ones, but explicit ids are recommended for external deep links)
 - [ ] **Pick SVG fill/stroke colors from the "SVG color palette (dark-ready)"** (see "Adding and Customizing Components"). For any color not in that table, you **must** add the dark pair `[data-theme="dark"] .diagram svg [fill="..."] / [stroke="..."]` to style.css
 - [ ] After adding an SVG, **verify there are no unregistered colors using the command below** (don't rely on visual inspection alone)
 - [ ] Always set `fill` on SVG `<text>` (or intentionally omit it to follow body color)
@@ -251,30 +260,36 @@ Verification items:
 - [ ] Light mode renders correctly
 - [ ] Theme toggle switches to dark mode
 - [ ] TOC links scroll to each section
+- [ ] The sidebar footer shows the documentation-root (`/`) link (plus `← {parent}` when a parent is defined)
 - [ ] SVG diagrams are readable in both light and dark modes
 - [ ] **Clicking an SVG opens the zoom dialog; ESC closes it**
 - [ ] On mobile (< 900 px) the TOC collapses to the top
 
 ### Step 5: Regenerate the Index Page
 
-When you add a new page or change an existing page's title, regenerate the **cross-cutting top-level index** at `pages/index.html`:
+When you add a new page or change an existing page's title, regenerate the **cross-cutting top-level index**. Assumes the builder (`reference/build-pages-index.mjs`) is placed in the project (see "Prerequisites"):
 
 ```bash
-node scripts/build-pages-index.mjs
+node scripts/build-pages-index.mjs --title "<site title>" --lang en   # --lang ja also supported
 ```
 
-The script scans all `pages/{category}/{topic}/index.html` files and produces a category-grouped index with live search. Output goes to `pages/index.html`.
+The builder scans all `pages/{category}/{topic}/index.html` files and produces **two files**:
 
-### Step 6: Submodule Commit + Parent Repo Pointer Bump
+- `pages/index.json` — manifest of all entries (data)
+- `pages/index.html` — a light shell with the search UI (fetches `index.json` and renders)
 
-Because `pages/` is a submodule, **commit and push inside the submodule first**, then update the pointer in the parent repo.
+Because entries live in JSON, `index.html` stays a constant size and the initial load does not get heavy as pages grow. **Commit `index.json` to the submodule as well** (Step 6).
+
+### Step 6: Submodule Commit + Push to `main` (required)
+
+`pages/` is a submodule. **Whenever you update `pages/`, you must commit inside the submodule and push to `main`.** The public hosting serves the `main` branch, so the change is not published until you push (do not stop at generate/commit, and do not defer it). After pushing, advance the submodule pointer in the parent repo.
 
 ```bash
-# 6-1. Submodule side (new page + regenerated index.html together)
+# 6-1. Submodule side — always push to main (new page + regenerated index.html / index.json together)
 cd pages
-git add ${CATEGORY}/${TOPIC}/ index.html
+git add ${CATEGORY}/${TOPIC}/ index.html index.json
 git commit -m "docs(${CATEGORY}): add ${TOPIC}"
-git push origin main
+git push origin main          # ← required; this is what publishes the change
 
 # 6-2. Back in the parent repo, advance the submodule pointer
 cd ..
@@ -282,11 +297,11 @@ git add pages
 git commit -m "chore(pages): bump submodule for ${CATEGORY}/${TOPIC}"
 ```
 
-Pushing the parent repo is handled by the normal implement-flow / commit-issue (PR-based).
+Pushing the parent repo is handled by the normal implement-flow / commit-issue (PR-based). **Only the submodule (`pages/`) push to `main` must always be done on the spot, without waiting for a PR** (so the change is published).
 
 ### Step 7: Present the Public URL
 
-After pushing the submodule, the host-side nginx bind mount **reflects the change immediately** (no external build needed). Accessible at the fixed URL via the cloudflared named tunnel. Generate the URL from `pages.baseUrl`:
+After pushing to `main`, the change is **published according to the project's hosting setup** (the `pages` section of `.shirokuma/config.yaml`; see the project's pages-publishing rule for the exact delivery method and propagation timing). Generate the URL from `pages.baseUrl`:
 
 ```
 {baseUrl}/{category}/{topic}/
@@ -371,7 +386,11 @@ Prefer SVG `fill` / `stroke` colors from this table. **Each already has a `[data
 
 ## Prerequisites (Submodule Initial Setup)
 
-This skill assumes `pages/` is **already added as a submodule of the parent repo**. If not, follow your project's pages submodule setup procedure.
+This skill assumes `pages/` is **already added as a submodule of the parent repo**, with the shared assets and index builder in place. If not set up, follow the "Initial Setup" section of [`pages-publishing.md`](../../rules/pages-publishing.md) (create the public repo, add the submodule, define the `pages` config, `.nojekyll`, enable GitHub Pages, custom domain). Key points:
+
+- Place the shared assets `reference/{style.css,theme.js,modern-normalize.css}` under `pages/assets/`
+- Place the index builder `reference/build-pages-index.mjs` in the project (e.g. `scripts/`)
+- **The delivery method does not matter** (with GitHub Pages, a push to `main` deploys). The skill and rules only need to push to `main`, never minding the mechanism
 
 ## Reference Implementation
 

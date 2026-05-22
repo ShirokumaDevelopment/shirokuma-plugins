@@ -22,7 +22,7 @@ Every project item MUST have:
 ```mermaid
 stateDiagram-v2
     [*] --> Backlog: New creation (issue add / plan-issue, INITIAL_STATUSES=Backlog)
-    Backlog --> ToDo: approve (plan issue Done sync: syncParentStatus) or manual transition
+    Backlog --> ToDo: approve inheritance (sibling cascade) or syncParentStatus derivation / manual transition
     Backlog --> Review: submit (plan/design issue child or task issue triage)
     Backlog --> Done: cancel (NOT_PLANNED)
     ToDo --> InProgress: begin (start work)
@@ -30,15 +30,15 @@ stateDiagram-v2
     InProgress --> Blocked: block (reason required)
     InProgress --> Done: close
     Blocked --> InProgress: resume
-    Review --> ToDo: approve (task issue triage approval: normal)
-    Review --> Done: approve (plan/design issue child) / pr merge (PR)
+    Review --> ToDo: approve (plan/design issue child and task issue triage, shared)
+    Review --> Done: pr merge (PR merge only)
     Done --> [*]
 ```
 
 | Status | Description |
 |--------|-------------|
 | Backlog | Uninvestigated / untriaged. Initial value for Issue / Plan Issue creation (`INITIAL_STATUSES = ["Backlog"]`) |
-| ToDo | Plan approved, ready to start. Auto-transitioned by `syncParentStatus` after plan issue `approve` (Review → Done) |
+| ToDo | Plan approved, ready to start. After plan issue `approve` (Review → ToDo), approval inheritance (sibling cascade) moves implementation sub-issues Backlog → ToDo, and the parent Issue is derived from children by `syncParentStatus` |
 | In progress | Currently working on (planning, design, or implementation) |
 | Blocked | Blocked by external dependency or pending confirmation. `block --reason` transitions here; reason is recorded as a comment |
 | Review | Human review pending (plan issue child plan review, or PR code review only) |
@@ -46,18 +46,19 @@ stateDiagram-v2
 
 > Legacy statuses (`Approved` / `Completed` / `Pending` / `Ready` / `On Hold` / `Cancelled`, etc.) are deprecated. Legacy values are read transparently via `LEGACY_STATUS_VALUES`. `Backlog` is restored as an active Status.
 
-### status approve and Done Transition
+### status approve Transition (All Kinds Review → ToDo)
 
-`approve {number}` is a checkpoint command to approve a Review-status Issue. The transition target branches by `issue_kind`.
+`approve {number}` is a checkpoint command to approve a Review-status Issue. **All kinds transition `Review → ToDo`**; the `issue_kind` determines the **side effects** (Done is not set during the planning phase).
 
-- **Plan / Design Issue (child, plan/design branch)**: Review → **Done** (plan/design complete). `syncParentStatus` auto-syncs parent Issue from Backlog → ToDo
-- **Task Issue (normal branch = triage approval)**: Review → **ToDo** (ready to start). No parent sync. The next flow starts work via `begin`
+- **Plan Issue (child, plan branch)**: Review → **ToDo**. As an **approval-inheritance downward cascade**, implementation sub-issues (non-plan/non-design children) under the same parent (task Issue) that are in Backlog are batch-transitioned `Backlog → ToDo`. The parent Issue is derived from children by `syncParentStatus`
+- **Design Issue (child, design branch)**: Review → **ToDo**. The design Issue is an intermediate box (not set to Done, derived from children). The parent Issue is derived from children by `syncParentStatus` (no sibling cascade)
+- **Task Issue (normal branch = triage approval)**: Review → **ToDo** (ready to start). No parent sync or cascade. The next flow starts work via `begin`
 - **Fails if not Review**: exits with `result: "error"` and exit 1
-- **JSON output**: `{ "result": "ok" | "error", "to": "Done" | "ToDo", "next_suggestions": [...] }`
+- **JSON output**: `{ "result": "ok" | "error", "to": "ToDo", "issue_kind": "plan" | "design" | "normal", "pending_subissues": [...], "next_suggestions": [...] }`
 
-**Approval model**: `approve` branches by `issue_kind`. Plan/design issues (child) transition Review → Done, and `syncParentStatus` syncs the parent Issue from Backlog → ToDo (ready to start). Task issues (triage) transition Review → ToDo (no parent sync).
+**Approval model**: `approve` transitions all kinds to `Review → ToDo` and does NOT set Issues to Done during the planning phase. The `issue_kind` determines side effects (plan = approval inheritance + parent derivation, design = parent derivation, task triage = no side effects). The parent Issue is not written directly; `syncParentStatus` derives it from the aggregation of children (upward, child → parent only).
 
-> **Positioning of `Review → ToDo`**: This is a **different concept** from the "**plan approval** Review → ToDo" abolished in ADR-v3-018. This path is **task issue triage approval** (untriaged Backlog → triage-pending Review → approved ToDo), reintroduced for task triage. Plan/design issue approval remains Review → Done (after which `syncParentStatus` syncs the parent Backlog → ToDo).
+> **`Review → Done` is for PR merge only**: Issue approval never produces `Review → Done`. `Review → Done` is reserved for PR merge approval (`pr merge`). The design Issue is an intermediate box of the planning phase and never reaches Done (the parent Issue's Status is derived from children).
 
 ### 4-System Transition Tables
 
@@ -67,7 +68,7 @@ Forward and rollback transitions are managed in 4 separate tables for Issue and 
 
 | From | To | Command |
 |------|----|---------|
-| `Backlog` | `ToDo` | `approve` (plan issue Done sync: syncParentStatus) or manual transition |
+| `Backlog` | `ToDo` | `approve` inheritance (sibling cascade) / `syncParentStatus` derivation / manual transition |
 | `Backlog` | `Review` | `submit` (plan issue child only) |
 | `Backlog` | `Done` | `cancel` |
 | `ToDo` | `In progress` | `begin` |
@@ -75,8 +76,8 @@ Forward and rollback transitions are managed in 4 separate tables for Issue and 
 | `In progress` | `Blocked` | `block` |
 | `In progress` | `Done` | `close` |
 | `Blocked` | `In progress` | `resume` |
-| `Review` | `ToDo` | `approve` (task issue triage approval: normal branch) |
-| `Review` | `Done` | `approve` (plan/design issue child) / `pr merge` (PR) |
+| `Review` | `ToDo` | `approve` (plan/design issue child and task issue triage, shared) |
+| `Review` | `Done` | `pr merge` (PR merge only) |
 
 #### ISSUE_ROLLBACK_TRANSITIONS
 
@@ -197,7 +198,7 @@ AI MUST update issue status at these points:
 | Plan created | → Review | `prepare-flow` | `submit {n}` (plan issue child: Backlog → Review) |
 | Design started | → In progress + assign | `design-flow` | `begin {n}` |
 | Design complete | → Review | `design-flow` | `submit {n}` (design issue child: Backlog → Review) |
-| User approves Issue | Review → **Done** (plan issue child). Parent Issue auto-synced Backlog → ToDo via syncParentStatus | `approve` skill / manual | `approve {n}` |
+| User approves Issue | Review → **ToDo** (plan/design issue child and task triage, shared). Plan approve moves implementation sub-issues Backlog → ToDo via approval inheritance; parent Issue derived from children via syncParentStatus | `approve` skill / manual | `approve {n}` |
 | User starts work | ToDo → In progress + assign + branch | `implement-flow` | `begin {n}` |
 | implement-flow chain complete | PR → Review | `implement-flow` | `submit {n}` (after PR creation, simplify, security-review, lint docs, work summary) |
 | review-flow starts | → In progress + assign | `review-flow` | `begin {n}` |
@@ -223,7 +224,7 @@ Review means "AI work is complete and it is the user's (human's) turn to judge".
 1. **Triage approval pending**: untriaged Backlog → triage-pending Review → approved ToDo (`approve` normal branch transitions Review → ToDo)
 2. **PR code review**: the PR entity itself carries `Status: Review` (implementation phase)
 
-Plan reviews use the plan issue (child) Review state, approved via `approve` (Review → Done). An entity enters Review **exactly once** during its lifecycle (1 entity = 1 Review principle).
+Plan reviews use the plan issue (child) Review state, approved via `approve` (Review → ToDo). On approval, implementation sub-issues under the same parent are inherited Backlog → ToDo (approval inheritance). An entity enters Review **exactly once** during its lifecycle (1 entity = 1 Review principle).
 
 #### **DO NOT**: Cases where transitioning to Review is forbidden
 
@@ -243,8 +244,8 @@ Plan reviews use the plan issue (child) Review state, approved via `approve` (Re
 | Entity | Trigger to enter Review | Exit from Review |
 |---|---|---|
 | Task Issue (triage) | On triage completion in `issue-flow` (Backlog → Review, triage-pending) | `approve` (normal branch) → ToDo (triage approved, ready to start). No parent sync |
-| Plan Issue | After plan drafting + AI self-review in `prepare-flow` (**creation only**) | `approve` → Done (plan complete). Parent Issue auto-synced Backlog → ToDo |
-| Design Issue (child) | After design drafting + AI self-review in `design-flow` (**creation only**) | `approve` → Done (design complete). Parent Issue auto-synced Backlog → ToDo via syncParentStatus (`design-flow` Phase 5) |
+| Plan Issue | After plan drafting + AI self-review in `prepare-flow` (**creation only**) | `approve` → ToDo (plan approved). Approval inheritance moves implementation sub-issues Backlog → ToDo; parent Issue derived from children via syncParentStatus |
+| Design Issue (child) | After design drafting + AI self-review in `design-flow` (**creation only**) | `approve` → ToDo (design approved). The design Issue is an intermediate box (not set to Done); parent Issue derived from children via syncParentStatus (`design-flow` Phase 5) |
 | PR | At `pr create` (code review possible) | `pr merge` → Done |
 
 #### Issues / Plan Issues do NOT re-transition to Review during implementation
@@ -264,7 +265,7 @@ The "start-work behavior" of a task Issue by status is unified across the three 
 | `ToDo` (approved) | Run `begin` directly for In progress |
 | `In progress` | Skip (continue) |
 
-> **Distinction from the plan issue child's Review**: The table above is the common gate for the **task Issue (parent)** status. `prepare-flow` additionally distinguishes the **plan Issue (child)** Review (i.e., re-planning confirmation, `approve` → Review → Done). See `prepare-flow` skill Step 1b for details.
+> **Distinction from the plan issue child's Review**: The table above is the common gate for the **task Issue (parent)** status. `prepare-flow` additionally distinguishes the **plan Issue (child)** Review (i.e., re-planning confirmation, `approve` → Review → ToDo). See `prepare-flow` skill Step 1b for details.
 
 ### Rules
 
@@ -310,7 +311,7 @@ Plans are created as child issues of the parent issue (issues with titles starti
 ### Plan Issue Structure
 
 - **Title**: `Plan: {parent issue title}`
-- **Status**: `Backlog` (right after creation) → `Review` (after plan review completes, via `submit`) → `Done` (after approval)
+- **Status**: `Backlog` (right after creation) → `Review` (after plan review completes, via `submit`) → `ToDo` (after approval, ready to start) → `Done` (after PR merge in the implementation phase)
 - **Labels**: `area:plan`
 - **Body**: Full plan content (approach, target files, task breakdown, risks, etc.)
 
@@ -322,7 +323,8 @@ Plan issues represent the lifecycle of the plan itself and do not participate in
 |--------|-------------|-------------------|
 | Backlog | Planning in progress (right after creation) | `prepare-flow` creates plan issue (`INITIAL_STATUSES = ["Backlog"]`) |
 | Review | Plan created, awaiting review | `prepare-flow` sets after plan review passes (`submit N`, Backlog → Review) |
-| Done | Plan approved | `approve {plan-number}` (Review → Done). Parent Issue auto-synced Backlog → ToDo via syncParentStatus |
+| ToDo | Plan approved, ready to start | `approve {plan-number}` (Review → ToDo). Approval inheritance moves implementation sub-issues Backlog → ToDo; parent Issue derived from children via syncParentStatus |
+| Done | Implementation complete | `pr merge` parses `Closes #N` and auto-transitions |
 
 **`integrity` aggregation exclusion**: When auto-deriving parent Issue status, plan issues with the `area:plan` label are excluded from sub-issue status aggregation. This prevents a plan issue remaining in Review from affecting the parent's In progress derivation.
 
@@ -336,10 +338,12 @@ Plan issues represent the lifecycle of the plan itself and do not participate in
 |-------|-------------|--------|---------|
 | Planning | Plan Issue | Backlog | `prepare-flow` creates plan issue (`INITIAL_STATUSES = ["Backlog"]`) |
 | Plan review | Plan Issue | Review | `prepare-flow` executes `submit {plan-number}` (Backlog → Review) |
-| Plan approved | Plan Issue | Done | `approve {plan-number}` (Review → Done). Parent Issue auto-synced Backlog → ToDo via syncParentStatus |
+| Plan approved | Plan Issue | ToDo | `approve {plan-number}` (Review → ToDo). Approval inheritance moves implementation sub-issues Backlog → ToDo; parent Issue derived from children |
+| Implementing | Plan Issue | In progress (PR itself carries Review) | `implement-flow` runs `begin` to start work, then implements and creates the PR |
+| Implementation complete | Plan Issue | Done | `pr merge` parses `Closes #N` and auto-transitions |
 | Issue closed | Plan Issue | Done + Closed | Parent Issue close triggers `syncChildCloseOnParentClose` |
 
-**Parent issue status is auto-derived**: After plan issue transitions to Done, `syncParentStatus` aggregates child issue statuses to derive and update the parent's expected status.
+**Parent issue status is auto-derived**: After each plan issue transition, `syncParentStatus` aggregates child issue statuses to derive and update the parent's expected status.
 
 #### `pr create` / `pr merge` Plan Issue Redirect
 
