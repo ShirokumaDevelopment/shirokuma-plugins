@@ -29,7 +29,7 @@ Defines the shared logic for auto-discovering related canonical docs, ADRs, and 
 
 | Category | Search method | Top N | Output sub-section |
 |----------|--------------|-------|-------------------|
-| Canonical docs | `grep -l "<keyword>" -r guide/ docs/specs/ CLAUDE.md` → Read relevant excerpts | Up to 5 (key passages only) | `### Canonical Documents` |
+| Canonical docs | `grep -l "<keyword>" -r guide/ pages/specs/ CLAUDE.md` → Read relevant excerpts | Up to 5 (key passages only) | `### Canonical Documents` |
 | ADR (Accepted) | `shirokuma-flow discussion adr list` → match titles / bodies by keyword | 3-5 | `### Related ADRs (Accepted)` |
 | Existing issues / PRs / Discussions | `shirokuma-flow issue search "<keyword>" --limit 5` | Up to 5 | `### Related Existing Issues / PRs` |
 

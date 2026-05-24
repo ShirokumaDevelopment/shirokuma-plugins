@@ -81,7 +81,7 @@ shirokuma-flow issue search "<キーワード>" --limit 5
 
 | カテゴリ | 検索コマンド | 出力先サブセクション |
 |---------|------------|------------------|
-| 正本ドキュメント | `grep -l <keywords> guide/ docs/specs/ CLAUDE.md` で発見 → 該当箇所を Read | `### 正本ドキュメント` |
+| 正本ドキュメント | `grep -l <keywords> guide/ pages/specs/ CLAUDE.md` で発見 → 該当箇所を Read | `### 正本ドキュメント` |
 | ADR (Accepted) | `shirokuma-flow discussion adr list` → タイトル / 本文キーワード照合で上位 3-5 件 | `### 関連 ADR（Accepted）` |
 | 既存 Issue / PR | `shirokuma-flow issue search "<keywords>" --limit 5` | `### 関連既存 Issue / PR` |
 
