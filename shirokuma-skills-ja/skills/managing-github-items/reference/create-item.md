@@ -195,7 +195,7 @@ C) その他（具体的に教えてください）
 | Issue Type（**必須**） | Feature / Bug / Task / Chore / Docs / Research / Evolution | （種別判定から） |
 | Priority | Critical / High / Medium / Low | Medium |
 | Size | XS / S / M / L / XL | S |
-| Status | In progress（`INITIAL_STATUSES` ホワイトリスト） | In progress |
+| Status | Backlog（`INITIAL_STATUSES` ホワイトリスト） | Backlog |
 
 ## ステップ 4: 作成
 
@@ -213,7 +213,7 @@ Issue 番号は GitHub が作成時に採番するため、作成前には不明
 shirokuma-flow issue add /tmp/shirokuma-flow/{slug}.md
 
 # frontmatter に status を設定して作成
-# /tmp/shirokuma-flow/{slug}.md の frontmatter に status: "In progress" を記述
+# /tmp/shirokuma-flow/{slug}.md の frontmatter に status: "Backlog" を記述
 
 # サブ Issue として作成後に親 Issue を設定
 shirokuma-flow issue add /tmp/shirokuma-flow/{slug}.md
@@ -258,7 +258,7 @@ Refs #{親番号} — {親 Issue タイトル}
 
 {Issue の目的を1文で要約する。例: 「CLI ユーザーが依存グラフを SVG 形式で出力できるようにする Issue を作成した。」}
 
-**Issue:** #123 | **ラベル:** area:<領域> | **優先度:** Medium | **ステータス:** In progress
+**Issue:** #123 | **ラベル:** area:<領域> | **優先度:** Medium | **ステータス:** Backlog
 
 GitHub 上で Issue の本文を確認してください。タイトル・本文・フィールドに修正が必要であれば指示してください。
 ```

@@ -9,7 +9,7 @@
 cat > /tmp/shirokuma-flow/{parent-number}-sub-{n}.md <<'EOF'
 ---
 title: "{サブ Issue タイトル}"
-status: "In progress"
+status: "Backlog"
 ---
 
 #{parent-number} の計画を参照。

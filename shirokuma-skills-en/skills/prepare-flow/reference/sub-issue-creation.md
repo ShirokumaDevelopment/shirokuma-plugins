@@ -9,7 +9,7 @@
 cat > /tmp/shirokuma-flow/{parent-number}-sub-{n}.md <<'EOF'
 ---
 title: "{sub-issue title}"
-status: "In progress"
+status: "Backlog"
 ---
 
 See #{parent-number} for full plan.

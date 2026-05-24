@@ -195,7 +195,7 @@ For typo fixes, single-line changes, and other XS-sized issues:
 | Issue Type (**required**) | Feature / Bug / Task / Chore / Docs / Research / Evolution | (from type inference) |
 | Priority | Critical / High / Medium / Low | Medium |
 | Size | XS / S / M / L / XL | S |
-| Status | In progress (per `INITIAL_STATUSES` whitelist) | In progress |
+| Status | Backlog (per `INITIAL_STATUSES` whitelist) | Backlog |
 
 ## Step 4: Create
 
@@ -254,7 +254,7 @@ See `epic-workflow` reference for the full epic workflow.
 
 {Summarize the purpose of the Issue in one sentence. Example: "Created an issue to allow CLI users to output the dependency graph in SVG format."}
 
-**Issue:** #123 | **Label:** area:<scope> | **Priority:** Medium | **Status:** In progress
+**Issue:** #123 | **Label:** area:<scope> | **Priority:** Medium | **Status:** Backlog
 
 Review the issue body content on GitHub. If the title, body, or fields need changes, provide instructions.
 ```

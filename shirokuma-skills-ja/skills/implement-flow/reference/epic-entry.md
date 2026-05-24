@@ -24,7 +24,7 @@
    ```bash
    shirokuma-flow issue add /tmp/shirokuma-flow/{slug}.md
    ```
-   本文ファイルの frontmatter に `title`、`status: "In progress"` を設定し、本文には親計画への参照（`#{epic-number} の計画を参照`）を記述する。
+   本文ファイルの frontmatter に `title`、`status: "Backlog"` を設定し、本文には親計画への参照（`#{epic-number} の計画を参照`）を記述する。
    作成後、`shirokuma-flow issue parent {sub-number} {epic-number}` でサブ Issue の親を設定する。
    作成後、計画 Issue の `### サブ Issue 構成` テーブルのプレースホルダー（`#{sub1}` 等）を実際の Issue 番号で更新し、`issue update {plan-issue-number} /tmp/shirokuma-flow/{plan-issue-number}-body.md` で計画 Issue 本文を同期する。
 

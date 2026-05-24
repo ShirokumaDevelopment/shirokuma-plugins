@@ -45,7 +45,9 @@ git diff --name-only origin/develop...HEAD 2>/dev/null || git diff --name-only H
 
 ### Step B: コード簡略化（`/simplify`）
 
-`/simplify` を Skill ツールで実行:
+> **検証済み（#2615）**: `/simplify` は Claude Code のビルトイン スラッシュコマンドであり、プラグインスキルではない。そのため `Skill(skill: "simplify")` は SubAgent コンテキストで失敗することが確認された（スキル名が利用可能スキルリストに存在しない）。Step B は **ベストエフォート**として実行し、失敗は `simplify: FAILED` として記録して Step C に進む（現行のエラーハンドリングで吸収済み）。
+
+`/simplify` を Skill ツールで実行（ベストエフォート）:
 
 ```text
 Skill(skill: "simplify")

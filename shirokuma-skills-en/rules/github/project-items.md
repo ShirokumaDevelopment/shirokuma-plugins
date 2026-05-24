@@ -209,7 +209,7 @@ AI MUST update issue status at these points:
 | Complete (no PR needed) | → Done | Manual | `status update-batch --done {n}` |
 | Cancelled | → Done(NOT_PLANNED) | `issue cancel` | `cancel {n}` |
 
-> **GitHub Projects built-in automation**: When the `Pull request linked to issue` workflow is enabled, linking a PR to an Issue automatically adds both to the Project. Date fields (Start at / Review at / End at) on the PR are set automatically by `integrity`. See the "GitHub Projects Workflow Configuration" section in `github-commands.md` for setup instructions.
+> **GitHub Projects built-in automation**: When the `Pull request linked to issue` workflow is enabled, linking a PR to an Issue automatically adds both to the Project. See the "GitHub Projects Workflow Configuration" section in `github-commands.md` for setup instructions.
 
 ### In Progress Usage (Planning and Implementation)
 
@@ -286,7 +286,7 @@ GitHub Projects has built-in Workflows (e.g., `Item closed` → set Status to Do
 | Issue reopen | `issue reopen` restores Status | `Item reopened` sets Status → ToDo | Potential conflict |
 
 **Principles:**
-- CLI performs **authoritative Status updates** (including timestamp updates and parent issue derivation)
+- CLI performs **authoritative Status updates** (including parent issue derivation)
 - Workflows act as a **backstop** (covering manual operations that bypass the CLI)
 - Duplicate execution is harmless due to idempotency
 - On reopen, CLI's Status restore and Workflows' ToDo setting may conflict; Workflows may overwrite after CLI execution. If conflicted, correct with `shirokuma-flow status update-batch {number} --status {correct-status}`
@@ -312,7 +312,7 @@ Plans are created as child issues of the parent issue (issues with titles starti
 
 - **Title**: `Plan: {parent issue title}`
 - **Status**: `Backlog` (right after creation) → `Review` (after plan review completes, via `submit`) → `ToDo` (after approval, ready to start) → `Done` (after PR merge in the implementation phase)
-- **Labels**: `area:plan`
+- **Labels**: (none, identified by title prefix)
 - **Body**: Full plan content (approach, target files, task breakdown, risks, etc.)
 
 ### Plan Issue Status Transitions
@@ -326,7 +326,7 @@ Plan issues represent the lifecycle of the plan itself and do not participate in
 | ToDo | Plan approved, ready to start | `approve {plan-number}` (Review → ToDo). Approval inheritance moves implementation sub-issues Backlog → ToDo; parent Issue derived from children via syncParentStatus |
 | Done | Implementation complete | `pr merge` parses `Closes #N` and auto-transitions |
 
-**`integrity` aggregation exclusion**: When auto-deriving parent Issue status, plan issues with the `area:plan` label are excluded from sub-issue status aggregation. This prevents a plan issue remaining in Review from affecting the parent's In progress derivation.
+**`integrity` aggregation exclusion**: When auto-deriving parent Issue status, plan issues whose title starts with `計画:` / `Plan:` are excluded from sub-issue status aggregation. This prevents a plan issue remaining in Review from affecting the parent's In progress derivation.
 
 ### Plan Issue-Centric Status Model
 

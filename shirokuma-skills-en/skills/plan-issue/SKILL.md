@@ -85,8 +85,7 @@ Create the plan issue body file:
 cat > /tmp/shirokuma-flow/{number}-plan-issue.md <<'EOF'
 ---
 title: "Plan: {parent issue title}"
-status: "In progress"
-labels: ["area:plan"]
+status: "Backlog"
 ---
 
 ## Plan
@@ -102,7 +101,7 @@ shirokuma-flow issue add /tmp/shirokuma-flow/{number}-plan-issue.md
 
 After the plan issue is created, record the returned issue number as `PLAN_ISSUE_NUMBER`.
 
-Transition to Review using `submit` (plan issues are created with In progress status):
+Transition to Review using `submit` (plan issues are created with Backlog status):
 
 ```bash
 shirokuma-flow submit {PLAN_ISSUE_NUMBER}
@@ -155,7 +154,7 @@ Execute this step only when the plan issue body contains a `### Sub-Issue Struct
    cat > /tmp/shirokuma-flow/{parent-number}-sub-{n}.md <<'EOF'
    ---
    title: "{sub-issue title}"
-   status: "In progress"
+   status: "Backlog"
    ---
 
    See #{parent-number} for full plan.
@@ -219,7 +218,7 @@ shirokuma-flow issue push {PLAN_ISSUE_NUMBER}
 - Runs via Skill tool (main context), but progress management and user interaction are handled by the orchestrator (`prepare-flow`)
 - Plan review is handled by `prepare-flow` — this skill only creates the plan
 - **Does not update parent issue status** — parent issue status transitions (In Progress, Review) are managed by `prepare-flow`
-- Plan issues are created with status `In progress`, then immediately transitioned to `Review` via `submit`. Label is `area:plan`
+- Plan issues are created with status `Backlog`, then transitioned to `Review` via `submit`
 
 ## GitHub Writing Rules
 

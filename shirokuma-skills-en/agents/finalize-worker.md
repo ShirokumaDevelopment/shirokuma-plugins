@@ -45,7 +45,9 @@ Decision:
 
 ### Step B: Simplify (`/simplify`)
 
-Run `/simplify` via the Skill tool:
+> **Verified (#2615)**: `/simplify` is a Claude Code built-in slash command, not a plugin skill. Therefore `Skill(skill: "simplify")` fails in SubAgent context because the skill name is not in the available skills list. Step B is **best-effort**: if the call fails, record `simplify: FAILED` and continue to Step C (already absorbed by the current error handling).
+
+Run `/simplify` via the Skill tool (best-effort):
 
 ```text
 Skill(skill: "simplify")
