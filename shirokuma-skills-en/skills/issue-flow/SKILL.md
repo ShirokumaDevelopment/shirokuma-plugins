@@ -202,7 +202,8 @@ In addition to new-item creation (Steps 1–3), this skill is also responsible f
 
 | Transition | Command | Notes |
 |------------|---------|-------|
-| (b) `Backlog → Review` (triage submission) | `shirokuma-flow submit {number}` | The CLI rejects non-Backlog with `result: "error"` |
+| (b-1) requirements review (before submit) | `analyze-issue requirements #{number}` (Skill) | Skip if any comment already has `**Review result:**`. NEEDS_REVISION blocks submit and prompts for corrections |
+| (b-2) `Backlog → Review` (triage submission) | `shirokuma-flow submit {number}` — **execute immediately without user confirmation** (see auto-detection logic in `triage-status.md`) | The CLI rejects non-Backlog with `result: "error"` |
 | (c) `Review → ToDo` (triage approval) | Normally a human approves on GitHub Web. Delegate to `approve-flow` only on AI-initiated approval | A normal issue transitions `Review → ToDo`; guide to `/implement-flow` once it reaches ToDo |
 
 See [reference/triage-status.md](reference/triage-status.md) for details: triggers, DO NOT rules, submission with a comment, and the recommended AskUserQuestion before approval.

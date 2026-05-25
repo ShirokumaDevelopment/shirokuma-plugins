@@ -10,13 +10,48 @@ Start a triage submission (Backlog → Review) in any of the following contexts:
 
 - The user intends to submit a just-created issue as a work candidate for human review (continuation after the creation chain)
 - You receive an instruction such as "triage this," "promote it to a work candidate," or "move it to Review" for an existing Backlog issue
+- `/issue-flow #N` is called with an existing Backlog issue number (see "Auto-detection logic" below)
 - Another flow (e.g. `/implement-flow`) encounters a Backlog issue and routes here because triage is required before work can start
 
 > **DO NOT**: Never re-submit an issue that has already passed through Review once (one-Review-per-entity principle). While a PR is in flight during the implementation phase, leave the issue in In progress and do not touch it.
 
+### Auto-detection logic
+
+**When `/issue-flow #N` is called with an existing Backlog issue number, enter the check flow ((b-1) → (b-2)) automatically without asking the user for confirmation.**
+
+For check decisions after new-item creation, use the **creation-time work context**:
+
+| Creation timing | Decision |
+|----------------|----------|
+| Adding a follow-up during active work | **Leave in Backlog for later** (don't interrupt in-progress work) |
+| Start of a session | **Run the check and advance to Review** |
+| After a round of work is done | **Run the check and advance to Review** |
+
+Additional rules:
+- Lightweight types (chore / docs / typo) default to leaving the issue in Backlog
+- **Use AskUserQuestion only when the decision is genuinely ambiguous** — do not ask otherwise
+
 ## (b) Backlog → Review (triage submission)
 
-Submit the issue to Review (awaiting triage approval) with the `submit` command:
+Run a requirements review before `submit` to verify the issue meets the quality bar for Review.
+
+### (b-1) requirements review (before submit)
+
+Skip if any comment already contains `**Review result:**` (including when new-item creation flow step 2b has already run the review). Otherwise, invoke via the Skill tool:
+
+```
+Skill: analyze-issue
+Args: requirements #{number}
+```
+
+- `**Review result:** NEEDS_REVISION`: Present the issues to the user and request corrections to the issue body. Invoke `analyze-issue requirements` again after corrections (maximum 2 revision loops; on the 3rd NEEDS_REVISION, defer to the user). Block `submit`.
+- `**Review result:** PASS`: Proceed to the `submit` step.
+
+> **Handling `**Design assessment:**` and `**Project Requirement Consistency:**`**: `analyze-issue requirements` also outputs these fields, but in the triage path only `**Review result:**` is consumed. The 3-way branch based on `**Design assessment:**` (design-flow / prepare-flow / implement-flow) is outside the scope of triage (handled by new-item creation flow step 3). A `**Project Requirement Consistency:** NEEDS_REVISION` with `**Review result:** PASS` also does not block submit (resolving consistency issues is deferred to the design/planning phase after submission).
+
+### (b-2) submit
+
+Submit the issue to Review (awaiting triage approval) with the `submit` command. **Execute immediately without asking the user for confirmation** (see "Auto-detection logic"):
 
 ```bash
 shirokuma-flow submit {number}
