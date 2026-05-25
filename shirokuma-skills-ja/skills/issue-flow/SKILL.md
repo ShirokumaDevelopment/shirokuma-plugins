@@ -202,7 +202,8 @@ Discussion 作成完了: #{number}
 
 | 遷移 | コマンド | 補足 |
 |------|---------|------|
-| (b) `Backlog → Review`（トリアージ提出） | `shirokuma-flow submit {number}` | Backlog 以外は CLI が `result: "error"` で拒否 |
+| (b-1) requirements レビュー（submit 前） | `analyze-issue requirements #{number}`（Skill） | レビュー済み（コメントに `**レビュー結果:**` あり）の場合はスキップ。NEEDS_REVISION なら submit をブロックして修正を促す |
+| (b-2) `Backlog → Review`（トリアージ提出） | `shirokuma-flow submit {number}` | Backlog 以外は CLI が `result: "error"` で拒否 |
 | (c) `Review → ToDo`（トリアージ承認） | 基本は GitHub Web で人間が承認。AI 自発時のみ `approve-flow` に委譲 | 課題 Issue（normal）は `Review → ToDo`。ToDo 到達後 `/implement-flow` を案内 |
 
 トリガー条件・DO NOT ルール・コメント付き提出・承認時の AskUserQuestion 推奨など詳細は [reference/triage-status.md](reference/triage-status.md) 参照。

@@ -16,6 +16,24 @@
 
 ## (b) Backlog → Review（トリアージ提出）
 
+`submit` 実行前に requirements レビューを行い、Issue が Review に値する品質か検証する。
+
+### (b-1) requirements レビュー（submit 前）
+
+いずれかのコメントに `**レビュー結果:**` が存在する場合はスキップ（新規作成フローのステップ 2b で既にレビュー済みの場合を含む）。存在しない場合は Skill ツールで実行:
+
+```
+Skill: analyze-issue
+Args: requirements #{number}
+```
+
+- `**レビュー結果:** NEEDS_REVISION` の場合: 問題点をユーザーに提示し、Issue 本文の修正を依頼する。修正後に再度 `analyze-issue requirements` を呼び出す（修正ループは最大 2 回。3 回目の NEEDS_REVISION はユーザーに判断を委ねる）。`submit` はブロックする
+- `**レビュー結果:** PASS` の場合: 次の `submit` ステップへ進む
+
+> **`**設計要否:**` / `**プロジェクト要件整合性:**` の扱い**: `analyze-issue requirements` はこれらのフィールドも出力するが、トリアージ経路では `**レビュー結果:**` のみを消費する。`**設計要否:**` に基づく 3 方向分岐（design-flow / prepare-flow / implement-flow）はトリアージの責務外（新規作成フロー ステップ 3 が担う）。`**プロジェクト要件整合性:** NEEDS_REVISION` かつ `**レビュー結果:** PASS` のケースも submit をブロックしない（整合性問題の解消は提出後の設計・計画フェーズで対応）。
+
+### (b-2) submit
+
 `submit` コマンドで課題 Issue を Review（トリアージ承認待ち）に提出する:
 
 ```bash
