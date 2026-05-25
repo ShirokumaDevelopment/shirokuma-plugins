@@ -244,7 +244,7 @@ TDD 共通ワークフローの詳細は [docs/tdd-workflow.md](docs/tdd-workflo
 
 | 作業タイプ | チェーン |
 |-----------|---------|
-| コーディング全般 | Work → Commit → PR → finalize-changes → Work Summary → Status Update |
+| コーディング全般 | Work → Commit → PR → finalize-changes → Work Summary + PR ページ生成 → Status Update |
 | 調査 | Research → Discussion |
 | レビュー | Review → レポート投稿 → 完了（コミット/PR チェーンなし） |
 
@@ -300,6 +300,8 @@ TDD 共通ワークフローの詳細は [docs/tdd-workflow.md](docs/tdd-workflo
 > **重要 — Skill ツール / Agent ツール復帰後のチェーン継続**: Skill ツール（`finalize-changes` 等）またはサブエージェント（`pr-worker`, `commit-worker` 等）が完了した時点で、**TaskList の残り `pending` ステップを確認する**。pending ステップが残っている場合（コミット、PR 作成、作業サマリー、ステータス更新）、**同じレスポンス内で即座に次の pending ステップを実行すること**。停止・サマリー表示・ユーザーへの確認は禁止。Skill ツール / Agent ツールの復帰はチェーンの中間地点であり、完了シグナルではない。特に PR → `finalize-changes` の遷移で断絶しやすいため注意。
 
 チェーン末尾のステップ（作業サマリー投稿・Status 更新・計画 Issue の Done 更新・次のステップ提案）の詳細は [reference/chain-end-steps.md](reference/chain-end-steps.md) を参照。
+
+PR ページ（HTML 化）の生成手順は [reference/chain-end-steps.md](reference/chain-end-steps.md) の「PR ページ生成（HTML 化）」セクションを参照。
 
 ### ステップ 6: Evolution シグナル自動記録
 

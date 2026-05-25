@@ -47,7 +47,8 @@ Category selection flowchart:
 | Supplemental for Issue #N | `issues` | `pages/issues/{N}/` |
 | Supplemental for PR #N | `prs` | `pages/prs/{N}/` |
 | Supplemental for Discussion #N (ADR / RFC / discussion) | `discussions` | `pages/discussions/{N}/` |
-| Concept / design deep dive | `explainers` | `pages/explainers/{topic-slug}/` |
+| Permanent spec (skill / rule / workflow / CLI reference) | `specs` | `pages/specs/{topic-slug}/` |
+| Issue-specific supplement (temporary, tied to a specific Issue) | `explainers` | `pages/explainers/{topic-slug}/` |
 | Code / design review result | `reviews` | `pages/reviews/{topic-slug}/` |
 | Progress / period report | `status` | `pages/status/{topic-slug}/` |
 | Incident / postmortem | `incidents` | `pages/incidents/{topic-slug}/` |
@@ -58,7 +59,7 @@ Confirm with the user:
 
 | Item | Example |
 |------|---------|
-| Category | `explainers` |
+| Category | `specs` (permanent spec) or `explainers` (Issue supplement) |
 | topic slug or number | `concept-workflow` or `2620` |
 | Page title | Human-readable title for display |
 | Source | Referenced Issue / Discussion / ADR / existing material |
@@ -71,13 +72,21 @@ The caller (orchestrator / user) chooses the template kind via the `--template` 
 
 | `--template` value | reference HTML | Primary use | Primary callers |
 |--------------------|---------------|-------------|-----------------|
-| `default` | `template.html` | Concept explainer / free-form document | Direct calls to `writing-html-explainer`, anything in the `explainers` category |
+| `default` | `template.html` | Concept explainer / free-form document | Direct calls to `writing-html-explainer`, `specs` and `explainers` categories |
 | `review-summary` | `review-summary.html` | General review results (verdict + issue list + recommended actions) | `analyze-issue`, `review-issue`, `review-flow`, `auditing-docs` (via orchestrators) |
 | `design-review` | `design-review.html` | Design review (Design Brief alignment + Aesthetic Direction evaluation + UI checks) | `design-flow`, `analyze-issue` design role (via orchestrators) |
 | `postmortem` | `postmortem.html` | Incident report (status-header + event-log + metric-grid + RCA + actions) | Incident response (always HTML) |
 | `implementation-plan` | `implementation-plan.html` | Epic plan (hero + milestone-timeline + risks + dataflow) | `prepare-flow` epic plan docs, `plan-issue` Markdown supplement |
 
 **Canonical source for decision criteria, corresponding orchestrators, and output categories**: [`html-report-criteria.md`](../../rules/html-report-criteria.md)
+
+#### Output Filename (`--output-filename`)
+
+The caller can specify the output filename via the `--output-filename` parameter. Use it for multi-file output that generates a master page plus subpages under the same slug directory.
+
+| Parameter | Description |
+|-----------|-------------|
+| `--output-filename` | Output filename (default: `index.html`). Used for subpage generation such as `summary.html` / `review-r{n}.html` / `fix-r{n}.html`. The OUTDIR (`pages/<category>/<slug>/`) is unchanged even when specified |
 
 #### Template Selection Flowchart
 
@@ -100,7 +109,8 @@ What is the report type?
 | Design review for Issue #N | `design-review` | `reviews` | `design-{N}` |
 | Incident report from 2026-05 | `postmortem` | `incidents` | `2026-05-outage` |
 | Epic #N plan doc | `implementation-plan` | `issues` | `{N}` |
-| Concept explainer | `default` | `explainers` | `concept-workflow` |
+| Permanent spec (skill doc etc.) | `default` | `specs` | `skill-ja-implement-flow` |
+| Issue supplement (temporary explainer) | `default` | `explainers` | `concept-workflow` |
 
 The full category ↔ report-type mapping is in [`html-report-criteria.md`](../../rules/html-report-criteria.md) §4.
 
@@ -133,10 +143,31 @@ OUTDIR=pages/${CATEGORY}/${TOPIC}
 TEMPLATE_FILE=template.html  # Example: --template default
 
 mkdir -p ${OUTDIR}
-cp $SKILL/${TEMPLATE_FILE} ${OUTDIR}/index.html
+# Use the given filename when --output-filename is specified (defaults to index.html)
+OUTPUT_FILENAME=${OUTPUT_FILENAME:-index.html}
+cp $SKILL/${TEMPLATE_FILE} ${OUTDIR}/${OUTPUT_FILENAME}
 ```
 
 **Important**: do not create an `assets/` directory under each page (the shared one is referenced).
+
+#### Appending Links to the Master Page
+
+When generating a subpage (`summary.html` / `review-r{n}.html` / `fix-r{n}.html`) via `--output-filename`, the orchestrator is responsible for appending a link to the `index.html` (master page) of the same slug. Use the region enclosed by the `<!-- SUBPAGE_LINKS_START -->` and `<!-- SUBPAGE_LINKS_END -->` comment markers as the append location.
+
+If the master page does not yet exist, first generate it with `--output-filename index.html` (the same as the default) and set up the link-list region containing the comment markers.
+
+#### PR Master Page (`pages/prs/{n}/index.html`)
+
+A lightweight PR-specific master page. Generate it with `--template default`, structured so that subpage links are mechanically appended between the `<!-- SUBPAGE_LINKS_START -->` / `<!-- SUBPAGE_LINKS_END -->` markers.
+
+```html
+<!-- SUBPAGE_LINKS_START -->
+<ul>
+  <li><a href="summary.html">Work Summary</a></li>
+  <li><a href="review-r1.html">Code Review R1</a></li>
+</ul>
+<!-- SUBPAGE_LINKS_END -->
+```
 
 Replace the placeholders inside the template:
 
@@ -145,7 +176,7 @@ Replace the placeholders inside the template:
 | Placeholder | Replace with |
 |-------------|--------------|
 | `{{TITLE}}` | Page title (used both in h1 and `<title>`) |
-| `{{OUTPUT_PATH}}` | `pages/{category}/{slug}/index.html` |
+| `{{OUTPUT_PATH}}` | `pages/{category}/{slug}/{output-filename}` (defaults to `index.html`) |
 | `{{PURPOSE}}` | One-line statement of the document's purpose |
 | `{{PARENT_HREF}}` / `{{PARENT_LABEL}}` | Parent-page link on `<body>` (e.g. `/explainers/skills-overview/` / `Skills overview`). Delete the `data-parent-*` attributes if there is no parent page. The documentation-root (`/`) link is added automatically |
 
@@ -189,7 +220,7 @@ When you update `pages/assets/style.css` or `pages/assets/theme.js`, **increment
 
 | File | `?v=N` to update |
 |------|-----------------|
-| Every page under `pages/explainers/*/index.html`, `pages/issues/*/index.html`, etc. | `<link href="/assets/style.css?v=N">` / `<script src="/assets/theme.js?v=N">` |
+| Every page under `pages/specs/*/index.html`, `pages/explainers/*/index.html`, `pages/issues/*/index.html`, etc. | `<link href="/assets/style.css?v=N">` / `<script src="/assets/theme.js?v=N">` |
 | `pages/index.html` (root index) | Regenerated by re-running the builder (no manual edit; bump the builder's `?v` below, then re-run) |
 | `plugin/shirokuma-skills-en/skills/writing-html-explainer/reference/template.html` | Initial value at file-generation time, kept in sync |
 | `plugin/shirokuma-skills-en/skills/writing-html-explainer/reference/review-summary.html` | Same as above (review-style templates) |
@@ -308,6 +339,7 @@ After pushing to `main`, the change is **published according to the project's ho
 ```
 
 Examples:
+- `specs` → `{baseUrl}/specs/skill-ja-implement-flow/`
 - `explainers` → `{baseUrl}/explainers/concept-workflow/`
 - `issues/{number}` → `{baseUrl}/issues/{number}/`
 
@@ -394,7 +426,7 @@ This skill assumes `pages/` is **already added as a submodule of the parent repo
 
 ## Reference Implementation
 
-`docs/workflow-review/index.html` is the reference implementation (a prototype before the submodule migration). After the submodule is in place, prefer moving it to `pages/explainers/workflow-review/`.
+`docs/workflow-review/index.html` is the reference implementation (a prototype before the submodule migration). Now located at `pages/specs/workflow-review/` (#2732).
 
 ## Localization
 

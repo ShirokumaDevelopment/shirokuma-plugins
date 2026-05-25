@@ -56,7 +56,7 @@ HTML を埋めるときは以下のパターンから選択してコピーし、
 
 ```html
 <!-- HTML 側はこれだけ。aside は theme.js が <body> 直下に生成する -->
-<body data-parent-href="/explainers/skills-overview/" data-parent-label="全体索引">
+<body data-parent-href="/specs/skills-overview/" data-parent-label="全体索引">
 <main>
   <h1>...</h1>
   <h2 id="sec-1">大項目</h2>   <!-- ← 目次はこの <h2> から作られる -->

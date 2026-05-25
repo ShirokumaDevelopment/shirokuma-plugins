@@ -144,7 +144,7 @@ shirokuma-flow pr comments {PR#}
 
 ### ステップ 2a-2: HTML 化判定とレポート生成
 
-`review-issue`（`review-worker` Agent）から返却された判定情報（`html_report_required`, `template_name`, `category`, `slug`, `report_lines`, `report_kb`, `critical_high_count`, `report_type`）を受け取り、HTML 化要否を最終判定する。
+`review-issue`（`review-worker` Agent）から返却された判定情報（`html_report_required`, `template_name`, `report_lines`, `report_kb`, `critical_high_count`, `report_type`）を受け取り、HTML 化要否を最終判定する。`category` / `slug` / 出力ファイル名は本スキル（オーケストレーター）が `html-report-criteria.md` §4 に従い決定する（review-issue の返却値に依存しない）。
 
 **判定基準・テンプレート対応・カテゴリマッピングの正本**: [`html-report-criteria.md`](../../rules/html-report-criteria.md)（閾値・テンプレート名・カテゴリ名を本ファイルに直書きしない）。
 
@@ -153,13 +153,24 @@ shirokuma-flow pr comments {PR#}
    ```text
    Skill(
      skill: "writing-html-explainer",
-     args: "--template <template_name> --category <category> --slug <slug> --title \"<title>\" --source-report /tmp/shirokuma-flow/{PR#}-review-summary.md"
+     args: "--template review-summary --category prs --slug {PR#} --output-filename review-r{round}.html --title \"PR #{PR#} コードレビュー R{round}\" --source-report /tmp/shirokuma-flow/{PR#}-review-summary.md"
    )
    ```
    - `template_name` は通常 `review-summary`（コード/セキュリティ/テスト/ドキュメントレビュー）。詳細は `html-report-criteria.md` §3 参照
-   - `category` / `slug` は `html-report-criteria.md` §4「報告タイプ ↔ カテゴリマッピング」に従い決定（PR レビューは `reviews` カテゴリ + `pr-{PR#}-r{round}` slug）
+   - `category` / `slug` / 出力ファイル名は `html-report-criteria.md` §4「報告タイプ ↔ カテゴリマッピング」に従い決定（PR レビューは `prs` カテゴリ + slug `{PR#}`、出力ファイル名 `review-r{round}.html`）
 3. **HTML 生成成功後**: 公開 URL を取得し、PR コメントを `html-report-criteria.md` §5-4「コメント本文テンプレート」形式に従って更新する（サマリー表 + HTML レポート URL）。
-4. **HTML 化 NO の場合**: 従来通り Markdown 本文の PR コメントのみとし、追加処理は行わない。
+4. **マスターページへのリンク追記**: `pages/prs/{PR#}/index.html` の `<!-- SUBPAGE_LINKS_START -->` / `<!-- SUBPAGE_LINKS_END -->` 間に `review-r{round}.html` のリンクを追記する（マスターページが未生成の場合は先に implement-flow が生成しているはず。未生成の場合は `--template default` でマスターページを先に生成する）。追記前にマーカーの存在を確認し、無ければフォールバックで挿入する:
+   ```bash
+   MASTER=pages/prs/{PR#}/index.html
+   # マーカーが無い場合は </main> 直前に挿入（フォールバック）
+   grep -q '<!-- SUBPAGE_LINKS_END -->' "${MASTER}" || \
+     sed -i 's|</main>|<ul>\n  <!-- SUBPAGE_LINKS_START -->\n  <!-- SUBPAGE_LINKS_END -->\n</ul>\n</main>|' "${MASTER}"
+   LINK='  <li><a href="review-r{round}.html">コードレビュー R{round}</a></li>'
+   sed -i "s|<!-- SUBPAGE_LINKS_END -->|${LINK}\n<!-- SUBPAGE_LINKS_END -->|" ${MASTER}
+   ```
+5. **HTML 化 NO の場合**: 従来通り Markdown 本文の PR コメントのみとし、追加処理は行わない。
+
+> **切替方針（#2629 互換）**: #2629 で生成された既存の `pages/reviews/pr-{n}-r{round}/` 生成物はそのまま残す。本計画以降の新規 review-flow 実行分から `pages/prs/{n}/review-r{n}.html` に切替える。マイグレーションは行わない。
 
 > **責務分担**: `review-issue` は Markdown レポート生成と判定情報返却のみを担当し、本ステップ（HTML 生成委任）はオーケストレーターである本スキル（`review-flow`）の責務。`html-report-criteria.md` §1 の「責務境界」を遵守する。
 
@@ -284,6 +295,22 @@ Dependencies: step 2 blockedBy 1, step 3 blockedBy 2, step 4 blockedBy 3, step 5
    ```bash
    shirokuma-flow pr resolve {PR#} --thread-id {PRRT_id}
    ```
+
+#### 修正報告 HTML 化（fix-r）
+
+コード修正スレッドが 1 件以上ある場合、修正報告を HTML 化する（条件: `html-report-criteria.md` §2 の閾値判定 + コード修正スレッドありを必須）。
+
+HTML 化条件を満たす場合:
+```text
+Skill(
+  skill: "writing-html-explainer",
+  args: "--template review-summary --category prs --slug {PR#} --output-filename fix-r{round}.html --title \"PR #{PR#} 修正報告 R{round}\" --source-report /tmp/shirokuma-flow/{PR#}-fix-summary.md"
+)
+```
+
+生成後、`pages/prs/{PR#}/index.html` の `<!-- SUBPAGE_LINKS_END -->` の前に `fix-r{round}.html` のリンクを追記する。
+
+HTML 化条件を満たさない場合: 従来通り Markdown コメントのみとする。
 
 #### コメント修正スレッド
 

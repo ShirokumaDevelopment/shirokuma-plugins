@@ -19,8 +19,7 @@ Measure the report generated in Step 5 and return the following structured data 
 ```yaml
 html_report_required: true|false
 template_name: review-summary
-category: reviews|discussions
-slug: pr-{number}-r{round}
+# category / slug are determined by the orchestrator per html-report-criteria.md §4 (this skill does not suggest them)
 report_lines: 142
 report_kb: 12.4
 critical_high_count: 5

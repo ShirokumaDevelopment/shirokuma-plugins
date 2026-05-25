@@ -37,8 +37,8 @@ const T = {
 
 // 既知カテゴリの表示ラベル（未知カテゴリはディレクトリ名をそのまま使う）
 const CATEGORY_LABELS = {
-  ja: { explainers: '詳細解説', reviews: 'レビュー結果', status: 'ステータス報告', incidents: '障害報告', issues: 'Issue 補足', prs: 'PR 補足', discussions: 'Discussion 補足' },
-  en: { explainers: 'Explainers', reviews: 'Reviews', status: 'Status', incidents: 'Incidents', issues: 'Issues', prs: 'PRs', discussions: 'Discussions' },
+  ja: { specs: '仕様書', explainers: 'Issue 補足解説', reviews: 'レビュー結果', status: 'ステータス報告', incidents: '障害報告', issues: 'Issue 補足', prs: 'PR 補足', discussions: 'Discussion 補足' },
+  en: { specs: 'Specs', explainers: 'Explainers', reviews: 'Reviews', status: 'Status', incidents: 'Incidents', issues: 'Issues', prs: 'PRs', discussions: 'Discussions' },
 }[LANG];
 const labelFor = (key) => CATEGORY_LABELS[key] || key;
 

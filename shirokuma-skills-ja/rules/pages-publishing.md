@@ -13,7 +13,8 @@ pages:
   baseUrl: https://example.com          # 公開 URL のベース（リンク生成用）
   defaultBranch: main
   categories:                           # ディレクトリ ↔ 用途
-    explainers:  { title: 詳細解説,        path: explainers/{topic}/ }
+    specs:       { title: 仕様書,           path: specs/{topic}/ }
+    explainers:  { title: Issue 補足解説,   path: explainers/{topic}/ }
     reviews:     { title: レビュー結果,     path: reviews/{topic}/ }
     incidents:   { title: 障害報告,         path: incidents/{topic}/ }
     issues:      { title: Issue 補足,        path: issues/{number}/ }
@@ -57,7 +58,8 @@ cd .. && git add pages && git commit -m "chore(pages): bump submodule for {topic
 
 | カテゴリ | パス | 用途 |
 |---------|------|------|
-| `explainers` | `explainers/{topic}/` | コンセプト・設計の詳細解説 |
+| `specs` | `specs/{topic}/` | 恒久的な仕様書（スキル・ルール・ワークフロー・CLI の詳細仕様） |
+| `explainers` | `explainers/{topic}/` | Issue 補足の手書きトピックページ（特定 Issue に紐づく一時的な補足解説） |
 | `reviews` | `reviews/{topic}/` | コード / 設計 / セキュリティレビュー結果 |
 | `incidents` | `incidents/{topic}/` | 障害・ポストモーテム |
 | `issues` | `issues/{number}/` | Issue 補足資料 |

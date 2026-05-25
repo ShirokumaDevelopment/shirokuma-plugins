@@ -42,6 +42,7 @@ paths:
 | 指摘件数（Critical + High の合計） | **≥ 3 件** | 優先度別整理・推奨アクション表示の価値が高い |
 | 報告タイプ固有（常時 HTML 化） | `postmortem` | 障害報告は常に構造化表示が必要 |
 | 報告タイプ固有（常時 HTML 化） | `security-pr-review`（`reviewing-security` の実行結果） | PR セキュリティレビューは常に構造化表示が必要 |
+| 報告タイプ固有（常時 HTML 化） | `implement-flow-summary` | PR 作業サマリーは PR ページとセットで常に HTML 化する |
 
 > **注**: 判定では Critical + High の合計のみを使用する。レポート本文の「問題サマリー表」では Critical / High / Medium / Low を個別に表示するが、判定式と表示項目を混同しないこと。
 
@@ -59,6 +60,7 @@ paths:
 | `design-review` | 設計レビュー。`design-flow` / `analyze-issue` の design ロール | `phase-card`（章カード）/ `review-score-card` / `summary-card`（Design Brief 整合性・Aesthetic Direction 評価サマリ） |
 | `postmortem` | 障害報告（インシデント対応） | `status-header`（ID + SEV + Status + Duration の 4 列メタ）/ `event-log`（時刻スタンプ型タイムライン）/ `metric-grid`（影響指標カードグリッド） |
 | `implementation-plan` | エピック計画レポート。`prepare-flow` のエピック計画書 / `plan-issue` の Markdown 補助 | `hero`（プロジェクト概要 + tags）/ `milestone-timeline`（Week N · day–day グルーピング + 配下タスク群）/ リスク `<table>` / データフロー SVG |
+| `default` | 汎用。スキル解説・Issue 補足・PR 作業サマリー（`implement-flow` 完了報告）・PR マスターページ（リンク集） | — |
 
 **drift 防止ルール**: 各 SKILL.md にテンプレート名や閾値を**直書きしない**。本ファイル（`html-report-criteria.md`）を必ず参照する。テンプレート追加・閾値変更は本ファイルで一元管理する。
 
@@ -70,7 +72,7 @@ paths:
 
 | 報告タイプ | カテゴリ | パス例 | slug 命名規約 | 用途 |
 |-----------|---------|--------|-------------|------|
-| PR レビュー結果 | `reviews` | `pages/reviews/pr-{number}-r{round}/` | `pr-{number}-r{round}` | コードレビュー結果（`r1`、`r2` でラウンド管理） |
+| PR レビュー結果 | `reviews` | `pages/reviews/pr-{number}-r{round}/` | `pr-{number}-r{round}` | **legacy / #2629 以前の出力先。新規は「PR ライフサイクル（コードレビュー）」行を使用。** |
 | Issue 要件レビュー | `issues` | `pages/issues/{number}/` | Issue 番号 | 要件品質・設計品質の詳細レポート |
 | Discussion / ADR レビュー | `discussions` | `pages/discussions/{number}/` | Discussion 番号 | Discussion #N の評価結果 |
 | 設計レビュー（スタンドアロン） | `reviews` | `pages/reviews/design-{issue-number}/` | `design-{issue-number}` | `design-flow` の設計評価結果 |
@@ -79,8 +81,14 @@ paths:
 | ドキュメント監査 | `reviews` | `pages/reviews/docs-{year}{quarter}/` | `docs-{year}{quarter}`（例: `docs-2026q2`） | `auditing-docs` の構造監査結果 |
 | 障害ポストモーテム | `incidents` | `pages/incidents/{year}-{slug}/` | `{year}-{slug}`（例: `2026-05-outage`） | 障害報告（`postmortem` テンプレート使用） |
 | 進捗・期間報告 | `status` | `pages/status/{slug}/` | `{period}`（例: `q1-2026`） | Q1 報告等 |
+| PR ライフサイクル（マスター） | `prs` | `pages/prs/{number}/index.html` | `{PR 番号}` | PR 全体ページ（レビュー・作業サマリーへのリンク集） |
+| PR ライフサイクル（作業サマリー） | `prs` | `pages/prs/{number}/summary.html` | `{PR 番号}` | implement-flow の作業サマリー（`--output-filename summary.html`） |
+| PR ライフサイクル（コードレビュー） | `prs` | `pages/prs/{number}/review-r{n}.html` | `{PR 番号}` | review-flow の各ラウンド（`--output-filename review-r{n}.html`） |
+| PR ライフサイクル（修正報告） | `prs` | `pages/prs/{number}/fix-r{n}.html` | `{PR 番号}` | review-flow のスレッド対応報告（条件付き。`--output-filename fix-r{n}.html`） |
 
-**slug 命名規約**: `reviews/` カテゴリ内で PR レビュー / 設計レビュー / セキュリティレビュー / ドキュメント監査が混在しても一覧性を保つため、プレフィックス（`pr-` / `design-` / `security-pr-` / `docs-` / `research-`）を必須とする。
+> **PR ライフサイクル（修正報告）の HTML 化条件**: コード修正スレッドが 1 件以上ある場合のみ生成。さらに §2 の閾値判定（行数 / KB / Critical+High 件数）のいずれかを満たす場合のみ HTML 化する（常時 HTML 化ではない）。
+
+**slug 命名規約**: `reviews/` カテゴリ内で設計レビュー / セキュリティレビュー / ドキュメント監査が混在しても一覧性を保つため、プレフィックス（`design-` / `security-pr-` / `docs-` / `research-`）を必須とする。（PR コードレビューは `prs/` カテゴリに移行済みのため `pr-` プレフィックスはここでは不要）
 
 **配置の例外**: PR の補足資料（差分解説・設計判断）と併用したい場合は `prs/{number}/` への配置も許容する（オーケストレーター側で選択肢を提示）。
 
@@ -106,7 +114,7 @@ paths:
 ### 5-2. 判定式（擬似コード）
 
 ```
-always_html_types = ["postmortem", "security-pr-review"]
+always_html_types = ["postmortem", "security-pr-review", "implement-flow-summary"]
 
 should_html = (
   report_type in always_html_types

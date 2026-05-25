@@ -56,7 +56,7 @@ A persistent TOC for long pages. Always visible thanks to `position: sticky`. **
 
 ```html
 <!-- HTML only needs this; theme.js injects the aside under <body> -->
-<body data-parent-href="/explainers/skills-overview/" data-parent-label="Skills overview">
+<body data-parent-href="/specs/skills-overview/" data-parent-label="Skills overview">
 <main>
   <h1>...</h1>
   <h2 id="sec-1">Top-level item</h2>   <!-- ← TOC is built from these <h2> -->

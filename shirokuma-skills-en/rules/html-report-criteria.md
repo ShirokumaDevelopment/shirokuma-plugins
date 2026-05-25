@@ -41,6 +41,7 @@ Perform HTML promotion if **any one** of the following is met. If none are met, 
 | Finding count (Critical + High total) | **≥ 3** | High value for priority-grouped organization and recommended-action display |
 | Report-type specific (always HTML) | `postmortem` | Incident reports always need structured display |
 | Report-type specific (always HTML) | `security-pr-review` (result of `reviewing-security`) | PR security reviews always need structured display |
+| Report type–specific (always HTML) | `implement-flow-summary` | PR work summaries are always HTML alongside the PR master page |
 
 > **Note**: the decision uses only the Critical + High total. The report body's "finding summary table" displays Critical / High / Medium / Low individually, but do not conflate the decision formula with the displayed items.
 
@@ -58,6 +59,7 @@ Perform HTML promotion if **any one** of the following is met. If none are met, 
 | `design-review` | Design review. `design-flow` / `analyze-issue` design role | `phase-card` (section cards) / `review-score-card` / `summary-card` (Design Brief consistency / Aesthetic Direction evaluation summary) |
 | `postmortem` | Incident reports (incident response) | `status-header` (4-column meta: ID + SEV + Status + Duration) / `event-log` (timestamped timeline) / `metric-grid` (impact-metric card grid) |
 | `implementation-plan` | Epic plan reports. `prepare-flow` epic plan docs / `plan-issue` Markdown support | `hero` (project overview + tags) / `milestone-timeline` (Week N · day–day grouping + child task groups) / risk `<table>` / data-flow SVG |
+| `default` | General-purpose. Skill explainers, issue supplements, PR work summaries (`implement-flow` completion reports), PR master pages (link hubs) | — |
 
 **Drift-prevention rule**: do not hardcode template names or thresholds into each SKILL.md. Always reference this file (`html-report-criteria.md`). Manage template additions and threshold changes centrally here.
 
@@ -69,7 +71,7 @@ Output categories and slug naming conventions for the `pages/` submodule.
 
 | Report type | Category | Path example | Slug convention | Use |
 |-------------|----------|--------------|-----------------|-----|
-| PR review result | `reviews` | `pages/reviews/pr-{number}-r{round}/` | `pr-{number}-r{round}` | Code review results (`r1`, `r2` for round management) |
+| PR review result | `reviews` | `pages/reviews/pr-{number}-r{round}/` | `pr-{number}-r{round}` | **legacy / pre-#2629 output path. New reviews use the "PR Lifecycle (Code Review)" row.** |
 | Issue requirements review | `issues` | `pages/issues/{number}/` | Issue number | Requirements / design quality detailed report |
 | Discussion / ADR review | `discussions` | `pages/discussions/{number}/` | Discussion number | Discussion #N evaluation result |
 | Design review (standalone) | `reviews` | `pages/reviews/design-{issue-number}/` | `design-{issue-number}` | `design-flow` design evaluation result |
@@ -78,8 +80,14 @@ Output categories and slug naming conventions for the `pages/` submodule.
 | Documentation audit | `reviews` | `pages/reviews/docs-{year}{quarter}/` | `docs-{year}{quarter}` (e.g. `docs-2026q2`) | `auditing-docs` structural audit result |
 | Incident postmortem | `incidents` | `pages/incidents/{year}-{slug}/` | `{year}-{slug}` (e.g. `2026-05-outage`) | Incident report (uses `postmortem` template) |
 | Progress / period report | `status` | `pages/status/{slug}/` | `{period}` (e.g. `q1-2026`) | Q1 report, etc. |
+| PR Lifecycle (Master) | `prs` | `pages/prs/{number}/index.html` | `{PR number}` | PR overview page (link hub for reviews and summaries) |
+| PR Lifecycle (Work Summary) | `prs` | `pages/prs/{number}/summary.html` | `{PR number}` | implement-flow work summary (`--output-filename summary.html`) |
+| PR Lifecycle (Code Review) | `prs` | `pages/prs/{number}/review-r{n}.html` | `{PR number}` | review-flow each round (`--output-filename review-r{n}.html`) |
+| PR Lifecycle (Fix Report) | `prs` | `pages/prs/{number}/fix-r{n}.html` | `{PR number}` | review-flow thread response (conditional; `--output-filename fix-r{n}.html`) |
 
-**Slug convention**: within the `reviews/` category, PR review / design review / security review / documentation audit may coexist, so a prefix (`pr-` / `design-` / `security-pr-` / `docs-` / `research-`) is required to keep the listing scannable.
+> **HTML promotion condition for PR Lifecycle (Fix Report)**: generated only when at least one code-fix thread exists. Furthermore, promote to HTML only when any §2 threshold (line count / KB / Critical+High count) is also met (not always-HTML).
+
+**Slug convention**: within the `reviews/` category, design review / security review / documentation audit may coexist, so a prefix (`design-` / `security-pr-` / `docs-` / `research-`) is required to keep the listing scannable. (PR code reviews have migrated to the `prs/` category, so the `pr-` prefix is no longer needed here.)
 
 **Placement exception**: when pairing with PR supplementary material (diff explanation, design decisions), placement under `prs/{number}/` is also allowed (the orchestrator presents the options).
 
@@ -105,7 +113,7 @@ Reporting skills (`analyze-issue` / `review-issue` / `review-flow` / `auditing-d
 ### 5-2. Decision Formula (pseudocode)
 
 ```
-always_html_types = ["postmortem", "security-pr-review"]
+always_html_types = ["postmortem", "security-pr-review", "implement-flow-summary"]
 
 should_html = (
   report_type in always_html_types

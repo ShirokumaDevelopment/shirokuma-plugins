@@ -235,6 +235,20 @@ If PASS was reached after NEEDS_REVISION cycles, include revision details in the
 shirokuma-flow issue comment {number} /tmp/shirokuma-flow/{number}-review-pass.md
 ```
 
+#### Plan Document HTML (after plan review PASS)
+
+When the plan review passes, promote the implementation plan document to HTML (always HTML). Use the `implementation-plan` template (see `html-report-criteria.md` §3).
+
+```text
+Skill(
+  skill: "writing-html-explainer",
+  args: "--template implementation-plan --category issues --slug {plan-issue-number} --title \"Plan: #{plan-issue-number} Implementation Plan\" --source-report /tmp/shirokuma-flow/{plan-issue-number}-plan.md"
+)
+```
+
+- Category: `issues`, slug: `{plan-issue-number}` (the plan Issue number)
+- After HTML generation succeeds: include the public URL in the plan Issue comment and the completion report
+
 → Proceed to Step 4a (if epic plan) or Step 5.
 
 ### Step 4a: Auto-create Sub-issues (Epic Plans Only)

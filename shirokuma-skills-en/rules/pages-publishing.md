@@ -13,6 +13,7 @@ pages:
   baseUrl: https://example.com          # base of the public URL (for link generation)
   defaultBranch: main
   categories:                           # directory ↔ purpose
+    specs:       { title: Specs,        path: specs/{topic}/ }
     explainers:  { title: Explainers,   path: explainers/{topic}/ }
     reviews:     { title: Reviews,      path: reviews/{topic}/ }
     incidents:   { title: Incidents,    path: incidents/{topic}/ }
@@ -57,7 +58,8 @@ Follows `pages.categories`. URLs are `{baseUrl}/{category}/{topic-or-number}/`.
 
 | Category | Path | Purpose |
 |---------|------|---------|
-| `explainers` | `explainers/{topic}/` | Concept / design explainers |
+| `specs` | `specs/{topic}/` | Permanent specs (skills, rules, workflows, CLI reference) |
+| `explainers` | `explainers/{topic}/` | Issue-specific supplement pages (temporary, hand-written, tied to a specific Issue) |
 | `reviews` | `reviews/{topic}/` | Code / design / security review results |
 | `incidents` | `incidents/{topic}/` | Incidents / postmortems |
 | `issues` | `issues/{number}/` | Issue supplements |

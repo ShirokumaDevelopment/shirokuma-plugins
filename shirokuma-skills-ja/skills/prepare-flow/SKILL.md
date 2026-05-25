@@ -246,6 +246,20 @@ EOF
 shirokuma-flow issue comment {number} /tmp/shirokuma-flow/{number}-review-pass.md
 ```
 
+#### 計画書 HTML 化（計画レビュー PASS 後）
+
+計画レビューが PASS した場合、実装計画書を HTML 化する（常時 HTML 化）。`implementation-plan` テンプレートを使用する（`html-report-criteria.md` §3 参照）。
+
+```text
+Skill(
+  skill: "writing-html-explainer",
+  args: "--template implementation-plan --category issues --slug {plan-issue-number} --title \"計画: #{plan-issue-number} 実装計画書\" --source-report /tmp/shirokuma-flow/{plan-issue-number}-plan.md"
+)
+```
+
+- カテゴリ: `issues`、slug: `{plan-issue-number}`（計画 Issue 番号）
+- HTML 生成成功後: 公開 URL を計画 Issue コメントおよび完了レポートに含める
+
 → ステップ 4a（エピック計画の場合）またはステップ 5 へ進む。
 
 ### ステップ 4a: サブ Issue 自動生成（エピック計画の場合）

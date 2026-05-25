@@ -34,6 +34,58 @@ Skip this step if no issue number is associated with the work.
 
 **Standalone completion**: When `implement-flow` completes its chain (standalone or within a session), the Work Summary is automatically posted.
 
+## PR Page Generation (HTML)
+
+After PR creation, generate the PR page at the same time as posting the work summary. `implement-flow-summary` is an always-HTML target (`html-report-criteria.md` §2).
+
+### Step 1: Generate the PR Master Page
+
+Generate `pages/prs/{pr-number}/index.html` with `--template default`. Provide a link-list region in the master page that includes the `<!-- SUBPAGE_LINKS_START -->` / `<!-- SUBPAGE_LINKS_END -->` comment markers (so that the subsequent `review-flow` can append to it).
+
+```text
+Skill(
+  skill: "writing-html-explainer",
+  args: "--template default --category prs --slug {pr-number} --title \"PR #{pr-number}: {pr-title}\""
+)
+```
+
+The master page functions as a link hub (navigation to subpages), so work summary content is not passed here. Only the PR title and a manually placed link list with `<!-- SUBPAGE_LINKS_START/END -->` markers belong in the body (see Step 3).
+
+### Step 2: Generate the Work Summary Page
+
+Generate `pages/prs/{pr-number}/summary.html` (`--output-filename summary.html`).
+
+```text
+Skill(
+  skill: "writing-html-explainer",
+  args: "--template default --category prs --slug {pr-number} --output-filename summary.html --title \"PR #{pr-number} Work Summary\" --source-report /tmp/shirokuma-flow/{number}-work-summary.md"
+)
+```
+
+### Step 3: Append the Link to the Master Page
+
+Append the generated `summary.html` link between the `<!-- SUBPAGE_LINKS_START -->` / `<!-- SUBPAGE_LINKS_END -->` markers in `index.html`. Verify the markers exist before appending; insert them if missing (fallback):
+
+```bash
+MASTER=pages/prs/{pr-number}/index.html
+# Fallback: insert markers before </main> if not present
+grep -q '<!-- SUBPAGE_LINKS_END -->' "${MASTER}" || \
+  sed -i 's|</main>|<ul>\n  <!-- SUBPAGE_LINKS_START -->\n  <!-- SUBPAGE_LINKS_END -->\n</ul>\n</main>|' "${MASTER}"
+LINK='  <li><a href="summary.html">Work Summary</a></li>'
+sed -i "s|<!-- SUBPAGE_LINKS_END -->|${LINK}\n<!-- SUBPAGE_LINKS_END -->|" ${MASTER}
+```
+
+### Public URL
+
+After HTML generation succeeds, include the PR page URL in the next-steps suggestion:
+
+```
+## Next Steps
+
+- `/review-flow #{pr-number}` — Run self-review on the PR
+- [PR page]({pr-page-url}) — View the HTML work summary
+```
+
 ## Status (End of Chain)
 
 > **New model (ADR-v3-022 fourth revision)**: The implementation unit (the plan Issue, or the task Issue for XS/S direct implementation) stays `In progress` during implement. **Code review is carried by the PR's Review** (`open-pr-issue`'s `pr create` transitions the PR `In progress → Review`). Per the 1-entity-1-Review principle, the implementation unit Issue is NOT transitioned to Review (the old-model `submit {number}` / `status transition {number} --to Review` is not performed; in the new model `ISSUE_FORWARD` has no `In progress → Review` and it would fail).

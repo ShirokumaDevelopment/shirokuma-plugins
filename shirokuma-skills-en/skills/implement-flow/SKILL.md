@@ -246,7 +246,7 @@ After work completes, execute the chain **automatically**. No user confirmation 
 
 | Work Type | Chain |
 |-----------|-------|
-| General Coding | Work → Commit → PR → finalize-changes → Work Summary → Status Update |
+| General Coding | Work → Commit → PR → finalize-changes → Work Summary + PR Page Generation → Status Update |
 | Research | Research → Discussion |
 | Review | Review → Report posted → Complete (no commit/PR chain) |
 
@@ -302,6 +302,8 @@ Skills are invoked via Skill tool (main context) or Agent tool (subagent). Skill
 > **CRITICAL — Chain continuation after Skill tool / Agent tool returns**: When a Skill tool (`finalize-changes`, etc.) or sub-agent (`pr-worker`, `commit-worker`, etc.) completes, **check TaskList for remaining `pending` steps**. If pending steps remain (commit, PR creation, work summary, status update), **immediately proceed to the next pending step in the same response**. Do NOT stop, summarize, or ask the user. A Skill tool or Agent tool returning is a chain mid-point, not a completion signal. The PR → `finalize-changes` transition is particularly prone to chain breaks — pay extra attention.
 
 See [reference/chain-end-steps.md](reference/chain-end-steps.md) for details on chain end steps (work summary, status update, plan issue done update, next steps suggestion).
+
+See the "PR Page Generation (HTML)" section in [reference/chain-end-steps.md](reference/chain-end-steps.md) for the PR page (HTML) generation procedure.
 
 ### Step 6: Evolution Signal Auto-Recording
 

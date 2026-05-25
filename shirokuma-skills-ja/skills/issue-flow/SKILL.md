@@ -136,6 +136,23 @@ Args: requirements #{issue-number}
 - 「Issue 本文を修正して整合させる」→ 修正後に再度 requirements レビューを実行
 - 「既存 ADR の見直し（`write-adr` 更新フロー）を先に実施する」→ `/write-adr` に誘導してステップを中断
 
+#### HTML 化（requirements PASS 後）
+
+`html-report-criteria.md` §2 の閾値判定に従い、HTML 化要否を判定する（常時 HTML 化ではなく、行数 / KB / Critical+High 件数の閾値チェックを適用）。
+
+HTML 化条件を満たす場合:
+```text
+Skill(
+  skill: "writing-html-explainer",
+  args: "--template review-summary --category issues --slug {issue-number} --title \"Issue #{issue-number} 要件レビュー\" --source-report /tmp/shirokuma-flow/{issue-number}-requirements-review.md"
+)
+```
+
+- カテゴリ: `issues`、slug: `{issue-number}`（`html-report-criteria.md` §4 参照）
+- テンプレート: `review-summary`（要件レビュー結果のため）
+- HTML 生成成功後: 公開 URL を Issue コメントに追記し、完了レポートに URL を含める
+- HTML 化 NO の場合: 従来通り Markdown コメントのみ
+
 ### ステップ 3: ユーザーに返す
 
 **Discussion の場合**: ステップ 2b をスキップしたため、作成完了の旨と次のアクション候補を提示する。

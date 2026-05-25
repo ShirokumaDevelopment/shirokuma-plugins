@@ -136,6 +136,23 @@ When `Project Requirement Consistency` is `NEEDS_REVISION`: Present the conflict
 - "Modify the Issue body to make it consistent" → run requirements review again after modification
 - "Review existing ADRs first (using `write-adr` update flow)" → guide to `/write-adr` and suspend this step
 
+#### HTML Promotion (after requirements PASS)
+
+Decide whether to promote to HTML following the §2 threshold check in `html-report-criteria.md` (not always-HTML; apply the line count / KB / Critical+High count threshold check).
+
+When the HTML promotion condition is met:
+```text
+Skill(
+  skill: "writing-html-explainer",
+  args: "--template review-summary --category issues --slug {issue-number} --title \"Issue #{issue-number} Requirements Review\" --source-report /tmp/shirokuma-flow/{issue-number}-requirements-review.md"
+)
+```
+
+- Category: `issues`, slug: `{issue-number}` (see `html-report-criteria.md` §4)
+- Template: `review-summary` (requirements review result)
+- After HTML generation succeeds: append the public URL to the Issue comment and include the URL in the completion report
+- When HTML is NO: keep the Markdown comment only, as before
+
 ### Step 3: Return to User
 
 **For Discussion**: Step 2b is skipped, so present the creation completion and next action candidates.
