@@ -7,7 +7,7 @@ When filling in HTML, pick a pattern from below and copy it, then swap in your c
 
 | Category | Components | Use |
 |----------|-----------|-----|
-| Navigation | `.toc-grid`, `aside.toc` (sidebar TOC) | Section selection / non-linear reading |
+| Navigation | `aside.toc` (sidebar TOC) | Section selection / non-linear reading |
 | Layout | `.hero`, `.card-grid`, `.code-visual`, `.before-after`, `.status-header`, `.artboard` | Page structure / visual organization / meta display / parallel design exploration |
 | Emphasis | `.summary-card`, `.qbox`, `blockquote` variants, `.cta-link`, `.review-score-card`, `.action-items`, `.approach` / `.tradeoffs`, `.bubble` / `.checklist`, `.decision-card` | Highlighting key information / recording decisions |
 | Hierarchy | `details.collapse`, `.phase-card`, `.card.variant .card-titles` | Collapsible content / section grouping / card heading hierarchy |
@@ -20,35 +20,6 @@ When filling in HTML, pick a pattern from below and copy it, then swap in your c
 ---
 
 ## Navigation
-
-### Numbered TOC Grid (`.toc-grid`)
-
-Lay out a list of sections as cards at the top of the page. Use it in addition to the sidebar TOC when you want to give readers an at-a-glance view of "what is in this chapter."
-
-```html
-<div class="toc-grid">
-  <a class="toc-grid-item" href="#sec-1">
-    <span class="num">01</span>
-    <span class="title">Navigation</span>
-    <span class="count">2 items</span>
-  </a>
-  <a class="toc-grid-item" href="#sec-2">
-    <span class="num">02</span>
-    <span class="title">Layout</span>
-    <span class="count">4 items</span>
-  </a>
-</div>
-```
-
-- `count` is optional. Remove `<span class="count">…</span>` if you do not want a count badge
-- Each target `<h2 id="sec-N">` has `scroll-margin-top: 1rem` so it isn't hidden behind the sidebar
-- Hover transitions `border-color: var(--clay)` over 150 ms
-
-**Color mapping:**
-- Background: `var(--bg-soft)`
-- Border: `var(--border)` → hover: `var(--clay)`
-- Number: `var(--clay)` + `var(--mono)`
-- Count badge: `var(--oat)` background + `var(--gray-700)` text
 
 ### Sidebar TOC (`aside.toc`)
 

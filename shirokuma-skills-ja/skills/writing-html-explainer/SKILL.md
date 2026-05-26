@@ -22,17 +22,11 @@ Markdown では表現しきれない**長文の解説・設計レビュー・コ
 
 短い説明や Markdown で十分な場合は使わない。
 
-## 設計原則
+## 設計原則（出力制約の要点）
 
-このスキルが生成する HTML の特徴：
+このスキルが生成する HTML は **単一ページ完結 / 外部 CSS 依存ゼロ / 指定 3 フォントのみ / ダークモード組込 / HSP 配慮 warm palette / 意味付け色分け / SVG テーマ追従** という出力制約に従う。各項目の根拠と詳細は spec ページに集約している。
 
-1. **単一ページ完結**: `index.html` + `assets/style.css` のみ。ビルド工程なし。
-2. **外部 CSS 依存ゼロ**: Bulma 等のフレームワーク不使用。独自パレット。
-3. **Google Fonts のみ**: `Kosugi Maru` / `M PLUS Rounded 1c` / `M PLUS 1 Code`。
-4. **ダークモード組込**: `data-theme="dark|light"` トグル + `localStorage` 永続化。
-5. **HSP 配慮**: 純白・純黒不使用。warm palette + 丸ゴシック系で刺激を抑える。
-6. **意味付け色分け**: 装飾色ではなく、フェーズ/ステップ種別に応じた色。
-7. **SVG はテーマ追従**: ライト/ダーク両モードで読める配色。
+> **詳細**: 7 項目の完全な定義（フォント名・カラーパレット・SVG 追従ルール等）は [`/specs/skill-ja-writing-html-explainer/#design-output-constraints`](https://shirokuma-flow-pages.gadget.to/specs/skill-ja-writing-html-explainer/#design-output-constraints) を参照。
 
 ## ワークフロー
 
@@ -54,6 +48,8 @@ Markdown では表現しきれない**長文の解説・設計レビュー・コ
 | 障害・ポストモーテム | `incidents` | `pages/incidents/{topic-slug}/` |
 
 `{topic-slug}` は **kebab-case の短い英数字**（例: `workflow-review`, `auth-migration-2026q2`）。
+
+マスター（`index.html`）＋サブページ（`summary.html` / `review-r{n}.html` 等）構造の詳細は [`pages-publishing.md`](../../rules/pages-publishing.md) の「ファイル命名と構造選択」を参照。サブページはマスターが存在しないと索引ビルダーに「orphan」扱いされる。
 
 ユーザーに以下を確認:
 
@@ -178,7 +174,7 @@ PR 専用の軽量マスターページ。`--template default` で生成し、`<
 | `{{TITLE}}` | ページタイトル（h1 + `<title>` の 2 箇所） |
 | `{{OUTPUT_PATH}}` | `pages/{category}/{slug}/{output-filename}`（省略時は `index.html`） |
 | `{{PURPOSE}}` | このドキュメントの用途を 1 行で |
-| `{{PARENT_HREF}}` / `{{PARENT_LABEL}}` | `<body>` の親ページリンク定義（例: `/explainers/skills-overview/` / `全体索引`）。上位ページが無ければ `data-parent-*` 属性ごと削除。ドキュメントルート `/` へのリンクは自動付与 |
+| `{{PARENT_HREF}}` / `{{PARENT_LABEL}}` | `<body>` の親ページリンク定義（例: `/specs/skills-overview/` / `全体索引`）。上位ページが無ければ `data-parent-*` 属性ごと削除。pages エントリ有無で相対パス / フル GitHub URL を使い分ける（詳細は [`pages-publishing.md`](../../rules/pages-publishing.md) の「`data-parent-href` 判定ルール」を参照） |
 
 **テンプレート固有プレースホルダ:**
 
@@ -257,8 +253,8 @@ grep -rnE 'style\.css\?v=|theme\.js\?v=' pages/ plugin/shirokuma-skills-ja/skill
 
 **書く時のチェックリスト**:
 
-- [ ] サイドバー（`<aside class="toc">`）は **`theme.js` が丸ごと生成**する。HTML には書かず、本文は `<main>` のみにする
-- [ ] 親（上位）ページが要る場合は `<body data-parent-href="..." data-parent-label="...">` で定義（ドキュメントルート `/` へのリンクは自動付与。不要なら属性ごと省略）
+- [ ] サイドバー（`<aside class="toc">`）は **`theme.js` が自動生成**する。`.toc-grid`（本文先頭の章一覧グリッド）はサイドバー TOC と重複するため使わない。本文は `<main>` のみにする
+- [ ] 親ページは `<body data-parent-href="..." data-parent-label="...">` で定義。URL 形式は `pages-publishing.md` の「`data-parent-href` 判定ルール」に従う
 - [ ] 各 `<h2>` に `id=""` を付与（安定アンカー用。未付与でも JS が slug を自動生成するが、外部からの deep link 用に明示推奨）
 - [ ] SVG の塗り/線は**「SVG カラーパレット（ダーク対応済み）」から選ぶ**（「部品の追加・カスタマイズ」参照）。表に無い新規色を使う場合は `[data-theme="dark"] .diagram svg [fill="..."] / [stroke="..."]` の暗色ペアを **style.css に必ず追加**
 - [ ] SVG 追加後、**未対応色が無いか下記の検証コマンドで確認**（目視だけに頼らない）
@@ -361,7 +357,6 @@ git commit -m "chore(pages): bump submodule for ${CATEGORY}/${TOPIC}"
 
 | シーン | 使う部品 |
 |-------|---------|
-| ページ冒頭で章一覧を一望させる | `.toc-grid`（章番号付き目次グリッド） |
 | ページ冒頭で「このページは何か」を強く示す | `.hero`（eyebrow + h1 + lead + tags） |
 | 3〜4 件の選択肢を横並びで比較 | `.card-grid`（`.card` の auto-fit グリッド） |
 | 修正前後・移行前後を意味的に対比 | `.before-after`（danger ↔ ok の色分け固定） |
@@ -414,6 +409,7 @@ SVG の `fill` / `stroke` は原則この表の色から選ぶ。**いずれも 
 - ❌ 純白 `#fff` / 純黒 `#000` の使用（warm palette を維持）
 - ❌ SVG `<text>` に `fill` 未指定（ダークモードで黒のまま見えなくなる）
 - ❌ 見出し（`h2`–`h4`）に `text-transform: uppercase` を効かせる（識別子が `SYNCPARENTSTATUS` のように潰れて読めない）。uppercase は装飾ラベル（`.eyebrow` / `.tag` / `.label`）限定。識別子は `<code>` で囲み、`code { text-transform: none }` で常に保護する
+- ❌ `.toc-grid` を手書きする（`theme.js` がサイドバー目次を自動生成するため不要）
 - ❌ 複数の Google Fonts ファミリーを増やす（指定 3 種以外は使わない）
 
 ## 前提条件（submodule 初期セットアップ）

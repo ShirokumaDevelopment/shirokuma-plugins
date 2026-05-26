@@ -7,7 +7,7 @@ HTML を埋めるときは以下のパターンから選択してコピーし、
 
 | カテゴリ | 部品 | 用途 |
 |---------|------|------|
-| ナビゲーション | `.toc-grid`、`aside.toc`（サイドバー目次） | 章選択・非線形読み |
+| ナビゲーション | `aside.toc`（サイドバー目次） | 章選択・非線形読み |
 | レイアウト | `.hero`、`.card-grid`、`.code-visual`、`.before-after`、`.status-header`、`.artboard` | ページ構造・視覚整理・メタ表示・設計案並列展示 |
 | 強調 | `.summary-card`、`.qbox`、`blockquote` バリアント、`.cta-link`、`.review-score-card`、`.action-items`、`.approach` / `.tradeoffs`、`.bubble` / `.checklist`、`.decision-card` | 重要情報の引き出し・意思決定の記録 |
 | 階層 | `details.collapse`、`.phase-card`、`.card.variant .card-titles` | 情報の折り畳み・章立て・カード見出し階層 |
@@ -20,35 +20,6 @@ HTML を埋めるときは以下のパターンから選択してコピーし、
 ---
 
 ## ナビゲーション系
-
-### 章番号付き目次グリッド（`.toc-grid`）
-
-ページ冒頭でセクション一覧をカード状に並べる。サイドバー TOC とは別に、本文先頭で「この章で何が読めるか」を一望させたいときに使う。
-
-```html
-<div class="toc-grid">
-  <a class="toc-grid-item" href="#sec-1">
-    <span class="num">01</span>
-    <span class="title">ナビゲーション</span>
-    <span class="count">2 件</span>
-  </a>
-  <a class="toc-grid-item" href="#sec-2">
-    <span class="num">02</span>
-    <span class="title">レイアウト</span>
-    <span class="count">4 件</span>
-  </a>
-</div>
-```
-
-- `count` は省略可。件数表示が不要なら `<span class="count">…</span>` を除去
-- 各リンク先 `<h2 id="sec-N">` は `scroll-margin-top: 1rem` でサイドバーに隠れない
-- hover 時に `border-color: var(--clay)` で 150ms transition
-
-**色対応:**
-- 背景: `var(--bg-soft)`
-- ボーダー: `var(--border)` → hover で `var(--clay)`
-- 番号: `var(--clay)` + `var(--mono)`
-- 件数バッジ: `var(--oat)` 背景 + `var(--gray-700)` テキスト
 
 ### サイドバー目次（`aside.toc`）
 

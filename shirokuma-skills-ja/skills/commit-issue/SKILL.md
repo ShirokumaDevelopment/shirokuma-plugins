@@ -73,9 +73,11 @@ shirokuma-flow git commit-push -m "{type}: {description}" --issue {N}
 
 ### ステップ 3: 完了レポート
 
-#### 6a: Issue コメント投稿
+#### 3a: Issue コメント投稿
 
-Issue 番号が判明している場合、コミット結果を Issue コメントとして投稿する:
+**`implement-flow` チェーンからサブエージェント（`commit-worker`）として呼ばれた場合**: このステップ（3a）全体をスキップする。コメント投稿の要否判断は呼び出し元のマネージャー（`implement-flow` 等）の責務である。サブエージェントが自律投稿すると、ユーザーが指示していない GitHub 書き込みが発生する。詳細は `commit-worker` エージェントの禁止事項を参照。
+
+**スタンドアロン起動（直接 `/commit-issue` 起動）の場合のみ**、Issue 番号が判明していればコミット結果を Issue コメントとして投稿する:
 
 ```bash
 # ファイルに書き出してから issue comment で投稿
@@ -94,7 +96,7 @@ shirokuma-flow issue comment {issue-number} /tmp/shirokuma-flow/{issue-number}-c
 
 Issue 番号が不明な場合（ブランチ名から推定できない、コンテキストで渡されていない）はコメント投稿をスキップ。
 
-#### 6b: 出力テンプレート
+#### 3b: 出力テンプレート
 
 呼び出し元に以下の構造化データを返す:
 

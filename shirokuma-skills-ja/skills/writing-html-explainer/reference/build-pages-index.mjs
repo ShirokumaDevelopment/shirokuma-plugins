@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// pages/ submodule 配下の全 index.html をスキャンし、検索付きの「更新順フィード」索引を生成する。
+// pages/ submodule 配下の {category}/{topic}/ ディレクトリを走査し、index.html（マスターページ）を集約点として索引化する。サブページ（*.html）はマスター経由で辿る前提で索引化しない。orphan（マスター不在のサブページ）は console.warn して索引から除外する。
 //
 // 出力:
 //   pages/index.json  — 全エントリのマニフェスト（更新日時の新しい順にソート済み）
@@ -78,6 +78,12 @@ async function timestamps(relDir, indexPath) {
 }
 
 async function scan() {
+  // 索引化ルール:
+  //   - マスターページ（{category}/{topic}/index.html）→ 索引化（URL は `/{category}/{topic}/`）
+  //   - サブページ（{category}/{topic}/*.html, ただし index.html を除く）
+  //       - 同ディレクトリにマスター（index.html）が存在 → 索引化しない（マスターが集約点）
+  //       - マスター不在で .html のみ存在（orphan） → console.warn してスキップ
+  //   - .html ファイルが {category}/{topic}/ 直下に無いディレクトリ → スキップ
   const items = [];
   let cats;
   try { cats = await readdir(ROOT, { withFileTypes: true }); } catch { return items; }
@@ -89,11 +95,27 @@ async function scan() {
     for (const t of topics) {
       if (!t.isDirectory()) continue;
       const relDir = `${cat.name}/${t.name}`;
-      const indexPath = join(ROOT, cat.name, t.name, 'index.html');
-      let title;
-      try { title = await extractTitle(indexPath); } catch { continue; } // index.html が無いディレクトリはスキップ
-      const { createdAt, updatedAt } = await timestamps(relDir, indexPath);
-      items.push({ title: title || t.name, url: `/${relDir}/`, slug: t.name, category: cat.name, categoryLabel: labelFor(cat.name), createdAt, updatedAt });
+      const topicDir = join(ROOT, cat.name, t.name);
+      const indexPath = join(topicDir, 'index.html');
+
+      // ディレクトリ直下の .html を列挙
+      let entries;
+      try { entries = await readdir(topicDir, { withFileTypes: true }); } catch { continue; }
+      const htmlFiles = entries.filter((e) => e.isFile() && e.name.endsWith('.html')).map((e) => e.name);
+      const hasMaster = htmlFiles.includes('index.html');
+
+      if (hasMaster) {
+        // マスターのみ索引化（サブページは集約点であるマスターを介して辿る前提）
+        let title;
+        try { title = await extractTitle(indexPath); } catch { continue; }
+        const { createdAt, updatedAt } = await timestamps(relDir, indexPath);
+        items.push({ title: title || t.name, url: `/${relDir}/`, slug: t.name, category: cat.name, categoryLabel: labelFor(cat.name), createdAt, updatedAt });
+      } else {
+        // マスター不在で .html のみ存在する orphan サブページは警告してスキップ
+        for (const fname of htmlFiles) {
+          console.warn(`orphan subpage detected: ${relDir}/${fname}`);
+        }
+      }
     }
   }
   return items;

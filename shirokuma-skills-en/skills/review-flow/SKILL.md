@@ -49,7 +49,7 @@ Apply code fixes in response to review feedback **while the issue / plan issue s
 3. Reply / resolve threads via `pr reply` / `pr resolve`
 4. No status update (PR stays in Review, issue stays in In progress)
 
-> **Design intent**: While the PR is open, the **PR carries Status: Review**. Issues and plan issues stay in In progress. The "temporary fall back to In progress" pattern that earlier `review-flow` versions performed is **forbidden** (per the DO NOT list in `project-items.md` Review section — one-Review-per-entity principle).
+> **Reference**: For details on the one-Review-per-entity principle, see the `project-items.md` Review section and [`plugin/specs/skills/review-flow/DESIGN.md`](../../../specs/skills/review-flow/DESIGN.md).
 
 ### Step 1: Context Restoration (Required — Must Run First)
 

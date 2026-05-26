@@ -15,9 +15,7 @@ allowed-tools: Bash, Agent
 | `implement-flow` | PR 作成後（ステップ 4-5 の後処理チェーン） |
 | `review-flow` | レビュー修正コミット後（ステップ 5 の後処理） |
 
-## 設計上のコンテキスト分離
-
-`/simplify` と `reviewing-security` は両方とも大規模な中間出力（コード全体レビュー・diff・指摘リスト）を生成する。これらを Skill ツールでメインコンテキストから連続呼び出しすると、`implement-flow` 末尾でコンテキストが圧迫され auto-compression 直前で処理が停止する。`finalize-worker` SubAgent に委任することで、中間出力を SubAgent コンテキストに閉じ込め、メインには変更サマリーのみが戻る。
+> **設計メモ**: `/simplify` と `reviewing-security` を `finalize-worker` SubAgent に委任してコンテキスト分離する設計の背景は [`plugin/specs/skills/finalize-changes/DESIGN.md`](../../../specs/skills/finalize-changes/DESIGN.md) を参照。
 
 ## ワークフロー
 

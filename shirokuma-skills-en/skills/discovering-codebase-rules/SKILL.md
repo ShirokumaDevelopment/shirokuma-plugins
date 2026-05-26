@@ -181,9 +181,7 @@ Check `shirokuma-flow/src/lint/rules/` for current implementations.
 
 ## ADR Lifecycle Management Pattern Detection
 
-### Patterns to Detect
-
-When analyzing codebases or GitHub Discussions, detect the following as ADR lifecycle management patterns:
+Detect 3 pattern types and record them as signals in the Evolution Issue.
 
 | Pattern Type | Detection Method | Evolution Signal Type |
 |-------------|-----------------|----------------------|
@@ -191,48 +189,26 @@ When analyzing codebases or GitHub Discussions, detect the following as ADR life
 | Conflicts between naming convention Issues/ADRs and new Issues/code | Detect naming convention violations via `issue search` + code analysis | "Naming convention conflict detection pattern" |
 | `analyze-issue requirements` check items that are reusable in other codebases | Evaluate generalizability of consistency check patterns | "Reusable check item pattern" |
 
-### Detection Logic
-
-#### ADR Status Management Pattern
+### Detection Commands
 
 ```bash
-# Check status distribution in ADR list
+# ADR Status Management Pattern
 shirokuma-flow discussion adr list
-
-# Check consistency of status descriptions
 shirokuma-flow discussion search "Status: Accepted"
 shirokuma-flow discussion search "Status: Deprecated"
 shirokuma-flow discussion search "Status: Superseded"
-```
 
-**Pattern confirmation (2+ observations):**
-- `**Status:** Accepted/Deprecated/Superseded` descriptions exist in multiple ADR Discussions → Knowledge
-- Change history section consistently exists at the end of ADR bodies → Knowledge
-
-#### Naming Convention Issue Conflict Detection
-
-```bash
-# Search for naming convention/rule Issues/ADRs
+# Naming Convention Conflict Detection
 shirokuma-flow issue search "naming convention rule" --limit 10
 shirokuma-flow discussion search "naming convention"
-```
 
-**Conflict detection judgment:**
-- A naming convention defined in a Closed Issue or Accepted ADR exists
-- AND current implementation code or new Issues do not comply with the naming convention
-
-#### Re-adoption Check Pattern
-
-```bash
-# Check for overlap between Deprecated/Superseded ADRs and new proposals
+# Re-adoption Check (overlap between Deprecated/Superseded ADRs and new proposals)
 shirokuma-flow discussion search "Deprecated Superseded"
 ```
 
-**Detection condition:** Detect patterns where technology selections or architecture approaches rejected in Deprecated/Superseded ADRs are being re-proposed in new Issues or current code.
+**Knowledge judgment:** Only classify a pattern as confirmed (Knowledge) when observed 2 or more times.
 
 ### Recording Evolution Signals
-
-When ADR lifecycle management patterns are detected, record the following signals in the Evolution Issue:
 
 ```bash
 cat > /tmp/shirokuma-flow/{evolution-number}-adr-signal.md <<'EOF'
@@ -244,6 +220,8 @@ cat > /tmp/shirokuma-flow/{evolution-number}-adr-signal.md <<'EOF'
 EOF
 shirokuma-flow issue comment {evolution-number} /tmp/shirokuma-flow/{evolution-number}-adr-signal.md
 ```
+
+> **Design background**: The definitions of the 3 pattern types, judgment conditions for each pattern, criteria for naming convention conflicts, and re-adoption detection conditions are documented in [`plugin/specs/skills/discovering-codebase-rules/DESIGN.md`](../../../specs/skills/discovering-codebase-rules/DESIGN.md).
 
 ## Existing Rule Deficiency Detection
 

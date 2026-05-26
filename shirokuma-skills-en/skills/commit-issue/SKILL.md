@@ -74,9 +74,11 @@ shirokuma-flow git commit-push -m "{type}: {description}" --issue {N}
 
 ### Step 3: Completion Report
 
-#### 6a: Post Issue Comment
+#### 3a: Post Issue Comment
 
-When the issue number is known, post the commit result as an Issue comment:
+**When invoked as a subagent (`commit-worker`) from the `implement-flow` chain**: Skip this step (3a) entirely. Deciding whether/what to comment is the caller manager's responsibility (`implement-flow`, etc.). Autonomous posting by the subagent causes unsolicited GitHub writes. See the `commit-worker` agent's prohibition list for details.
+
+**Only on standalone invocation (direct `/commit-issue`)**, when the issue number is known, post the commit result as an Issue comment:
 
 ```bash
 # Write to file first, then post with issue comment
@@ -95,7 +97,7 @@ shirokuma-flow issue comment {issue-number} /tmp/shirokuma-flow/{issue-number}-c
 
 Skip comment posting if the issue number is unknown (not derivable from branch name, not passed via context).
 
-#### 6b: Output Template
+#### 3b: Output Template
 
 Return the following structured data to the caller:
 
