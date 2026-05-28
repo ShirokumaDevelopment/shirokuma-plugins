@@ -15,7 +15,7 @@ Common post-processing chain shared by `implement-flow` and `review-flow`. Runs 
 | `implement-flow` | After PR creation (post-processing chain for steps 4-5) |
 | `review-flow` | After review fix commit (post-processing in step 5) |
 
-> **Design note**: The rationale for delegating `/simplify` and `reviewing-security` to the `finalize-worker` SubAgent for context isolation is documented in [`plugin/specs/skills/finalize-changes/DESIGN.md`](../../../specs/skills/finalize-changes/DESIGN.md).
+> **Design note**: The rationale for delegating `/simplify` and `reviewing-security` to the `finalize-worker` SubAgent for context isolation is documented in `pages/specs/skill-ja-finalize-changes/index.html`.
 
 ## Workflow
 

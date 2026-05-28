@@ -221,7 +221,7 @@ EOF
 shirokuma-flow issue comment {evolution-number} /tmp/shirokuma-flow/{evolution-number}-adr-signal.md
 ```
 
-> **Design background**: The definitions of the 3 pattern types, judgment conditions for each pattern, criteria for naming convention conflicts, and re-adoption detection conditions are documented in [`plugin/specs/skills/discovering-codebase-rules/DESIGN.md`](../../../specs/skills/discovering-codebase-rules/DESIGN.md).
+> **Design background**: The definitions of the 3 pattern types, judgment conditions for each pattern, criteria for naming convention conflicts, and re-adoption detection conditions are documented in `pages/specs/skill-ja-discovering-codebase-rules/index.html`.
 
 ## Existing Rule Deficiency Detection
 

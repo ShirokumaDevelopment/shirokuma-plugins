@@ -41,7 +41,7 @@ Decision:
 | All files are human docs only (none match the allowlist in `reviewing-security/SKILL.md`) | Log `SECURITY_SKIPPED: human-docs-only diff` and skip Step C |
 | At least one file matches the allowlist | Run `reviewing-security` in Step C |
 
-`reviewing-security` itself also has a skip check (defense in depth). See `plugin/specs/skills/finalize-changes/DESIGN.md` for the rationale of intentionally keeping the duplication and the retirement decision.
+`reviewing-security` itself also has a skip check (defense in depth). Step A's skip check and `reviewing-security`'s skip check are intentionally duplicated: Step A acts as a fast path that avoids calling `reviewing-security` altogether. The decision to retire the duplication is tracked in a separate Issue.
 
 ### Step B: Simplify (`/simplify`)
 

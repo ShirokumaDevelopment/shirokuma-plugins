@@ -49,7 +49,7 @@ Apply code fixes in response to review feedback **while the issue / plan issue s
 3. Reply / resolve threads via `pr reply` / `pr resolve`
 4. No status update (PR stays in Review, issue stays in In progress)
 
-> **Reference**: For details on the one-Review-per-entity principle, see the `project-items.md` Review section and [`plugin/specs/skills/review-flow/DESIGN.md`](../../../specs/skills/review-flow/DESIGN.md).
+> **Reference**: For details on the one-Review-per-entity principle, see the `project-items.md` Review section and `pages/specs/skill-ja-review-flow/index.html`.
 
 ### Step 1: Context Restoration (Required — Must Run First)
 

@@ -55,7 +55,7 @@ Issue の要件に関連するコードを調査する。
    - `i18n/cli/{ja,en}.json` のスキル説明文
    - `plugin/*/rules/` 内のスキル責務記述
    - `plugin/*/skills/*/reference/` 内の他スキル動作の前提記述
-   - `plugin/specs/skills/*/evals/` の評価シナリオ
+   - `plugin/evals/*/` の評価シナリオ
 
 ### ステップ 3: 計画策定
 

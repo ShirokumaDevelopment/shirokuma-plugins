@@ -49,7 +49,7 @@ PR 番号を受け取り、コードレビュー実行（`review-issue` Agent / 
 3. `pr reply` / `pr resolve` でスレッド対応
 4. ステータス更新は不要（PR は Review のまま、Issue は In progress のまま）
 
-> **参照**: 1 エンティティ 1 Review 原則の詳細は `project-items.md` Review セクション、および [`plugin/specs/skills/review-flow/DESIGN.md`](../../../specs/skills/review-flow/DESIGN.md) を参照。
+> **参照**: 1 エンティティ 1 Review 原則の詳細は `project-items.md` Review セクション、および `pages/specs/skill-ja-review-flow/index.html` を参照。
 
 ### ステップ 1: コンテキスト復元（必須・最初に実行）
 

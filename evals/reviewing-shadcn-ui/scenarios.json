@@ -1,0 +1,121 @@
+{
+  "skill_name": "reviewing-shadcn-ui",
+  "version": "0.3.0-alpha.40",
+  "scenarios": [
+    {
+      "id": "trigger-01",
+      "type": "trigger",
+      "prompt": "UIレビューして",
+      "expected": "should_trigger",
+      "rationale": "日本語の基本的な UI レビュートリガー"
+    },
+    {
+      "id": "trigger-02",
+      "type": "trigger",
+      "prompt": "shadcnレビューして #42",
+      "expected": "should_trigger",
+      "rationale": "shadcn レビューキーワード + Issue 番号"
+    },
+    {
+      "id": "trigger-03",
+      "type": "trigger",
+      "prompt": "Tailwindレビューして",
+      "expected": "should_trigger",
+      "rationale": "Tailwind レビューキーワード"
+    },
+    {
+      "id": "trigger-04",
+      "type": "trigger",
+      "prompt": "shadcn review",
+      "expected": "should_trigger",
+      "rationale": "英語キーワード"
+    },
+    {
+      "id": "trigger-05",
+      "type": "trigger",
+      "prompt": "コンポーネントレビューして",
+      "expected": "should_trigger",
+      "rationale": "コンポーネントレビューキーワード"
+    },
+    {
+      "id": "trigger-06",
+      "type": "trigger",
+      "prompt": "アクセシビリティレビューして",
+      "expected": "should_trigger",
+      "rationale": "アクセシビリティレビューキーワード"
+    },
+    {
+      "id": "trigger-07",
+      "type": "trigger",
+      "prompt": "Next.jsレビューして",
+      "expected": "should_not_trigger",
+      "rationale": "Next.js レビューは reviewing-nextjs の責務"
+    },
+    {
+      "id": "trigger-08",
+      "type": "trigger",
+      "prompt": "#42 やって",
+      "expected": "should_not_trigger",
+      "rationale": "作業実行は implement-flow の責務"
+    },
+    {
+      "id": "trigger-09",
+      "type": "trigger",
+      "prompt": "UI設計して",
+      "expected": "should_not_trigger",
+      "rationale": "設計は designing-shadcn-ui の責務"
+    },
+    {
+      "id": "quality-01",
+      "type": "quality",
+      "prompt": "#42（ユーザープロフィールモーダルの実装）の UI コードをレビューして",
+      "context": {
+        "issue_type": "Feature",
+        "has_pr": true,
+        "pr_contains": "Radix UI の Dialog を SSR 環境で mounted 状態チェックなしに使用、w-[--width] という Tailwind v4 非対応構文、aria-label 未設定のインタラクティブ要素"
+      },
+      "assertions": [
+        {
+          "text": "Radix UI の SSR ハイドレーションクラッシュリスクを Critical として報告し、mounted state パターンを提案する",
+          "category": "output"
+        },
+        {
+          "text": "Tailwind v4 非対応構文（w-[--width] → w-[var(--width)]）を Medium として指摘する",
+          "category": "output"
+        },
+        {
+          "text": "aria-label 未設定によるアクセシビリティ違反（WCAG AA）を High として報告する",
+          "category": "output"
+        },
+        {
+          "text": "レビュー結果を severity（Critical/High/Medium/Low）付きで分類して出力する",
+          "category": "convention"
+        }
+      ]
+    },
+    {
+      "id": "quality-02",
+      "type": "quality",
+      "prompt": "#43（検索フォームコンポーネントの実装）の UI コードをレビューして",
+      "context": {
+        "issue_type": "Feature",
+        "has_pr": true,
+        "pr_contains": "mounted state パターンを使用した Radix UI Popover、var() 構文を使った Tailwind CSS 変数、role と aria-label が適切に設定されたフォーム要素、デザイントークン（カラー・スペーシング）の統一使用"
+      },
+      "assertions": [
+        {
+          "text": "ベストプラクティスに準拠した実装を正しく評価し、偽陽性の指摘を出さない",
+          "category": "output"
+        },
+        {
+          "text": "レビューチェックリスト（ハイドレーション・Tailwind v4 構文・アクセシビリティ・デザイン一貫性）を網羅的に確認する",
+          "category": "workflow"
+        },
+        {
+          "text": "キーボード操作（Tab・Escape・Enter）が適切にサポートされているか確認する",
+          "category": "output"
+        }
+      ]
+    }
+  ]
+}

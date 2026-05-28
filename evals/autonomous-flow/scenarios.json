@@ -1,0 +1,178 @@
+{
+  "skill_name": "autonomous-flow",
+  "version": "0.3.0-alpha.142",
+  "scenarios": [
+    {
+      "id": "trigger-01",
+      "type": "trigger",
+      "prompt": "#101 #102 #103 を自律処理して",
+      "expected": "should_trigger",
+      "rationale": "「自律処理」キーワード + 複数 Issue 番号"
+    },
+    {
+      "id": "trigger-02",
+      "type": "trigger",
+      "prompt": "autopilot で #101 #102 を連続処理",
+      "expected": "should_trigger",
+      "rationale": "「autopilot」「連続処理」キーワード"
+    },
+    {
+      "id": "trigger-03",
+      "type": "trigger",
+      "prompt": "ToDo の Issue を自動処理して",
+      "expected": "should_trigger",
+      "rationale": "「自動処理」キーワード + ステータスフィルタ"
+    },
+    {
+      "id": "trigger-04",
+      "type": "trigger",
+      "prompt": "process these issues in autonomous mode",
+      "expected": "should_trigger",
+      "rationale": "英語の「autonomous mode」キーワード"
+    },
+    {
+      "id": "trigger-05",
+      "type": "trigger",
+      "prompt": "#201 #202 #203 をバッチ実行して",
+      "expected": "should_trigger",
+      "rationale": "「バッチ実行」キーワード + 複数 Issue"
+    },
+    {
+      "id": "trigger-06",
+      "type": "trigger",
+      "prompt": "run these in autopilot",
+      "expected": "should_trigger",
+      "rationale": "英語の「autopilot」キーワード"
+    },
+    {
+      "id": "trigger-07",
+      "type": "trigger",
+      "prompt": "自律モードで残りの Issue を片付けて",
+      "expected": "should_trigger",
+      "rationale": "「自律モード」キーワード"
+    },
+    {
+      "id": "trigger-08",
+      "type": "trigger",
+      "prompt": "#42 やって",
+      "expected": "should_not_trigger",
+      "rationale": "単一 Issue の通常実装は implement-flow の責務"
+    },
+    {
+      "id": "trigger-09",
+      "type": "trigger",
+      "prompt": "#42 に取り組む",
+      "expected": "should_not_trigger",
+      "rationale": "単一 Issue の通常処理は implement-flow の責務"
+    },
+    {
+      "id": "trigger-10",
+      "type": "trigger",
+      "prompt": "#42 の計画して",
+      "expected": "should_not_trigger",
+      "rationale": "計画策定は prepare-flow の責務"
+    },
+    {
+      "id": "trigger-11",
+      "type": "trigger",
+      "prompt": "#42 を承認して",
+      "expected": "should_not_trigger",
+      "rationale": "単一 Issue の承認は approve-flow の責務"
+    },
+    {
+      "id": "quality-01",
+      "type": "quality",
+      "prompt": "autopilot で #101 #102 #103 を自律処理して",
+      "context": {
+        "issue_states": {
+          "101": "ToDo（計画 Issue あり）",
+          "102": "Backlog",
+          "103": "ToDo（子 Issue なし）"
+        }
+      },
+      "assertions": [
+        {
+          "text": "--autopilot 起動時に包括委任の説明とキュー内容を提示し AskUserQuestion で最終確認を取る",
+          "category": "behavior"
+        },
+        {
+          "text": "Backlog の #102 はトリアージを submit（Backlog → Review）→ approve（Review → ToDo）の 2 ステップで自動通過する",
+          "category": "correctness"
+        },
+        {
+          "text": "approve は Review 状態でないと CLI がエラー拒否するため submit を先に実行する",
+          "category": "correctness"
+        },
+        {
+          "text": "各 Issue を sequential に 1 件ずつ処理し implement-flow を単一 Issue 番号で呼び出す（バッチモードを発火させない）",
+          "category": "correctness"
+        },
+        {
+          "text": "バッチサマリー Issue を作成し各自動承認を監査記録として残す",
+          "category": "behavior"
+        }
+      ]
+    },
+    {
+      "id": "quality-02",
+      "type": "quality",
+      "prompt": "--autopilot --status ToDo --limit 5 で自律処理",
+      "context": {
+        "matching_issues": 12
+      },
+      "assertions": [
+        {
+          "text": "ステータスフィルタで収集し --limit で先頭 5 件に絞る",
+          "category": "correctness"
+        },
+        {
+          "text": "件数上限を超える場合は警告 + トリミングし、エラー停止しない",
+          "category": "behavior"
+        }
+      ]
+    },
+    {
+      "id": "quality-03",
+      "type": "quality",
+      "prompt": "--autopilot --dry-run #101 #102 で自律処理",
+      "context": {},
+      "assertions": [
+        {
+          "text": "実際の操作を行わず予定アクションを表示する",
+          "category": "behavior"
+        },
+        {
+          "text": "トリアージは submit + approve の 2 ステップを明示する",
+          "category": "correctness"
+        },
+        {
+          "text": "dry-run のためバッチサマリー Issue を実際に作成せず、作成予定である旨の表示のみ行う",
+          "category": "correctness"
+        }
+      ]
+    },
+    {
+      "id": "quality-04",
+      "type": "quality",
+      "prompt": "autopilot で #101 #102 #103 #104 を処理（#101-#103 が連続失敗）",
+      "context": {
+        "max_failures": 3,
+        "failing_issues": ["101", "102", "103"]
+      },
+      "assertions": [
+        {
+          "text": "In progress 到達済みの失敗 Issue は block で In progress → Blocked に遷移する",
+          "category": "correctness"
+        },
+        {
+          "text": "In progress 未到達の失敗 Issue はステータス変更せずスキップしログ記録のみ",
+          "category": "correctness"
+        },
+        {
+          "text": "連続失敗が max-failures（3 件）に達したら全停止し未処理 Issue と推奨アクションを提示する",
+          "category": "behavior"
+        }
+      ]
+    }
+  ]
+}

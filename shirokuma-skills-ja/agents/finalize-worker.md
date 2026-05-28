@@ -41,7 +41,7 @@ git diff --name-only origin/develop...HEAD 2>/dev/null || git diff --name-only H
 | 全ファイルが人間向け docs のみ（`reviewing-security/SKILL.md` の allowlist にひとつも該当しない） | `SECURITY_SKIPPED: human-docs-only diff` をログ出力し、Step C をスキップ |
 | 1 ファイルでも allowlist に該当する | Step C で `reviewing-security` を実行 |
 
-`reviewing-security` 側にも skip 判定がある（防御的設計）。二重判定の意図的な維持と廃止判断は `plugin/specs/skills/finalize-changes/DESIGN.md` の設計根拠を参照。
+`reviewing-security` 側にも skip 判定がある（防御的設計）。Step A の skip 判定は `reviewing-security` の skip 判定と二重になるが、`reviewing-security` 呼び出し自体を省略する高速パスとして意図的に維持している。`reviewing-security` 廃止判断は別 Issue で扱う。
 
 ### Step B: コード簡略化（`/simplify`）
 

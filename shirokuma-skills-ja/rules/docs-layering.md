@@ -18,7 +18,7 @@ priority: recommended
 | コードと同期必須の reference | `.shirokuma/rules/{project}/` | コード変更と同一コミットで更新する |
 | プラグイン配布ルール（汎用・AI 向け） | `plugin/shirokuma-skills-{en,ja}/rules/` | `init` で展開、AI が実行時に参照 |
 | 人間向け説明・tutorial | `docs/` | 人間が読む。AI は通常参照しない |
-| スキル / ルールの設計ドキュメント | `plugin/specs/` | 設計メモ。実行時に AI は読まない |
+| スキル / ルール / ワークフローの仕様ドキュメント | `pages/specs/{slug}/index.html`（`pages/` サブモジュール内） | HTML が唯一の正本。設計背景・評価基準も含めて記述する |
 | 意思決定・議論ログ（ADR） | GitHub Discussion（ADR カテゴリ） | 永続的な意思決定の記録 |
 | 一時的な計画・TODO | Issue 本文 | 揮発的。完了したら消える |
 
@@ -40,8 +40,8 @@ Q3: アーキテクチャ上の意思決定を記録するものか？
 Q4: 一時的な計画・TODO か？
   → YES: Issue 本文に書く（docs/ やルールに書かない）
 
-Q5: スキル / ルールの設計背景・評価基準を記録するか？
-  → YES: plugin/specs/skills/{name}/DESIGN.md または plugin/specs/rules/（または同等の設計メモ置き場）に置く
+Q5: スキル / ルール / ワークフローの設計背景・評価基準を記録するか？
+  → YES: pages/specs/{slug}/index.html（プロジェクトに pages/ サブモジュール構成がある場合）または同等の仕様ドキュメント置き場に HTML / Markdown として記録する
 
 Q6: 人間が読む説明・チュートリアルか？
   → YES: docs/ に置く
@@ -63,13 +63,13 @@ Q6: 人間が読む説明・チュートリアルか？
 
 **判定基準**: 「他のプロジェクトでも使えるか？」→ YES なら plugin rule、NO なら project rule。
 
-### 3. skill spec（`plugin/specs/`）vs SKILL.md
+### 3. skill spec（`pages/specs/`）vs SKILL.md
 
 **SKILL.md**: AI がスキル実行時に読む「作業手順書」。500 行以内厳守。
 
-**plugin/specs/skills/{name}/DESIGN.md**: スキルの設計背景・代替案の検討記録・評価基準。実行時には不要。人間がスキルを改善するときに参照する。
+**pages/specs/{slug}/index.html**: スキルの設計背景・代替案の検討記録・評価基準を HTML 仕様ページとして記録する。実行時には不要で、人間がスキルを改善するときに参照する。
 
-**判定基準**: 「AI がこのスキルを実行するために必要か？」→ YES なら SKILL.md、NO なら plugin/specs/
+**判定基準**: 「AI がこのスキルを実行するために必要か？」→ YES なら SKILL.md、NO なら pages/specs/（プロジェクトに pages/ サブモジュール構成がある場合）または同等の仕様ドキュメント置き場
 
 ### 4. ADR（GitHub Discussion）vs reference doc
 
@@ -101,7 +101,7 @@ Q6: 人間が読む説明・チュートリアルか？
 - [ ] `plugin/` 配下のルール追加 → `rules-index.md` も更新した
 - [ ] `.shirokuma/rules/{project}/` 追加 → CLAUDE.md のルールテーブルに追記した（必要な場合）
 - [ ] ADR として記録する場合 → `write-adr` スキルを使用した
-- [ ] SKILL.md が 500 行を超えそう → 設計メモは `plugin/specs/` に移動した
+- [ ] SKILL.md が 500 行を超えそう → 設計背景・代替案は `pages/specs/{slug}/index.html`（または同等の仕様ドキュメント置き場）に移動した
 - [ ] plugin ルール → EN/JA 両方に同内容（対訳）を作成した
 
 ## 関連ルール

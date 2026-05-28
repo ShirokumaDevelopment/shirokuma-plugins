@@ -1,0 +1,121 @@
+{
+  "skill_name": "reviewing-nextjs",
+  "version": "0.3.0-alpha.40",
+  "scenarios": [
+    {
+      "id": "trigger-01",
+      "type": "trigger",
+      "prompt": "Next.jsレビューして",
+      "expected": "should_trigger",
+      "rationale": "日本語の基本的な Next.js レビュートリガー"
+    },
+    {
+      "id": "trigger-02",
+      "type": "trigger",
+      "prompt": "App Routerレビューして #42",
+      "expected": "should_trigger",
+      "rationale": "App Router レビューキーワード + Issue 番号"
+    },
+    {
+      "id": "trigger-03",
+      "type": "trigger",
+      "prompt": "Server Actionsレビューして",
+      "expected": "should_trigger",
+      "rationale": "Server Actions レビューキーワード"
+    },
+    {
+      "id": "trigger-04",
+      "type": "trigger",
+      "prompt": "nextjs review",
+      "expected": "should_trigger",
+      "rationale": "英語キーワード"
+    },
+    {
+      "id": "trigger-05",
+      "type": "trigger",
+      "prompt": "フレームワークレビューして",
+      "expected": "should_trigger",
+      "rationale": "フレームワークレビューキーワード"
+    },
+    {
+      "id": "trigger-06",
+      "type": "trigger",
+      "prompt": "Drizzleレビューして",
+      "expected": "should_not_trigger",
+      "rationale": "Drizzle レビューは reviewing-drizzle の責務"
+    },
+    {
+      "id": "trigger-07",
+      "type": "trigger",
+      "prompt": "UIレビューして",
+      "expected": "should_not_trigger",
+      "rationale": "UI レビューは reviewing-shadcn-ui の責務"
+    },
+    {
+      "id": "trigger-08",
+      "type": "trigger",
+      "prompt": "#42 やって",
+      "expected": "should_not_trigger",
+      "rationale": "作業実行は implement-flow の責務"
+    },
+    {
+      "id": "trigger-09",
+      "type": "trigger",
+      "prompt": "Next.js設計して",
+      "expected": "should_not_trigger",
+      "rationale": "設計は designing-nextjs の責務"
+    },
+    {
+      "id": "quality-01",
+      "type": "quality",
+      "prompt": "#42（ユーザーダッシュボードページ追加）の Next.js コードをレビューして",
+      "context": {
+        "issue_type": "Feature",
+        "has_pr": true,
+        "pr_contains": "app/dashboard/page.tsx に 'use client' を付けてデータフェッチ、Server Actions で認証チェックなし"
+      },
+      "assertions": [
+        {
+          "text": "Server Components でデータフェッチ可能な箇所への 'use client' 過剰使用を指摘する",
+          "category": "output"
+        },
+        {
+          "text": "Server Actions の認証チェック不足を Critical として報告する",
+          "category": "output"
+        },
+        {
+          "text": "SC/CC 境界の改善案を具体的に提示する",
+          "category": "output"
+        },
+        {
+          "text": "レビュー結果を severity（Critical/High/Medium/Low）付きで分類して出力する",
+          "category": "convention"
+        }
+      ]
+    },
+    {
+      "id": "quality-02",
+      "type": "quality",
+      "prompt": "#43（商品一覧ページの最適化）の Next.js コードをレビューして",
+      "context": {
+        "issue_type": "Feature",
+        "has_pr": true,
+        "pr_contains": "Server Component でデータフェッチ、next/image 使用、適切なキャッシュ設定、Server Actions に認証・バリデーション実装済み"
+      },
+      "assertions": [
+        {
+          "text": "ベストプラクティスに準拠した実装を正しく評価し、偽陽性の指摘を出さない",
+          "category": "output"
+        },
+        {
+          "text": "レビューチェックリスト（App Router・SC/CC 境界・Server Actions・パフォーマンス・セキュリティ・i18n）を網羅的に確認する",
+          "category": "workflow"
+        },
+        {
+          "text": "問題がない観点については明示的に「問題なし」と記録する",
+          "category": "convention"
+        }
+      ]
+    }
+  ]
+}

@@ -26,7 +26,7 @@ Don't use this when a short explanation or plain Markdown is enough.
 
 The HTML this skill produces follows 7 output constraints: **single-page complete / zero external CSS / 3 specified fonts only / built-in dark mode / HSP-aware warm palette / semantic color coding / SVG theme-following**.
 
-> **Full definitions** (font names, color palette, SVG rules, etc.) are at [`/specs/skill-ja-writing-html-explainer/#design-output-constraints`](https://shirokuma-flow-pages.gadget.to/specs/skill-ja-writing-html-explainer/#design-output-constraints).
+> **Full definitions** (font names, color palette, SVG rules, etc.) are at [`/specs/skill-writing-html-explainer/#design-output-constraints`](https://shirokuma-flow-pages.gadget.to/specs/skill-writing-html-explainer/#design-output-constraints).
 
 ## Workflow
 
@@ -105,7 +105,7 @@ What is the report type?
 | Design review for Issue #N | `design-review` | `reviews` | `design-{N}` |
 | Incident report from 2026-05 | `postmortem` | `incidents` | `2026-05-outage` |
 | Epic #N plan doc | `implementation-plan` | `issues` | `{N}` |
-| Permanent spec (skill doc etc.) | `default` | `specs` | `skill-ja-implement-flow` |
+| Permanent spec (skill doc etc.) | `default` | `specs` | `skill-implement-flow` |
 | Issue supplement (temporary explainer) | `default` | `explainers` | `concept-workflow` |
 
 The full category ↔ report-type mapping is in [`html-report-criteria.md`](../../rules/html-report-criteria.md) §4.
@@ -335,7 +335,7 @@ After pushing to `main`, the change is **published according to the project's ho
 ```
 
 Examples:
-- `specs` → `{baseUrl}/specs/skill-ja-implement-flow/`
+- `specs` → `{baseUrl}/specs/skill-implement-flow/`
 - `explainers` → `{baseUrl}/explainers/concept-workflow/`
 - `issues/{number}` → `{baseUrl}/issues/{number}/`
 

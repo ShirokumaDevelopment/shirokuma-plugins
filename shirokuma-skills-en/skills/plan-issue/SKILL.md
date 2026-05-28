@@ -55,7 +55,7 @@ Investigate code related to the issue requirements.
    - `i18n/cli/{ja,en}.json` skill descriptions
    - `plugin/*/rules/` skill responsibility descriptions
    - `plugin/*/skills/*/reference/` descriptions referencing other skill behavior
-   - `plugin/specs/skills/*/evals/` evaluation scenarios
+   - `plugin/evals/*/` evaluation scenarios
 
 ### Step 3: Create Plan
 

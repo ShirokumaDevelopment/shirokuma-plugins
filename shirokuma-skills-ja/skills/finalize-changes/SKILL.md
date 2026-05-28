@@ -15,7 +15,7 @@ allowed-tools: Bash, Agent
 | `implement-flow` | PR 作成後（ステップ 4-5 の後処理チェーン） |
 | `review-flow` | レビュー修正コミット後（ステップ 5 の後処理） |
 
-> **設計メモ**: `/simplify` と `reviewing-security` を `finalize-worker` SubAgent に委任してコンテキスト分離する設計の背景は [`plugin/specs/skills/finalize-changes/DESIGN.md`](../../../specs/skills/finalize-changes/DESIGN.md) を参照。
+> **設計メモ**: `/simplify` と `reviewing-security` を `finalize-worker` SubAgent に委任してコンテキスト分離する設計の背景は `pages/specs/skill-ja-finalize-changes/index.html` を参照。
 
 ## ワークフロー
 

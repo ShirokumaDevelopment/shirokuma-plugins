@@ -1,0 +1,121 @@
+{
+  "skill_name": "reviewing-drizzle",
+  "version": "0.3.0-alpha.40",
+  "scenarios": [
+    {
+      "id": "trigger-01",
+      "type": "trigger",
+      "prompt": "Drizzleレビューして",
+      "expected": "should_trigger",
+      "rationale": "日本語の基本的な Drizzle レビュートリガー"
+    },
+    {
+      "id": "trigger-02",
+      "type": "trigger",
+      "prompt": "スキーマレビューして #42",
+      "expected": "should_trigger",
+      "rationale": "スキーマレビューキーワード + Issue 番号"
+    },
+    {
+      "id": "trigger-03",
+      "type": "trigger",
+      "prompt": "クエリレビューして",
+      "expected": "should_trigger",
+      "rationale": "クエリレビューキーワード"
+    },
+    {
+      "id": "trigger-04",
+      "type": "trigger",
+      "prompt": "drizzle review",
+      "expected": "should_trigger",
+      "rationale": "英語キーワード"
+    },
+    {
+      "id": "trigger-05",
+      "type": "trigger",
+      "prompt": "マイグレーションレビューして",
+      "expected": "should_trigger",
+      "rationale": "マイグレーションレビューキーワード"
+    },
+    {
+      "id": "trigger-06",
+      "type": "trigger",
+      "prompt": "ORMレビューして",
+      "expected": "should_trigger",
+      "rationale": "ORM レビューキーワード"
+    },
+    {
+      "id": "trigger-07",
+      "type": "trigger",
+      "prompt": "Next.jsレビューして",
+      "expected": "should_not_trigger",
+      "rationale": "Next.js レビューは reviewing-nextjs の責務"
+    },
+    {
+      "id": "trigger-08",
+      "type": "trigger",
+      "prompt": "#42 やって",
+      "expected": "should_not_trigger",
+      "rationale": "作業実行は implement-flow の責務"
+    },
+    {
+      "id": "trigger-09",
+      "type": "trigger",
+      "prompt": "データモデル設計して",
+      "expected": "should_not_trigger",
+      "rationale": "設計は designing-drizzle の責務"
+    },
+    {
+      "id": "quality-01",
+      "type": "quality",
+      "prompt": "#42（注文テーブルのカラム削除マイグレーション）の Drizzle コードをレビューして",
+      "context": {
+        "issue_type": "Feature",
+        "has_pr": true,
+        "pr_contains": "orders テーブルから legacy_status カラムを削除するマイグレーション、既存データの移行処理なし、ループ内でクエリを実行するコード"
+      },
+      "assertions": [
+        {
+          "text": "カラム削除マイグレーションによるデータ消失リスクを Critical として報告する",
+          "category": "output"
+        },
+        {
+          "text": "ループ内クエリ（N+1 問題）を High として検出し、Drizzle Relations API による解決策を提示する",
+          "category": "output"
+        },
+        {
+          "text": "マイグレーション前のデータバックアップ・移行戦略を提案する",
+          "category": "output"
+        },
+        {
+          "text": "レビュー結果を severity（Critical/High/Medium/Low）付きで分類して出力する",
+          "category": "convention"
+        }
+      ]
+    },
+    {
+      "id": "quality-02",
+      "type": "quality",
+      "prompt": "#43（ユーザーロール管理のスキーマ追加）の Drizzle コードをレビューして",
+      "context": {
+        "issue_type": "Feature",
+        "has_pr": true,
+        "pr_contains": "roles テーブルと user_roles 中間テーブルを追加、適切な外部キー制約とインデックス設定、withRelations を使用したクエリ、Better Auth との統合を考慮"
+      },
+      "assertions": [
+        {
+          "text": "ベストプラクティスに準拠したスキーマ設計を正しく評価し、偽陽性の指摘を出さない",
+          "category": "output"
+        },
+        {
+          "text": "レビューチェックリスト（スキーマ設計・クエリ品質・マイグレーション安全性・Better Auth 統合）を網羅的に確認する",
+          "category": "workflow"
+        },
+        {
+          "text": "インデックス戦略がクエリパターンに合致しているか評価する",
+          "category": "output"
+        }
+      ]
+    }
+  ]
+}

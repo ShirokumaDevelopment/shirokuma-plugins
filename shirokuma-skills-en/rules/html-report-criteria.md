@@ -213,7 +213,6 @@ A line-count difference of ≥ 50 is warned as **suspected content drift** (not 
 
 ### Related References
 
-- The "Multilingual support" section of `plugin/specs/skills/writing-html-explainer/DESIGN.md` (supplementary implementation guide and command examples)
 - `skill-scope-boundaries` rule (skill responsibility boundaries)
 - Step 2b of `plugin/shirokuma-skills-*/skills/auditing-docs/SKILL.md`
 

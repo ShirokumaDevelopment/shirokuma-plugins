@@ -221,7 +221,7 @@ EOF
 shirokuma-flow issue comment {evolution-number} /tmp/shirokuma-flow/{evolution-number}-adr-signal.md
 ```
 
-> **設計背景**: 3 種類のパターン定義・各パターンの判定条件詳細・命名規則矛盾の判定基準・re-adoption 検知条件は [`plugin/specs/skills/discovering-codebase-rules/DESIGN.md`](../../../specs/skills/discovering-codebase-rules/DESIGN.md) を参照。
+> **設計背景**: 3 種類のパターン定義・各パターンの判定条件詳細・命名規則矛盾の判定基準・re-adoption 検知条件は `pages/specs/skill-ja-discovering-codebase-rules/index.html` を参照。
 
 ## 既存ルール不備の検出
 

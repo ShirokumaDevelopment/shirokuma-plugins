@@ -1,0 +1,131 @@
+{
+  "skill_name": "write-adr",
+  "version": "0.3.0-alpha.32",
+  "scenarios": [
+    {
+      "id": "trigger-01",
+      "type": "trigger",
+      "prompt": "ADR を作成して",
+      "expected": "should_trigger",
+      "rationale": "日本語の基本的な ADR 作成トリガー"
+    },
+    {
+      "id": "trigger-02",
+      "type": "trigger",
+      "prompt": "この決定を記録して",
+      "expected": "should_trigger",
+      "rationale": "意思決定記録キーワード"
+    },
+    {
+      "id": "trigger-03",
+      "type": "trigger",
+      "prompt": "アーキテクチャ決定を ADR にまとめて",
+      "expected": "should_trigger",
+      "rationale": "アーキテクチャ決定 + ADR キーワード"
+    },
+    {
+      "id": "trigger-04",
+      "type": "trigger",
+      "prompt": "PostgreSQL を選定した理由を ADR に残して",
+      "expected": "should_trigger",
+      "rationale": "技術選定の記録リクエスト"
+    },
+    {
+      "id": "trigger-05",
+      "type": "trigger",
+      "prompt": "write ADR for our auth decision",
+      "expected": "should_trigger",
+      "rationale": "英語での ADR 作成トリガー"
+    },
+    {
+      "id": "trigger-06",
+      "type": "trigger",
+      "prompt": "#42 やって",
+      "expected": "should_not_trigger",
+      "rationale": "作業実行は implement-flow の責務"
+    },
+    {
+      "id": "trigger-07",
+      "type": "trigger",
+      "prompt": "マニュアルを作成して",
+      "expected": "should_not_trigger",
+      "rationale": "マニュアル作成は writing-manual の責務"
+    },
+    {
+      "id": "trigger-08",
+      "type": "trigger",
+      "prompt": "Discussion を作成して",
+      "expected": "should_not_trigger",
+      "rationale": "一般的な Discussion 作成は issue-flow の責務"
+    },
+    {
+      "id": "quality-01",
+      "type": "quality",
+      "prompt": "PostgreSQL を MongoDB より選定した決定を ADR にして",
+      "context": {
+        "existing_adrs": ["ADR-001", "ADR-002", "ADR-003"],
+        "decision_context": "データの整合性重視、既存チームの SQL 経験、トランザクション要件"
+      },
+      "assertions": [
+        {
+          "text": "shirokuma-flow discussion adr list で既存 ADR を検索する",
+          "category": "workflow"
+        },
+        {
+          "text": "代替案（MongoDB）の利点・欠点を含む ADR コンテンツを生成する",
+          "category": "output"
+        },
+        {
+          "text": "shirokuma-flow discussion adr create で Discussion を作成する",
+          "category": "tooling"
+        },
+        {
+          "text": "完了レポートに ADR 番号と Discussion 番号を含める",
+          "category": "output"
+        }
+      ]
+    },
+    {
+      "id": "quality-02",
+      "type": "quality",
+      "prompt": "認証方式を JWT から DB セッションに変更する決定を ADR に記録して。ADR-002 を置換する形で",
+      "context": {
+        "existing_adrs": ["ADR-001", "ADR-002: JWT Authentication"],
+        "decision_context": "セキュリティ要件強化、セッション無効化の必要性"
+      },
+      "assertions": [
+        {
+          "text": "ADR-002 との関連を確認し Supersedes リンクを含める",
+          "category": "workflow"
+        },
+        {
+          "text": "旧 ADR（ADR-002）の本文に Superseded by を追記する",
+          "category": "output"
+        },
+        {
+          "text": "不足情報がある場合 AskUserQuestion で確認する",
+          "category": "tooling"
+        }
+      ]
+    },
+    {
+      "id": "quality-03",
+      "type": "quality",
+      "prompt": "CSS フレームワークに Tailwind を採用した決定を軽量 ADR で記録して",
+      "context": {
+        "existing_adrs": [],
+        "decision_context": "チーム全員が Tailwind 経験あり、単一の選択肢"
+      },
+      "assertions": [
+        {
+          "text": "軽量 ADR テンプレートを選択する（標準テンプレートではない）",
+          "category": "workflow"
+        },
+        {
+          "text": "コンテキスト・決定・結果の3セクションで構成する",
+          "category": "output"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,167 @@
+{
+  "skill_name": "designing-generic",
+  "version": "0.3.0-alpha.53",
+  "scenarios": [
+    {
+      "id": "trigger-01",
+      "type": "trigger",
+      "prompt": "CLI のアーキテクチャ設計をして",
+      "expected": "should_trigger",
+      "rationale": "CLI 設計キーワード"
+    },
+    {
+      "id": "trigger-02",
+      "type": "trigger",
+      "prompt": "モジュール構成を設計して #42",
+      "expected": "should_trigger",
+      "rationale": "モジュール設計キーワード + Issue 番号"
+    },
+    {
+      "id": "trigger-03",
+      "type": "trigger",
+      "prompt": "インターフェース設計して",
+      "expected": "should_trigger",
+      "rationale": "インターフェース設計キーワード"
+    },
+    {
+      "id": "trigger-04",
+      "type": "trigger",
+      "prompt": "移行設計して",
+      "expected": "should_trigger",
+      "rationale": "移行設計キーワード"
+    },
+    {
+      "id": "trigger-05",
+      "type": "trigger",
+      "prompt": "ビルドパイプラインの設計をして",
+      "expected": "should_trigger",
+      "rationale": "ビルドパイプライン設計キーワード"
+    },
+    {
+      "id": "trigger-06",
+      "type": "trigger",
+      "prompt": "module architecture design",
+      "expected": "should_trigger",
+      "rationale": "英語キーワード"
+    },
+    {
+      "id": "trigger-07",
+      "type": "trigger",
+      "prompt": "#42 やって",
+      "expected": "should_not_trigger",
+      "rationale": "作業実行は implement-flow の責務"
+    },
+    {
+      "id": "trigger-08",
+      "type": "trigger",
+      "prompt": "UI デザインして",
+      "expected": "should_not_trigger",
+      "rationale": "UI デザインは designing-shadcn-ui の責務"
+    },
+    {
+      "id": "trigger-09",
+      "type": "trigger",
+      "prompt": "データモデル設計して",
+      "expected": "should_not_trigger",
+      "rationale": "データモデル設計は designing-drizzle の責務"
+    },
+    {
+      "id": "trigger-10",
+      "type": "trigger",
+      "prompt": "コンポーネント設計して",
+      "expected": "should_not_trigger",
+      "rationale": "コンポーネント設計は designing-nextjs の責務"
+    },
+    {
+      "id": "trigger-11",
+      "type": "trigger",
+      "prompt": "レビューして",
+      "expected": "should_not_trigger",
+      "rationale": "レビューは review-issue の責務"
+    },
+    {
+      "id": "trigger-12",
+      "type": "trigger",
+      "prompt": "計画して #42",
+      "expected": "should_not_trigger",
+      "rationale": "計画は plan-issue の責務"
+    },
+    {
+      "id": "quality-01",
+      "type": "quality",
+      "prompt": "#42（CLI コマンド体系の再編成）のアーキテクチャを設計して",
+      "context": {
+        "issue_type": "Feature",
+        "has_plan": true,
+        "plan_contains": "コマンド分割、サブコマンド整理、ヘルプテキスト統一"
+      },
+      "assertions": [
+        {
+          "text": "プロジェクトの CLAUDE.md と tech-stack.md を確認してスタック情報を把握する",
+          "category": "workflow"
+        },
+        {
+          "text": "モジュール構成（ディレクトリ構造またはモジュール依存グラフ）を出力する",
+          "category": "output"
+        },
+        {
+          "text": "主要決定事項テーブルに選択の根拠を記載する",
+          "category": "output"
+        },
+        {
+          "text": "レビューチェックリストの項目を確認する",
+          "category": "workflow"
+        }
+      ]
+    },
+    {
+      "id": "quality-02",
+      "type": "quality",
+      "prompt": "#42（パーサーモジュールのリファクタリング）の移行設計をして",
+      "context": {
+        "issue_type": "Refactor",
+        "has_plan": true,
+        "existing_code": "src/parsers/ に複数のパーサーが密結合",
+        "plan_contains": "パーサーの分離、共通インターフェース抽出、段階的移行"
+      },
+      "assertions": [
+        {
+          "text": "インターフェース定義（TypeScript 形式）を含める",
+          "category": "output"
+        },
+        {
+          "text": "移行計画（既存コードからの段階的移行手順）を含める",
+          "category": "output"
+        },
+        {
+          "text": "既存コードパターンとの整合性を確認する",
+          "category": "convention"
+        }
+      ]
+    },
+    {
+      "id": "quality-03",
+      "type": "quality",
+      "prompt": "#42（プラグインシステムの拡張ポイント追加）のアーキテクチャ設計をして",
+      "context": {
+        "issue_type": "Feature",
+        "has_plan": true,
+        "plan_contains": "プラグイン拡張ポイント、動的ロード、型安全な API"
+      },
+      "assertions": [
+        {
+          "text": "設計観点（モジュール構成、インターフェース設計、依存性管理）を網羅する",
+          "category": "output"
+        },
+        {
+          "text": "アンチパターン（過度な抽象化、循環依存等）を回避していることを確認する",
+          "category": "convention"
+        },
+        {
+          "text": "design-flow 経由の場合は制御をオーケストレーターに返す旨を案内する",
+          "category": "tooling"
+        }
+      ]
+    }
+  ]
+}
