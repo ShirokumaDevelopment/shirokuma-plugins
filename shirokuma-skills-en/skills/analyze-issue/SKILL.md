@@ -40,7 +40,7 @@ Based on user request, select the appropriate role:
 
 > **HTML Template column**: the `template_name` value returned to the calling orchestrator in Step 7 "HTML Report Decision". The canonical mapping of templates to roles is defined in [`html-report-criteria.md`](../../rules/html-report-criteria.md) §3.
 
-**HTML decision skip condition**: After role selection, if a PASS verdict with zero findings and a report under 80 lines is already certain, the structured output in Step 7 may return `html_report_required: false` (the canonical threshold lives in `html-report-criteria.md` §2).
+**HTML decision skip condition**: After role selection, if a PASS verdict with zero findings and a report under 80 lines is already certain, the structured output in Step 7 may return `html_report_required: false` (the canonical threshold lives in `html-report-criteria.md` §2). **Exception: the `requirements` role (`report_type: requirements-review`) is in `always_html_types` and is exempt from this skip condition — always return `html_report_required: true`.**
 
 ### 2. Load Knowledge
 

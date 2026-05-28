@@ -43,6 +43,9 @@ paths:
 | 報告タイプ固有（常時 HTML 化） | `postmortem` | 障害報告は常に構造化表示が必要 |
 | 報告タイプ固有（常時 HTML 化） | `security-pr-review`（`reviewing-security` の実行結果） | PR セキュリティレビューは常に構造化表示が必要 |
 | 報告タイプ固有（常時 HTML 化） | `implement-flow-summary` | PR 作業サマリーは PR ページとセットで常に HTML 化する |
+| 報告タイプ固有（常時 HTML 化） | `requirements-review`（`analyze-issue requirements` の実行結果） | 要件レビューはトリアージ経路での人間レビュー必須ステージであり常に構造化表示が必要 |
+
+> **人間レビュー必須ステージのポリシー**: 人間がレビューを行う必要があるステージ（トリアージ提出・PR セキュリティレビュー・障害報告・実装サマリーなど）は、閾値に関わらず常時 HTML 化の対象とする。将来新規フローを追加する際も、人間レビューが必要なレポートタイプは `always_html_types` に追加すること。**`always_html_types` 配列と §2 テーブルが真実の正本**。本散文は意図の説明であり、実際の登録は配列とテーブルで行うこと（設計レビューへの適用は別途フォローアップ Issue で追加予定）。
 
 > **注**: 判定では Critical + High の合計のみを使用する。レポート本文の「問題サマリー表」では Critical / High / Medium / Low を個別に表示するが、判定式と表示項目を混同しないこと。
 
@@ -114,7 +117,7 @@ paths:
 ### 5-2. 判定式（擬似コード）
 
 ```
-always_html_types = ["postmortem", "security-pr-review", "implement-flow-summary"]
+always_html_types = ["postmortem", "security-pr-review", "implement-flow-summary", "requirements-review"]
 
 should_html = (
   report_type in always_html_types

@@ -138,20 +138,18 @@ Args: requirements #{issue-number}
 
 #### HTML 化（requirements PASS 後）
 
-`html-report-criteria.md` §2 の閾値判定に従い、HTML 化要否を判定する（常時 HTML 化ではなく、行数 / KB / Critical+High 件数の閾値チェックを適用）。
+`requirements-review` は `html-report-criteria.md` §2 の `always_html_types` 対象のため、**閾値に関わらず常時 HTML 化**を実施する。
 
-HTML 化条件を満たす場合:
 ```text
 Skill(
   skill: "writing-html-explainer",
-  args: "--template review-summary --category issues --slug {issue-number} --title \"Issue #{issue-number} 要件レビュー\" --source-report /tmp/shirokuma-flow/{issue-number}-requirements-review.md"
+  args: "--template review-summary --category issues --slug {issue-number} --title \"Issue #{issue-number} 要件レビュー\" --source-report /tmp/shirokuma-flow/{issue-number}-analyze-report.md"
 )
 ```
 
 - カテゴリ: `issues`、slug: `{issue-number}`（`html-report-criteria.md` §4 参照）
 - テンプレート: `review-summary`（要件レビュー結果のため）
 - HTML 生成成功後: 公開 URL を Issue コメントに追記し、完了レポートに URL を含める
-- HTML 化 NO の場合: 従来通り Markdown コメントのみ
 
 ### ステップ 3: ユーザーに返す
 

@@ -42,6 +42,9 @@ Perform HTML promotion if **any one** of the following is met. If none are met, 
 | Report-type specific (always HTML) | `postmortem` | Incident reports always need structured display |
 | Report-type specific (always HTML) | `security-pr-review` (result of `reviewing-security`) | PR security reviews always need structured display |
 | Report type–specific (always HTML) | `implement-flow-summary` | PR work summaries are always HTML alongside the PR master page |
+| Report type–specific (always HTML) | `requirements-review` (result of `analyze-issue requirements`) | Requirements reviews are a mandatory human-review stage in the triage path and always need structured display |
+
+> **Policy for mandatory human-review stages**: Any stage that requires human review (triage submission, PR security review, incident report, work summary, etc.) is always promoted to HTML regardless of thresholds. When adding new flows in future, add the corresponding report type to `always_html_types`. **The `always_html_types` array and the §2 table are the authoritative source of truth**; this prose describes the intent, and actual registration must be done in the array and table (design-review integration is tracked as a follow-up).
 
 > **Note**: the decision uses only the Critical + High total. The report body's "finding summary table" displays Critical / High / Medium / Low individually, but do not conflate the decision formula with the displayed items.
 
@@ -113,7 +116,7 @@ Reporting skills (`analyze-issue` / `review-issue` / `review-flow` / `auditing-d
 ### 5-2. Decision Formula (pseudocode)
 
 ```
-always_html_types = ["postmortem", "security-pr-review", "implement-flow-summary"]
+always_html_types = ["postmortem", "security-pr-review", "implement-flow-summary", "requirements-review"]
 
 should_html = (
   report_type in always_html_types

@@ -138,20 +138,18 @@ When `Project Requirement Consistency` is `NEEDS_REVISION`: Present the conflict
 
 #### HTML Promotion (after requirements PASS)
 
-Decide whether to promote to HTML following the §2 threshold check in `html-report-criteria.md` (not always-HTML; apply the line count / KB / Critical+High count threshold check).
+`requirements-review` is in `always_html_types` in `html-report-criteria.md` §2, so **always promote to HTML regardless of thresholds**.
 
-When the HTML promotion condition is met:
 ```text
 Skill(
   skill: "writing-html-explainer",
-  args: "--template review-summary --category issues --slug {issue-number} --title \"Issue #{issue-number} Requirements Review\" --source-report /tmp/shirokuma-flow/{issue-number}-requirements-review.md"
+  args: "--template review-summary --category issues --slug {issue-number} --title \"Issue #{issue-number} Requirements Review\" --source-report /tmp/shirokuma-flow/{issue-number}-analyze-report.md"
 )
 ```
 
 - Category: `issues`, slug: `{issue-number}` (see `html-report-criteria.md` §4)
 - Template: `review-summary` (requirements review result)
 - After HTML generation succeeds: append the public URL to the Issue comment and include the URL in the completion report
-- When HTML is NO: keep the Markdown comment only, as before
 
 ### Step 3: Return to User
 

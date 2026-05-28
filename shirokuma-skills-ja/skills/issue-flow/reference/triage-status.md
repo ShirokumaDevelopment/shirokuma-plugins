@@ -49,6 +49,30 @@ Args: requirements #{number}
 
 > **`**設計要否:**` / `**プロジェクト要件整合性:**` の扱い**: `analyze-issue requirements` はこれらのフィールドも出力するが、トリアージ経路では `**レビュー結果:**` のみを消費する。`**設計要否:**` に基づく 3 方向分岐（design-flow / prepare-flow / implement-flow）はトリアージの責務外（新規作成フロー ステップ 3 が担う）。`**プロジェクト要件整合性:** NEEDS_REVISION` かつ `**レビュー結果:** PASS` のケースも submit をブロックしない（整合性問題の解消は提出後の設計・計画フェーズで対応）。
 
+### (b-1b) HTML 化（submit 前）
+
+`requirements-review` は `html-report-criteria.md` の `always_html_types` 対象のため、**常時 HTML 化**を実施する。submit 前に以下の手順で HTML 生成済みかを確認し、未生成なら生成する。
+
+**HTML 生成済み判定**: `shirokuma-flow issue context {number}` の `recent_comments` 内に `/issues/{number}/` を含む pages URL（ホスト部は `.shirokuma/config.yaml` の `pages.baseUrl` を参照）を含むコメントが存在すれば生成済みとしてスキップ。
+
+> **注**: URL 照合方式のため、コメントが削除された場合は再生成される（冗長性のみで実害なし）。
+
+未生成の場合: まず要件レビューコメントを抽出してから `writing-html-explainer` を Skill ツールで呼び出す。テンプレート・カテゴリ・slug は `html-report-criteria.md` §3・§4 に基づき:
+
+**抽出手順**:
+1. `shirokuma-flow issue comments {number}` で `**レビュー結果:**` を含むコメント本文を取得
+2. Write ツールで `/tmp/shirokuma-flow/{number}-requirements-review-extracted.md` に保存
+3. このファイルパスを `--source-report` に渡す
+
+```text
+Skill(
+  skill: "writing-html-explainer",
+  args: "--template review-summary --category issues --slug {issue-number} --title \"Issue #{issue-number} 要件レビュー\" --source-report /tmp/shirokuma-flow/{number}-requirements-review-extracted.md"
+)
+```
+
+HTML 生成成功後: 公開 URL を Issue コメントに追記してから次の (b-2) へ進む。
+
 ### (b-2) submit
 
 `submit` コマンドで課題 Issue を Review（トリアージ承認待ち）に提出する。**ユーザー確認なしで即時実行する**（「チェック自動判定ロジック」参照）:

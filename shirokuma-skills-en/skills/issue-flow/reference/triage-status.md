@@ -49,6 +49,30 @@ Args: requirements #{number}
 
 > **Handling `**Design assessment:**` and `**Project Requirement Consistency:**`**: `analyze-issue requirements` also outputs these fields, but in the triage path only `**Review result:**` is consumed. The 3-way branch based on `**Design assessment:**` (design-flow / prepare-flow / implement-flow) is outside the scope of triage (handled by new-item creation flow step 3). A `**Project Requirement Consistency:** NEEDS_REVISION` with `**Review result:** PASS` also does not block submit (resolving consistency issues is deferred to the design/planning phase after submission).
 
+### (b-1b) HTML promotion (before submit)
+
+`requirements-review` is in `always_html_types` in `html-report-criteria.md`, so **always promote to HTML**. Before submitting, check whether HTML has already been generated and, if not, generate it.
+
+**Checking whether HTML is already generated**: if any comment in `recent_comments` from `shirokuma-flow issue context {number}` contains a pages URL matching `/issues/{number}/` (host is taken from `pages.baseUrl` in `.shirokuma/config.yaml`), the report is already generated — skip.
+
+> **Note**: this URL-matching approach means that if the comment is deleted the report will be regenerated (only redundancy; no harm).
+
+If not generated: first extract the requirements review comment, then invoke `writing-html-explainer` via the Skill tool. Template, category, and slug are based on `html-report-criteria.md` §3 and §4:
+
+**Extraction steps**:
+1. Run `shirokuma-flow issue comments {number}` to retrieve the comment body containing `**Review result:**`
+2. Save it with the Write tool to `/tmp/shirokuma-flow/{number}-requirements-review-extracted.md`
+3. Pass this file path as `--source-report`
+
+```text
+Skill(
+  skill: "writing-html-explainer",
+  args: "--template review-summary --category issues --slug {issue-number} --title \"Issue #{issue-number} Requirements Review\" --source-report /tmp/shirokuma-flow/{number}-requirements-review-extracted.md"
+)
+```
+
+After HTML generation succeeds: append the public URL to the Issue comment, then proceed to (b-2).
+
 ### (b-2) submit
 
 Submit the issue to Review (awaiting triage approval) with the `submit` command. **Execute immediately without asking the user for confirmation** (see "Auto-detection logic"):
