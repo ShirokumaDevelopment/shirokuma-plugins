@@ -22,11 +22,12 @@ allowed-tools: Read, Bash, AskUserQuestion, TaskCreate, TaskUpdate, TaskGet, Tas
 | 4 | 設計レビューを実施する | 設計レビューを実施中 | Phase 3b |
 | 5 | 修正・再レビューする | 修正・再レビュー中 | Phase 3b（条件付き: NEEDS_REVISION 時のみ） |
 | 6 | 視覚評価を実施する | 視覚評価を実施中 | Phase 4（条件付き: 視覚要素がある場合のみ） |
-| 7 | ステータスを更新する | ステータスを更新中 | Phase 5 |
+| 7 | 設計レビューを HTML 化する | 設計レビューを HTML 化中 | Phase 5（設計レビュー PASS 後） |
+| 8 | ステータスを更新する | ステータスを更新中 | Phase 5 |
 
-Dependencies: step 2 blockedBy 1, step 3 blockedBy 2, step 4 blockedBy 3, step 5 blockedBy 4, step 6 blockedBy 5, step 7 blockedBy 6.
+Dependencies: step 2 blockedBy 1, step 3 blockedBy 2, step 4 blockedBy 3, step 5 blockedBy 4, step 6 blockedBy 5, step 7 blockedBy 6, step 8 blockedBy 7.
 
-TaskUpdate で各ステップの実行開始時に `in_progress`、完了時に `completed` に更新する。条件付きステップ（ステップ 5, 6）は該当しない場合にスキップ（`completed` にして次へ進む）。
+TaskUpdate で各ステップの実行開始時に `in_progress`、完了時に `completed` に更新する。条件付きステップ（ステップ 5, 6, 7）は該当しない場合にスキップ（`completed` にして次へ進む）。
 
 ## ワークフロー
 
@@ -144,6 +145,24 @@ Skill(skill: "evaluating-design")
 
 ### Phase 5: 完了
 
+#### 設計レビュー HTML 化（設計レビュー PASS 後）
+
+設計レビュー（Phase 3b の `analyze-issue` design ロール）が PASS した場合、設計レビュー結果を HTML 化する（常時 HTML 化）。`design-review` テンプレートを使用する（`html-report-criteria.md` §2 / §3 参照）。
+
+Phase 3b の `analyze-issue` design ロールが `/tmp/shirokuma-flow/{design-issue-number}-analyze-report.md` を生成済みのため、そのファイルを直接 `--source-report` に渡す:
+
+```text
+Skill(
+  skill: "writing-html-explainer",
+  args: "--template design-review --category issues --slug {design-issue-number} --title \"設計: #{design-issue-number} 設計レビュー\" --source-report /tmp/shirokuma-flow/{design-issue-number}-analyze-report.md"
+)
+```
+
+- カテゴリ: `issues`、slug: `{design-issue-number}`（設計 Issue 番号）
+- HTML 生成成功後: 公開 URL を設計 Issue コメントおよび完了レポートに含める
+
+#### ステータス更新
+
 設計が承認されたら完了。設計成果物 Issue (子) の Status を Backlog → Review に遷移させる:
 
 ```bash
@@ -174,7 +193,7 @@ shirokuma-flow submit {design-issue-number}
 |--------|-----------|
 | AskUserQuestion | Issue 番号確認（Phase 1） |
 | TaskCreate, TaskUpdate | Phase 進捗の追跡 |
-| Skill | `discovering-design`（Phase 2）、`evaluating-design`（Phase 4） |
+| Skill | `discovering-design`（Phase 2）、`evaluating-design`（Phase 4）、`writing-html-explainer`（Phase 5: 設計レビュー HTML 化） |
 | Agent (design-worker) | 発見された `designing-*` スキルへの委任（サブエージェント、コンテキスト分離） |
 | Bash | スキル発見（Phase 3）、ステータス遷移（Phase 1b, Phase 5） |
 

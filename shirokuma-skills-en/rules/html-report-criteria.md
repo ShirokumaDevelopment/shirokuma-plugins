@@ -43,8 +43,9 @@ Perform HTML promotion if **any one** of the following is met. If none are met, 
 | Report-type specific (always HTML) | `security-pr-review` (result of `reviewing-security`) | PR security reviews always need structured display |
 | Report type–specific (always HTML) | `implement-flow-summary` | PR work summaries are always HTML alongside the PR master page |
 | Report type–specific (always HTML) | `requirements-review` (result of `analyze-issue requirements`) | Requirements reviews are a mandatory human-review stage in the triage path and always need structured display |
+| Report type–specific (always HTML) | `design-review` (result of a `design-flow` design review PASS) | Design reviews are a mandatory human-review stage that finalizes design quality and always need structured display |
 
-> **Policy for mandatory human-review stages**: Any stage that requires human review (triage submission, PR security review, incident report, work summary, etc.) is always promoted to HTML regardless of thresholds. When adding new flows in future, add the corresponding report type to `always_html_types`. **The `always_html_types` array and the §2 table are the authoritative source of truth**; this prose describes the intent, and actual registration must be done in the array and table (design-review integration is tracked as a follow-up).
+> **Policy for mandatory human-review stages**: Any stage that requires human review (triage submission, PR security review, incident report, work summary, design review, etc.) is always promoted to HTML regardless of thresholds. When adding new flows in future, add the corresponding report type to `always_html_types`. **The `always_html_types` array and the §2 table are the authoritative source of truth**; this prose describes the intent, and actual registration must be done in the array and table.
 
 > **Note**: the decision uses only the Critical + High total. The report body's "finding summary table" displays Critical / High / Medium / Low individually, but do not conflate the decision formula with the displayed items.
 
@@ -77,7 +78,7 @@ Output categories and slug naming conventions for the `pages/` submodule.
 | PR review result | `reviews` | `pages/reviews/pr-{number}-r{round}/` | `pr-{number}-r{round}` | **legacy / pre-#2629 output path. New reviews use the "PR Lifecycle (Code Review)" row.** |
 | Issue requirements review | `issues` | `pages/issues/{number}/` | Issue number | Requirements / design quality detailed report |
 | Discussion / ADR review | `discussions` | `pages/discussions/{number}/` | Discussion number | Discussion #N evaluation result |
-| Design review (standalone) | `reviews` | `pages/reviews/design-{issue-number}/` | `design-{issue-number}` | `design-flow` design evaluation result |
+| Design review | `issues` | `pages/issues/{number}/` | design Issue number | `design-flow` design evaluation result |
 | Research review | `reviews` | `pages/reviews/research-{issue-number}/` | `research-{issue-number}` | research role evaluation result |
 | Security PR review | `reviews` | `pages/reviews/security-pr-{number}/` | `security-pr-{number}` | `reviewing-security` PR security review result |
 | Documentation audit | `reviews` | `pages/reviews/docs-{year}{quarter}/` | `docs-{year}{quarter}` (e.g. `docs-2026q2`) | `auditing-docs` structural audit result |
@@ -90,7 +91,7 @@ Output categories and slug naming conventions for the `pages/` submodule.
 
 > **HTML promotion condition for PR Lifecycle (Fix Report)**: generated only when at least one code-fix thread exists. Furthermore, promote to HTML only when any §2 threshold (line count / KB / Critical+High count) is also met (not always-HTML).
 
-**Slug convention**: within the `reviews/` category, design review / security review / documentation audit may coexist, so a prefix (`design-` / `security-pr-` / `docs-` / `research-`) is required to keep the listing scannable. (PR code reviews have migrated to the `prs/` category, so the `pr-` prefix is no longer needed here.)
+**Slug convention**: within the `reviews/` category, security review / documentation audit / research review may coexist, so a prefix (`security-pr-` / `docs-` / `research-`) is required to keep the listing scannable. (PR code reviews have migrated to the `prs/` category, so the `pr-` prefix is no longer needed here. Design reviews have migrated to the `issues/` category, so the `design-` prefix is no longer needed either.)
 
 **Placement exception**: when pairing with PR supplementary material (diff explanation, design decisions), placement under `prs/{number}/` is also allowed (the orchestrator presents the options).
 
@@ -116,7 +117,7 @@ Reporting skills (`analyze-issue` / `review-issue` / `review-flow` / `auditing-d
 ### 5-2. Decision Formula (pseudocode)
 
 ```
-always_html_types = ["postmortem", "security-pr-review", "implement-flow-summary", "requirements-review"]
+always_html_types = ["postmortem", "security-pr-review", "implement-flow-summary", "requirements-review", "design-review"]
 
 should_html = (
   report_type in always_html_types

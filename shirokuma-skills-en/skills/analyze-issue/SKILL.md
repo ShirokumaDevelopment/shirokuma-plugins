@@ -40,7 +40,7 @@ Based on user request, select the appropriate role:
 
 > **HTML Template column**: the `template_name` value returned to the calling orchestrator in Step 7 "HTML Report Decision". The canonical mapping of templates to roles is defined in [`html-report-criteria.md`](../../rules/html-report-criteria.md) §3.
 
-**HTML decision skip condition**: After role selection, if a PASS verdict with zero findings and a report under 80 lines is already certain, the structured output in Step 7 may return `html_report_required: false` (the canonical threshold lives in `html-report-criteria.md` §2). **Exception: the `requirements` role (`report_type: requirements-review`) is in `always_html_types` and is exempt from this skip condition — always return `html_report_required: true`.**
+**HTML decision skip condition**: After role selection, if a PASS verdict with zero findings and a report under 80 lines is already certain, the structured output in Step 7 may return `html_report_required: false` (the canonical threshold lives in `html-report-criteria.md` §2). **Exception: roles in `always_html_types` are exempt from this skip condition — always return `html_report_required: true`. This currently covers: `requirements` (`report_type: requirements-review`) and `design` (`report_type: design-review`).**
 
 ### 2. Load Knowledge
 
@@ -164,7 +164,7 @@ Measure the report generated in Step 5 and return the following structured data 
 html_report_required: true|false
 template_name: review-summary|design-review
 category: reviews|issues|discussions
-slug: pr-{number}-r{round}|design-{issue-number}|research-{issue-number}|{issue-number}
+slug: pr-{number}-r{round}|research-{issue-number}|{issue-number}
 report_lines: 142
 report_kb: 12.4
 critical_high_count: 5

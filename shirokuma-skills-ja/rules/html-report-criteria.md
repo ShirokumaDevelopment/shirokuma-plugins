@@ -44,8 +44,9 @@ paths:
 | 報告タイプ固有（常時 HTML 化） | `security-pr-review`（`reviewing-security` の実行結果） | PR セキュリティレビューは常に構造化表示が必要 |
 | 報告タイプ固有（常時 HTML 化） | `implement-flow-summary` | PR 作業サマリーは PR ページとセットで常に HTML 化する |
 | 報告タイプ固有（常時 HTML 化） | `requirements-review`（`analyze-issue requirements` の実行結果） | 要件レビューはトリアージ経路での人間レビュー必須ステージであり常に構造化表示が必要 |
+| 報告タイプ固有（常時 HTML 化） | `design-review`（`design-flow` の設計レビュー PASS 結果） | 設計レビューは設計品質を確定する人間レビュー必須ステージであり常に構造化表示が必要 |
 
-> **人間レビュー必須ステージのポリシー**: 人間がレビューを行う必要があるステージ（トリアージ提出・PR セキュリティレビュー・障害報告・実装サマリーなど）は、閾値に関わらず常時 HTML 化の対象とする。将来新規フローを追加する際も、人間レビューが必要なレポートタイプは `always_html_types` に追加すること。**`always_html_types` 配列と §2 テーブルが真実の正本**。本散文は意図の説明であり、実際の登録は配列とテーブルで行うこと（設計レビューへの適用は別途フォローアップ Issue で追加予定）。
+> **人間レビュー必須ステージのポリシー**: 人間がレビューを行う必要があるステージ（トリアージ提出・PR セキュリティレビュー・障害報告・実装サマリー・設計レビューなど）は、閾値に関わらず常時 HTML 化の対象とする。将来新規フローを追加する際も、人間レビューが必要なレポートタイプは `always_html_types` に追加すること。**`always_html_types` 配列と §2 テーブルが真実の正本**。本散文は意図の説明であり、実際の登録は配列とテーブルで行うこと。
 
 > **注**: 判定では Critical + High の合計のみを使用する。レポート本文の「問題サマリー表」では Critical / High / Medium / Low を個別に表示するが、判定式と表示項目を混同しないこと。
 
@@ -78,7 +79,7 @@ paths:
 | PR レビュー結果 | `reviews` | `pages/reviews/pr-{number}-r{round}/` | `pr-{number}-r{round}` | **legacy / #2629 以前の出力先。新規は「PR ライフサイクル（コードレビュー）」行を使用。** |
 | Issue 要件レビュー | `issues` | `pages/issues/{number}/` | Issue 番号 | 要件品質・設計品質の詳細レポート |
 | Discussion / ADR レビュー | `discussions` | `pages/discussions/{number}/` | Discussion 番号 | Discussion #N の評価結果 |
-| 設計レビュー（スタンドアロン） | `reviews` | `pages/reviews/design-{issue-number}/` | `design-{issue-number}` | `design-flow` の設計評価結果 |
+| 設計レビュー | `issues` | `pages/issues/{number}/` | 設計 Issue 番号 | `design-flow` の設計評価結果 |
 | リサーチレビュー | `reviews` | `pages/reviews/research-{issue-number}/` | `research-{issue-number}` | research ロールの評価結果 |
 | セキュリティ PR レビュー | `reviews` | `pages/reviews/security-pr-{number}/` | `security-pr-{number}` | `reviewing-security` の PR セキュリティレビュー結果 |
 | ドキュメント監査 | `reviews` | `pages/reviews/docs-{year}{quarter}/` | `docs-{year}{quarter}`（例: `docs-2026q2`） | `auditing-docs` の構造監査結果 |
@@ -91,7 +92,7 @@ paths:
 
 > **PR ライフサイクル（修正報告）の HTML 化条件**: コード修正スレッドが 1 件以上ある場合のみ生成。さらに §2 の閾値判定（行数 / KB / Critical+High 件数）のいずれかを満たす場合のみ HTML 化する（常時 HTML 化ではない）。
 
-**slug 命名規約**: `reviews/` カテゴリ内で設計レビュー / セキュリティレビュー / ドキュメント監査が混在しても一覧性を保つため、プレフィックス（`design-` / `security-pr-` / `docs-` / `research-`）を必須とする。（PR コードレビューは `prs/` カテゴリに移行済みのため `pr-` プレフィックスはここでは不要）
+**slug 命名規約**: `reviews/` カテゴリ内でセキュリティレビュー / ドキュメント監査 / リサーチレビューが混在しても一覧性を保つため、プレフィックス（`security-pr-` / `docs-` / `research-`）を必須とする。（PR コードレビューは `prs/` カテゴリに移行済みのため `pr-` プレフィックスはここでは不要。設計レビューは `issues/` カテゴリに移行済みのため `design-` プレフィックスも不要）
 
 **配置の例外**: PR の補足資料（差分解説・設計判断）と併用したい場合は `prs/{number}/` への配置も許容する（オーケストレーター側で選択肢を提示）。
 
@@ -117,7 +118,7 @@ paths:
 ### 5-2. 判定式（擬似コード）
 
 ```
-always_html_types = ["postmortem", "security-pr-review", "implement-flow-summary", "requirements-review"]
+always_html_types = ["postmortem", "security-pr-review", "implement-flow-summary", "requirements-review", "design-review"]
 
 should_html = (
   report_type in always_html_types

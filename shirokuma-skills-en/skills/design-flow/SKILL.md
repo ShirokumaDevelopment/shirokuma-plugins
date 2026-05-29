@@ -22,11 +22,12 @@ Register all chain steps with TaskCreate **before starting work**.
 | 4 | Conduct design review | Conducting design review | Phase 3b |
 | 5 | Revise and re-review | Revising and re-reviewing | Phase 3b (conditional: only on NEEDS_REVISION) |
 | 6 | Conduct visual evaluation | Conducting visual evaluation | Phase 4 (conditional: only for visual design types) |
-| 7 | Update status | Updating status | Phase 5 |
+| 7 | Generate design review HTML | Generating design review HTML | Phase 5 (after design review PASS) |
+| 8 | Update status | Updating status | Phase 5 |
 
-Dependencies: step 2 blockedBy 1, step 3 blockedBy 2, step 4 blockedBy 3, step 5 blockedBy 4, step 6 blockedBy 5, step 7 blockedBy 6.
+Dependencies: step 2 blockedBy 1, step 3 blockedBy 2, step 4 blockedBy 3, step 5 blockedBy 4, step 6 blockedBy 5, step 7 blockedBy 6, step 8 blockedBy 7.
 
-Update each step to `in_progress` at start and `completed` on finish via TaskUpdate. Skip conditional steps (steps 5, 6) when not applicable (mark as `completed` and move to next).
+Update each step to `in_progress` at start and `completed` on finish via TaskUpdate. Skip conditional steps (steps 5, 6, 7) when not applicable (mark as `completed` and move to next).
 
 ## Workflow
 
@@ -144,6 +145,24 @@ Skill(skill: "evaluating-design")
 
 ### Phase 5: Completion
 
+#### Design Review HTML (after design review PASS)
+
+When the design review (the `analyze-issue` design role in Phase 3b) passes, generate an HTML version of the design review result (always HTML). Use the `design-review` template (see `html-report-criteria.md` §2 / §3).
+
+The `analyze-issue` design role in Phase 3b already generated `/tmp/shirokuma-flow/{design-issue-number}-analyze-report.md`; pass that file directly as `--source-report`:
+
+```text
+Skill(
+  skill: "writing-html-explainer",
+  args: "--template design-review --category issues --slug {design-issue-number} --title \"Design: #{design-issue-number} Design Review\" --source-report /tmp/shirokuma-flow/{design-issue-number}-analyze-report.md"
+)
+```
+
+- Category: `issues`, slug: `{design-issue-number}` (design Issue number)
+- After successful HTML generation: include the published URL in the design Issue comment and the completion report
+
+#### Status Update
+
 Design work is complete once approved. Transition the design artifact issue (child) Status to Review:
 
 ```bash
@@ -174,7 +193,7 @@ Design skills are discovered dynamically via `shirokuma-flow skills routing desi
 |------|------|
 | AskUserQuestion | Issue number confirmation (Phase 1) |
 | TaskCreate, TaskUpdate | Phase progress tracking |
-| Skill | `discovering-design` (Phase 2), `evaluating-design` (Phase 4) |
+| Skill | `discovering-design` (Phase 2), `evaluating-design` (Phase 4), `writing-html-explainer` (Phase 5: design review HTML) |
 | Agent (design-worker) | Delegation to discovered `designing-*` skills (sub-agent, context isolation) |
 | Bash | Skill discovery (Phase 3), status transition (Phase 1b, Phase 5) |
 

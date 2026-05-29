@@ -43,7 +43,8 @@ Category selection flowchart:
 | Supplemental for Discussion #N (ADR / RFC / discussion) | `discussions` | `pages/discussions/{N}/` |
 | Permanent spec (skill / rule / workflow / CLI reference) | `specs` | `pages/specs/{topic-slug}/` |
 | Issue-specific supplement (temporary, tied to a specific Issue) | `explainers` | `pages/explainers/{topic-slug}/` |
-| Code / design review result | `reviews` | `pages/reviews/{topic-slug}/` |
+| Code review result | `reviews` | `pages/reviews/{topic-slug}/` |
+| Design review result | `issues` | `pages/issues/{issue-number}/` |
 | Progress / period report | `status` | `pages/status/{topic-slug}/` |
 | Incident / postmortem | `incidents` | `pages/incidents/{topic-slug}/` |
 
@@ -102,7 +103,7 @@ What is the report type?
 | Case | `--template` | `--category` | `--slug` |
 |------|--------------|--------------|----------|
 | Security review for PR #1234 | `review-summary` | `reviews` | `security-pr-1234` |
-| Design review for Issue #N | `design-review` | `reviews` | `design-{N}` |
+| Design review for Issue #N | `design-review` | `issues` | `{N}` |
 | Incident report from 2026-05 | `postmortem` | `incidents` | `2026-05-outage` |
 | Epic #N plan doc | `implementation-plan` | `issues` | `{N}` |
 | Permanent spec (skill doc etc.) | `default` | `specs` | `skill-implement-flow` |
