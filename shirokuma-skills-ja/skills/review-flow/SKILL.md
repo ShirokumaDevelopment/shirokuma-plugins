@@ -24,13 +24,15 @@ PR 番号を受け取り、コードレビュー実行（`review-issue` Agent / 
 
 ## ワークフロー
 
-### Issue / PR ステータス遷移（原則：再遷移しない）
+### Issue / PR ステータス遷移（PR は Backlog で入り PASS で Review に上げる）
 
-「**1 エンティティ 1 Review** 原則」に従い、`review-flow` は **課題 Issue / 計画 Issue を Review に再遷移させない**。`pr create` で PR 自身が Status: Review に遷移済みであり、コードレビューは PR の Review 状態で表現される。
+「**1 エンティティ 1 Review** 原則」に従い、`review-flow` は **課題 Issue / 計画 Issue を Review に遷移させない**。コードレビューは **PR の Review 状態のみ**で表現される。
+
+#2802 により、PR は `pr create` で **Backlog** で作成される。`review-flow` の AI レビューが **PASS** した時点で初めて PR を `Backlog → Review` に遷移させる（コードレビュー完了の明示シグナル）。FAIL / 未解決スレッドありの場合は PR を **Backlog のまま保持**し、修正→再レビューが PASS した時点で初めて Review に上げる。
 
 | エンティティ | review-flow 中の挙動 |
 |------------|-------------------|
-| **PR** | Status: Review のまま（コードレビュー中。`pr merge` で Done に遷移） |
+| **PR** | Backlog で入り、AI レビュー **PASS で `Backlog → Review`** に遷移（`pr merge` で Done に遷移）。FAIL / 未解決スレッドありの間は Backlog のまま |
 | **課題 Issue** | Status: In progress のまま触らない |
 | **計画 Issue** | Status: In progress のまま触らない |
 
@@ -40,6 +42,8 @@ PR 番号を受け取り、コードレビュー実行（`review-issue` Agent / 
 - `status transition <Issue#> --to Review`（同上）
 - 課題 Issue / 計画 Issue を Review ↔ In progress で往復させる経路全般（フラッピング防止）
 
+> **PR の Backlog → Review は許可**: 上記 DO NOT は**課題 Issue / 計画 Issue** に対する不変条件。PR 自身を AI レビュー PASS 後に `status transition <PR#> --to Review` で遷移させるのは正規の経路（PR_FORWARD: `Backlog → Review`）。
+
 #### review-flow 中のコード修正
 
 レビュー指摘に対するコード修正は、**Issue / 計画 Issue を In progress のまま** 行う。途中でステータスを動かす必要はない:
@@ -47,7 +51,7 @@ PR 番号を受け取り、コードレビュー実行（`review-issue` Agent / 
 1. `coding-worker` でコード修正
 2. `commit-worker` でコミット & プッシュ
 3. `pr reply` / `pr resolve` でスレッド対応
-4. ステータス更新は不要（PR は Review のまま、Issue は In progress のまま）
+4. ステータス更新は不要（PR は Backlog のまま、Issue は In progress のまま）。再レビューが PASS した時点で PR を `Backlog → Review` に上げる
 
 > **参照**: 1 エンティティ 1 Review 原則の詳細は `project-items.md` Review セクション、および `pages/specs/skill-ja-review-flow/index.html` を参照。
 
@@ -136,9 +140,9 @@ shirokuma-flow pr comments {PR#}
 
    | 未解決スレッド | `issue_comments` にレビューコメント | 分岐先 |
    |--------------|----------------------------------|--------|
-   | あり | — | ステップ 2a-2（HTML 化判定）→ ステップ 2b（レビュー結果確認）へ |
-   | なし | あり | ステップ 2a-2（HTML 化判定）→ ステップ 2b（レビュー結果確認）へ |
-   | なし | なし | ステップ 2a-2（HTML 化判定）→ 完了レポートを表示して終了 |
+   | あり | — | ステップ 2a-2（HTML 化判定）→ ステップ 2b（レビュー結果確認）へ。**PR は Backlog のまま**（FAIL/未解決） |
+   | なし | あり | ステップ 2a-2（HTML 化判定）→ ステップ 2a-3（**PASS: PR を Backlog → Review**）→ ステップ 2b（推奨事項対応確認）へ |
+   | なし | なし | ステップ 2a-2（HTML 化判定）→ ステップ 2a-3（**PASS: PR を Backlog → Review**）→ 完了レポートを表示して終了 |
 
    > **重要**: PASS 判定であっても `issue_comments` にレビューコメント（推奨事項）が存在する場合はステップ 2b の UCP を必ず発動する。PASS は「ブロッキングな指摘なし」を意味するが、推奨事項の対応判断はユーザーに委ねる必要がある。`issue_comments` チェックは PASS/FAIL 判定より優先して評価すること。
 
@@ -175,6 +179,23 @@ shirokuma-flow pr comments {PR#}
 > **責務分担**: `review-issue` は Markdown レポート生成と判定情報返却のみを担当し、本ステップ（HTML 生成委任）はオーケストレーターである本スキル（`review-flow`）の責務。`html-report-criteria.md` §1 の「責務境界」を遵守する。
 
 > **`auditing-security` 除外注**: `auditing-security` は依存パッケージ脆弱性スキャナで Issue 起票完結型のため、本判定の対象外。`reviewing-security`（PR セキュリティレビュー）は常時 HTML 化対象であり、`finalize-changes` 経由で実行された場合の HTML 生成は `reviewing-security` 側のフローに従う。詳細は `html-report-criteria.md` §2 の注記参照。
+
+### ステップ 2a-3: AI レビュー PASS 時の PR 遷移（Backlog → Review、#2802）
+
+AI レビューが **PASS**（ブロッキングな指摘なし = 未解決スレッドなし）と確定した時点で、PR を `Backlog → Review` に遷移させる。これがコードレビュー完了の明示シグナルとなる。
+
+```bash
+shirokuma-flow status transition {PR#} --to Review
+```
+
+| AI レビュー結果 | PR Status の扱い |
+|----------------|----------------|
+| PASS（未解決スレッドなし、推奨事項のみ含む） | `Backlog → Review` に遷移（PR_FORWARD） |
+| FAIL / 未解決スレッドあり | **Backlog のまま保持**（Review に上げない）。スレッド対応フロー（ステップ 3 以降）へ |
+
+> **遷移の前提**: PR は `pr create` で Backlog で作成されている（#2802）。既に Review の場合（再レビュー等で手動遷移済み）はこのステップをスキップする。`PR_FORWARD_TRANSITIONS["Backlog"]` に `Review` が含まれるため、`status transition {PR#} --to Review` は `--rollback` なしで成功する。
+>
+> **FAIL → 修正 → 再レビュー PASS のサイクル**: FAIL の場合は PR を Backlog のまま保持し、ステップ 5 のコード修正・コミット後に再レビューを実行する。再レビューが PASS（未解決スレッドが 0 件）になった時点で初めて本ステップで PR を Review に上げる。
 
 ### ステップ 2b: レビュー結果確認（ユーザー制御ポイント）
 
@@ -257,7 +278,9 @@ Dependencies: step 2 blockedBy 1, step 3 blockedBy 2, step 4 blockedBy 3, step 5
 
 コード修正スレッドをまとめて処理する。修正は `code-issue` に Skill ツールで委任し、コミットは `commit-worker` に Agent ツールで委任する。
 
-> **ステータス遷移（PR_ROLLBACK）**: コード修正のために PR を `Review → In progress` に戻す場合は `--rollback` フラグが必須（`shirokuma-flow status transition {PR#} --to "In progress" --rollback`）。修正完了後の `In progress → Review` は PR_FORWARD として通常遷移（`--rollback` 不要）。
+> **ステータス遷移（#2802）**: 通常フローでは PR は **Backlog** のままコード修正を行う（FAIL/未解決スレッドありのため Review に上げていない）。修正・コミット後に再レビューを実行し、PASS（未解決スレッド 0 件）になった時点でステップ 2a-3 の `status transition {PR#} --to Review`（PR_FORWARD: `Backlog → Review`、`--rollback` 不要）で PR を Review に上げる。
+>
+> **既に Review の PR を差し戻す場合（PR_ROLLBACK）**: 手動運用等で PR が既に Review の状態からコード修正のために `Review → In progress` に戻す場合は `--rollback` フラグが必須（`shirokuma-flow status transition {PR#} --to "In progress" --rollback`）。修正完了後の `In progress → Review` は PR_FORWARD として通常遷移（`--rollback` 不要）。
 
 1. **修正**: `code-issue` に修正対象スレッドの情報（ファイルパス、指摘内容）をまとめて渡し、一括修正を委任:
    ```text
@@ -370,6 +393,9 @@ shirokuma-flow issue comment {PR#} /tmp/shirokuma-flow/pr-{PR#}-review-response.
 | 状況 | アクション |
 |------|----------|
 | `review_count: 0` | レビュー実行モード（ステップ 2a）で `review-issue` を Agent ツール（`review-worker`）で呼び出しコードレビューを実行 |
+| AI レビュー PASS（未解決スレッドなし） | ステップ 2a-3 で PR を `Backlog → Review` に遷移（PR_FORWARD、#2802） |
+| AI レビュー FAIL / 未解決スレッドあり | PR を **Backlog のまま保持**。修正→再レビュー PASS で初めて `Backlog → Review` に上げる |
+| PR が既に Review（再レビュー等で手動遷移済み） | ステップ 2a-3 の `Backlog → Review` 遷移をスキップ |
 | 未解決スレッドが 0 件（`review_count > 0`） | 完了レポートを表示し、再レビューを提案 |
 | スレッドがすでに解決済み | スキップ |
 | 古いコメント（コードが変更済み） | フィードバックがまだ有効なら返信、関連コミットを参照 |

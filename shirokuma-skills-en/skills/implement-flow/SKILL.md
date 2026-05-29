@@ -24,20 +24,25 @@ Register **all chain steps** via TaskCreate **before starting work**.
 |---|---------|------------|-------|
 | 1 | Implement changes | Implementing changes | `code-issue` (subagent: `coding-worker`) |
 | 2 | Commit and push changes | Committing and pushing | `commit-issue` (subagent) |
-| 3 | Create pull request | Creating pull request | `open-pr-issue` (subagent) |
-| 4 | Post-process code (simplify, security review, lint docs, improvement commit) | Post-processing code | `finalize-changes` (Skill tool) |
-| 5 | Post work summary | Posting work summary | Manager direct: `issue comment` |
-| 6 | Verify PR Status is Review (**do NOT re-transition the issue to Review**) | Verifying PR status | Manager direct: `status get <PR>` |
+| 3 | Create pull request (PR created in Backlog) | Creating pull request | `open-pr-issue` (subagent) |
+| 4 | Run AI review (transition PR to Review on PASS) | Running AI review | `review-flow` (Skill tool) |
+| 5 | Post-process code (simplify, security review, lint docs, improvement commit) | Post-processing code | `finalize-changes` (Skill tool) |
+| 6 | Post work summary | Posting work summary | Manager direct: `issue comment` |
+| 7 | Verify PR has transitioned to Review (**do NOT transition the issue to Review**) | Verifying PR status | Manager direct: `status get <PR>` |
 
-Dependencies: step 2 blockedBy 1, step 3 blockedBy 2, step 4 blockedBy 3, step 5 blockedBy 4, step 6 blockedBy 5.
+Dependencies: step 2 blockedBy 1, step 3 blockedBy 2, step 4 blockedBy 3, step 5 blockedBy 4, step 6 blockedBy 5, step 7 blockedBy 6.
 
-> **Step 6 positioning (PR state verification only)**: The `pr create` invocation in step 3 transitions the PR itself to **Status: Review** (code review possible). This step only verifies the PR is in Review via `status get <PR>` — it does NOT `submit` the issue or plan issue (per the "DO NOT" list in `project-items.md` Review section — one-Review-per-entity principle).
+> **Step 4 positioning (AI review gate)**: The `pr create` invocation in step 3 creates the PR itself in **Status: Backlog** (#2802). This step invokes `review-flow` via the Skill tool to run the AI review, and **only on PASS** does `review-flow` transition the PR from `Backlog → Review` (the explicit signal that code review is complete). `review-flow` is an orchestrator launched via the Skill tool and completes in the main context.
+>
+> **Stop the chain on FAIL**: If the AI review FAILs (or has unresolved threads), the PR stays in `Backlog` and `review-flow` enters its thread-handling flow. In that case, stop the chain and return control to the user. The PR only moves to Review once a fix + re-review passes.
+
+> **Step 7 positioning (PR state verification only)**: This step only verifies via `status get <PR>` that `review-flow` (step 4) has transitioned the PR to **Status: Review** after an AI review PASS. It does NOT `submit` the issue or plan issue (per the "DO NOT" list in `project-items.md` Review section — one-Review-per-entity principle).
 >
 > During implementation, the PR itself carries `Status: Review`; the issue and plan issue stay in In progress. They transition directly to `Status: Done` at `pr merge` time.
 >
-> **Fallback when PR is not in Review**: Only if `status get <PR>` reports something other than Review (e.g., the `pr create` auto-transition failed) may you `submit <PR>` to put the PR itself into Review. **Never submit the issue or plan issue.**
+> **When PR is not in Review**: The case where the chain continues with the AI review still FAILed is not expected (FAIL stops the chain at step 4). If verification finds the PR not in Review, it means the AI review is incomplete, so check the `review-flow` state. **Never submit the issue or plan issue.**
 
-> **No-changes branch**: When `coding-worker` completes with `changes_made: false`, skip steps 2–4 (commit, PR, finalize-changes) and proceed to step 5 (no-changes work summary) → step 6 (status determination). See the "No-Changes Path" sections in [reference/chain-execution.md](reference/chain-execution.md) and [reference/chain-end-steps.md](reference/chain-end-steps.md) for details.
+> **No-changes branch**: When `coding-worker` completes with `changes_made: false`, skip steps 2–5 (commit, PR, review-flow, finalize-changes) and proceed to step 6 (no-changes work summary) → step 7 (status determination). See the "No-Changes Path" sections in [reference/chain-execution.md](reference/chain-execution.md) and [reference/chain-end-steps.md](reference/chain-end-steps.md) for details.
 
 **Research:**
 
@@ -246,9 +251,11 @@ After work completes, execute the chain **automatically**. No user confirmation 
 
 | Work Type | Chain |
 |-----------|-------|
-| General Coding | Work → Commit → PR → finalize-changes → Work Summary + PR Page Generation → Status Update |
+| General Coding | Work → Commit → PR(Backlog) → review-flow → [Review] → finalize-changes → Work Summary + PR Page Generation → Status Update |
 | Research | Research → Discussion |
 | Review | Review → Report posted → Complete (no commit/PR chain) |
+
+> **AI review gate in the coding chain (#2802)**: `PR(Backlog)` denotes that `pr create` creates the PR in Backlog. When `review-flow`'s AI review PASSes, it proceeds to `[Review]` (transitioning the PR `Backlog → Review`). If the AI review FAILs or has unresolved threads, stop the chain and return control to the user (the PR stays in Backlog).
 
 - **Merge is NOT part of the chain**
 - No confirmation between steps, one-line progress reports
@@ -286,6 +293,7 @@ Skills are invoked via Skill tool (main context) or Agent tool (subagent). Skill
 | Skill | Invocation | Reason |
 |-------|-----------|--------|
 | `code-issue` | Agent (`coding-worker`) | Context isolation (implementation work bloats main context) |
+| `review-flow` | Skill tool | AI review gate orchestrator. Transitions the PR `Backlog → Review` on PASS. **Do NOT invoke via Agent tool** (it is an orchestrator that completes in the main context) |
 | `finalize-changes` | Skill tool | Post-processing chain: `/simplify` + `reviewing-security` + `lint docs` + improvement commit. **Do NOT invoke via Agent tool** |
 | `review-issue` | Agent (`review-worker`) | Context isolation + opus model selection |
 | `reviewing-claude-config` | Skill tool | Needs project rules for quality standards, relatively lightweight |

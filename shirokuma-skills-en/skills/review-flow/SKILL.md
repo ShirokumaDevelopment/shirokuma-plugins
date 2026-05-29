@@ -24,21 +24,25 @@ Takes a PR number and performs code review execution (via `review-issue` Agent /
 
 ## Workflow
 
-### Issue / PR Status Transitions (Principle: Do NOT re-transition)
+### Issue / PR Status Transitions (PR enters in Backlog and is raised to Review on PASS)
 
-Per the "**one Review per entity**" principle, `review-flow` MUST NOT re-transition the issue or plan issue to Review. The PR is already in Status: Review (from `pr create`), and code review is represented by the PR's Review state.
+Per the "**one Review per entity**" principle, `review-flow` MUST NOT transition the issue or plan issue to Review. Code review is represented **only by the PR's Review state**.
+
+Per #2802, the PR is created in **Backlog** by `pr create`. `review-flow` transitions the PR `Backlog → Review` only once the AI review **PASSes** (the explicit signal that code review is complete). On FAIL / unresolved threads, the PR **stays in Backlog**, and is raised to Review only after a fix + re-review passes.
 
 | Entity | Behavior during review-flow |
 |--------|----------------------------|
-| **PR** | Stays in Status: Review (under code review; transitions to Done at `pr merge`) |
+| **PR** | Enters in Backlog; transitions `Backlog → Review` on AI review **PASS** (transitions to Done at `pr merge`). Stays in Backlog while FAIL / unresolved threads remain |
 | **Issue** | Stays in Status: In progress, do not touch |
 | **Plan Issue** | Stays in Status: In progress, do not touch |
 
 #### **DO NOT**: Commands forbidden inside review-flow
 
-- `submit <Issue#>` / `submit <PlanIssue#>` (re-transitioning the issue or plan issue to Review — **violates the one-Review-per-entity rule**)
+- `submit <Issue#>` / `submit <PlanIssue#>` (transitioning the issue or plan issue to Review — **violates the one-Review-per-entity rule**)
 - `status transition <Issue#> --to Review` (same as above)
 - Any path that toggles the issue or plan issue between Review ↔ In progress (anti-flapping)
+
+> **PR Backlog → Review is allowed**: The DO NOT list above is an invariant for **task issues / plan issues**. Transitioning the PR itself to Review after an AI review PASS via `status transition <PR#> --to Review` is the canonical path (PR_FORWARD: `Backlog → Review`).
 
 #### Code fixes during review-flow
 
@@ -47,7 +51,7 @@ Apply code fixes in response to review feedback **while the issue / plan issue s
 1. Modify code via `coding-worker`
 2. Commit & push via `commit-worker`
 3. Reply / resolve threads via `pr reply` / `pr resolve`
-4. No status update (PR stays in Review, issue stays in In progress)
+4. No status update (the PR stays in Backlog, the issue stays in In progress). Raise the PR `Backlog → Review` once a re-review passes
 
 > **Reference**: For details on the one-Review-per-entity principle, see the `project-items.md` Review section and `pages/specs/skill-ja-review-flow/index.html`.
 
@@ -136,9 +140,9 @@ When no review has been submitted yet, invoke `review-issue` via the Agent tool 
 
    | Unresolved threads | Review comment in `issue_comments` | Branch target |
    |-------------------|-----------------------------------|---------------|
-   | Present | — | Proceed to Step 2a-2 (HTML Report Decision) → Step 2b (review result confirmation) |
-   | None | Present | Proceed to Step 2a-2 (HTML Report Decision) → Step 2b (review result confirmation) |
-   | None | None | Proceed to Step 2a-2 (HTML Report Decision) → display completion report and exit |
+   | Present | — | Proceed to Step 2a-2 (HTML Report Decision) → Step 2b (review result confirmation). **PR stays in Backlog** (FAIL/unresolved) |
+   | None | Present | Proceed to Step 2a-2 (HTML Report Decision) → Step 2a-3 (**PASS: transition PR Backlog → Review**) → Step 2b (recommendation confirmation) |
+   | None | None | Proceed to Step 2a-2 (HTML Report Decision) → Step 2a-3 (**PASS: transition PR Backlog → Review**) → display completion report and exit |
 
    > **Important**: Even with a PASS judgment, if `issue_comments` contains a review comment (recommendations), the Step 2b UCP must be triggered. PASS means "no blocking issues found" but the user still needs to decide whether to address recommendations. The `issue_comments` check must be evaluated before the PASS/FAIL judgment.
 
@@ -175,6 +179,23 @@ Receive the decision information returned by `review-issue` (the `review-worker`
 > **Responsibility split**: `review-issue` only generates the Markdown report and returns the decision information. This step (delegating HTML generation) is the responsibility of the orchestrator (this skill, `review-flow`). Follow the "responsibility boundary" in `html-report-criteria.md` §1.
 
 > **`auditing-security` exclusion note**: `auditing-security` is a dependency-vulnerability scanner that completes within Issue creation, so it is outside this decision. `reviewing-security` (PR security review) is always an HTML target, and when invoked via `finalize-changes` the HTML generation flow is handled by `reviewing-security`. See the note in `html-report-criteria.md` §2.
+
+### Step 2a-3: PR Transition on AI Review PASS (Backlog → Review, #2802)
+
+Once the AI review is confirmed as **PASS** (no blocking issues = no unresolved threads), transition the PR `Backlog → Review`. This is the explicit signal that code review is complete.
+
+```bash
+shirokuma-flow status transition {PR#} --to Review
+```
+
+| AI review result | PR Status handling |
+|------------------|--------------------|
+| PASS (no unresolved threads, recommendations only allowed) | Transition `Backlog → Review` (PR_FORWARD) |
+| FAIL / unresolved threads | **Keep in Backlog** (do not raise to Review). Proceed to the thread-handling flow (Step 3 onwards) |
+
+> **Transition precondition**: The PR is created in Backlog by `pr create` (#2802). If it is already in Review (e.g., manually transitioned during a re-review), skip this step. Since `PR_FORWARD_TRANSITIONS["Backlog"]` contains `Review`, `status transition {PR#} --to Review` succeeds without `--rollback`.
+>
+> **FAIL → fix → re-review PASS cycle**: On FAIL, keep the PR in Backlog and run a re-review after the Step 5 code fixes/commits. Only once the re-review PASSes (0 unresolved threads) do you raise the PR to Review in this step.
 
 ### Step 2b: Review Result Confirmation (User Control Point)
 
@@ -257,7 +278,9 @@ When code fix threads and question/disagreement threads coexist, use the code fi
 
 Process code fix threads together. Delegate fixes to `code-issue` via Skill tool and commits to `commit-worker` via Agent tool.
 
-> **Status transitions (PR_ROLLBACK)**: If a PR needs to be transitioned from `Review → In progress` for code fixes, the `--rollback` flag is required (`shirokuma-flow status transition {PR#} --to "In progress" --rollback`). After fixes are complete, `In progress → Review` is a PR_FORWARD transition and does not require `--rollback`.
+> **Status transitions (#2802)**: In the normal flow the PR stays in **Backlog** during code fixes (it was not raised to Review because of FAIL/unresolved threads). After fixing and committing, run a re-review; once it PASSes (0 unresolved threads), raise the PR to Review via the Step 2a-3 `status transition {PR#} --to Review` (PR_FORWARD: `Backlog → Review`, no `--rollback`).
+>
+> **Rolling back a PR already in Review (PR_ROLLBACK)**: If, in manual operation etc., a PR already in Review needs to be transitioned `Review → In progress` for code fixes, the `--rollback` flag is required (`shirokuma-flow status transition {PR#} --to "In progress" --rollback`). After fixes are complete, `In progress → Review` is a PR_FORWARD transition and does not require `--rollback`.
 
 1. **Fix**: Delegate to `code-issue` with the thread information (file paths, review feedback) for all threads at once:
    ```text
@@ -370,6 +393,9 @@ Addressed {N} threads.
 | Situation | Action |
 |-----------|--------|
 | `review_count: 0` | Execute code review via `review-issue` Agent (`review-worker`) in review execution mode (Step 2a) |
+| AI review PASS (no unresolved threads) | Transition the PR `Backlog → Review` in Step 2a-3 (PR_FORWARD, #2802) |
+| AI review FAIL / unresolved threads | **Keep the PR in Backlog**. Raise it `Backlog → Review` only after a fix + re-review PASSes |
+| PR already in Review (e.g., manually transitioned during re-review) | Skip the Step 2a-3 `Backlog → Review` transition |
 | 0 unresolved threads (`review_count > 0`) | Display completion report and propose re-review |
 | Thread already resolved | Skip |
 | Outdated comment (code changed) | Reply if feedback is still valid, reference the relevant commit |

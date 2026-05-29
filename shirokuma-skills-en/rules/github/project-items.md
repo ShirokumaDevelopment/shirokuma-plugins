@@ -96,7 +96,8 @@ Forward and rollback transitions are managed in 4 separate tables for Issue and 
 
 | From | To | Command |
 |------|----|---------|
-| `In progress` | `Review` | `pr create` / `submit` |
+| `Backlog` | `Review` | After `review-flow`'s AI review PASS (`status transition {PR#} --to Review`, #2802) |
+| `In progress` | `Review` | `submit` (compatibility / manual-operation rescue) |
 | `Review` | `Done` | `pr merge` |
 
 #### PR_ROLLBACK_TRANSITIONS
@@ -117,9 +118,11 @@ PRs use the same Status field as Issues, operating on a subset of the Issue work
 
 | Status | Description | Transition Trigger |
 |--------|-------------|-------------------|
-| In progress | Immediately after PR creation | Auto-set by `pr create` when adding PR to Projects |
-| Review | Code review pending | `submit N` (In progress → Review) |
+| Backlog | Immediately after PR creation (awaiting AI review, #2802) | Auto-set by `pr create` when adding PR to Projects |
+| Review | Code review complete (AI review PASS) | After `review-flow`'s AI review PASS via `status transition {PR#} --to Review` (Backlog → Review) |
 | Done | After merge | Auto-set by `pr merge` |
+
+**PRs enter in Backlog and are raised to Review on AI review PASS (#2802)**: `pr create` creates the PR in Backlog, and `review-flow` transitions it `Backlog → Review` once the AI review PASSes. While FAIL / unresolved threads remain, it stays in Backlog and is raised to Review only after a fix + re-review PASSes.
 
 **PRs do not go through ToDo**: PR approval means merge authorization, and `pr merge` transitions Review → Done directly.
 
@@ -200,9 +203,9 @@ AI MUST update issue status at these points:
 | Design complete | → Review | `design-flow` | `submit {n}` (design issue child: Backlog → Review) |
 | User approves Issue | Review → **ToDo** (plan/design issue child and task triage, shared). Plan approve moves implementation sub-issues Backlog → ToDo via approval inheritance; parent Issue derived from children via syncParentStatus | `approve` skill / manual | `approve {n}` |
 | User starts work | ToDo → In progress + assign + branch | `implement-flow` | `begin {n}` |
-| implement-flow chain complete | PR → Review | `implement-flow` | `submit {n}` (after PR creation, simplify, security-review, lint docs, work summary) |
-| review-flow starts | → In progress + assign | `review-flow` | `begin {n}` |
-| review-flow response complete | → Review | `review-flow` | `submit {n}` |
+| implement-flow chain complete | PR → created in Backlog (#2802) | `implement-flow` | `pr create` (AI review is performed by the subsequent review-flow) |
+| review-flow AI review PASS | PR → Review (Backlog → Review, #2802) | `review-flow` | `status transition {PR#} --to Review` (on PASS) |
+| review-flow response complete | PR stays in Review (awaiting merge) | `review-flow` | — |
 | PR merged | → Done | `commit-issue` (via `pr merge`) | Automatic |
 | Blocked by dependency | → Blocked | Manual | `block {n} --reason "reason"` (reason auto-recorded as comment) |
 | Unblock | → In progress | Manual | `resume {n}` or `resume {n} --comment FILE` |
@@ -246,13 +249,13 @@ Plan reviews use the plan issue (child) Review state, approved via `approve` (Re
 | Task Issue (triage) | On triage completion in `issue-flow` (Backlog → Review, triage-pending) | `approve` (normal branch) → ToDo (triage approved, ready to start). No parent sync |
 | Plan Issue | After plan drafting + AI self-review in `prepare-flow` (**creation only**) | `approve` → ToDo (plan approved). Approval inheritance moves implementation sub-issues Backlog → ToDo; parent Issue derived from children via syncParentStatus |
 | Design Issue (child) | After design drafting + AI self-review in `design-flow` (**creation only**) | `approve` → ToDo (design approved). The design Issue is an intermediate box (not set to Done); parent Issue derived from children via syncParentStatus (`design-flow` Phase 5) |
-| PR | At `pr create` (code review possible) | `pr merge` → Done |
+| PR | Created in Backlog by `pr create` → Review on `review-flow`'s AI review PASS (Backlog → Review, #2802) | `pr merge` → Done |
 
-#### Issues / Plan Issues do NOT re-transition to Review during implementation
+#### Issues / Plan Issues do NOT transition to Review during implementation
 
 While a PR is active during implementation, the issue and plan issue **stay in In progress untouched**. Code review is **carried by the PR itself in Status: Review** (parent issue Review is reserved for PR review only).
 
-Therefore `implement-flow` / `review-flow` MUST NOT `submit` the issue or plan issue at the chain tail (only `pr create` transitions the PR to Review).
+Therefore `implement-flow` / `review-flow` MUST NOT `submit` the issue or plan issue at the chain tail. The PR itself is created in Backlog by `pr create` and transitions `Backlog → Review` after `review-flow`'s AI review PASS (#2802).
 
 ### Next-Flow Common Gate (canonical for prepare / design / implement)
 
@@ -339,7 +342,7 @@ Plan issues represent the lifecycle of the plan itself and do not participate in
 | Planning | Plan Issue | Backlog | `prepare-flow` creates plan issue (`INITIAL_STATUSES = ["Backlog"]`) |
 | Plan review | Plan Issue | Review | `prepare-flow` executes `submit {plan-number}` (Backlog → Review) |
 | Plan approved | Plan Issue | ToDo | `approve {plan-number}` (Review → ToDo). Approval inheritance moves implementation sub-issues Backlog → ToDo; parent Issue derived from children |
-| Implementing | Plan Issue | In progress (PR itself carries Review) | `implement-flow` runs `begin` to start work, then implements and creates the PR |
+| Implementing | Plan Issue | In progress (the PR carries Backlog→Review) | `implement-flow` runs `begin` to start work, then implements and creates the PR (PR is created in Backlog; review-flow's AI review PASS moves it to Review, #2802) |
 | Implementation complete | Plan Issue | Done | `pr merge` parses `Closes #N` and auto-transitions |
 | Issue closed | Plan Issue | Done + Closed | Parent Issue close triggers `syncChildCloseOnParentClose` |
 

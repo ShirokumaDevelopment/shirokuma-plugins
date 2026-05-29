@@ -340,7 +340,7 @@ shirokuma-flow submit {plan-issue-number}
 
 | 条件 | 次のステップ |
 |------|------------|
-| 通常（軽量・標準・詳細） | `/implement-flow #{計画Issue番号}` （計画 Issue 番号を明示すること。`pr create` が計画 Issue を Review に自動遷移する） |
+| 通常（軽量・標準・詳細） | `/implement-flow #{計画Issue番号}` （計画 Issue 番号を明示すること） |
 | エピック（実作業サブ Issue 作成済み） | 各サブ Issue 番号で `/implement-flow #{sub-number}` を案内（Integration ブランチ作成・実行順序を自動提案） |
 | エピック（実作業サブ Issue 未作成） | 各サブ Issue 番号で `/implement-flow #{sub-number}` を案内（サブ Issue 作成・Integration ブランチ作成・実行順序提案を自動実行） |
 

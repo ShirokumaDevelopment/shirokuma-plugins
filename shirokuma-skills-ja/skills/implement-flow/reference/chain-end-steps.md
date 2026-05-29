@@ -88,9 +88,9 @@ HTML 生成成功後、次のステップ提案に PR ページ URL を含める
 
 ## Status（チェーン末尾）
 
-> **新モデル（ADR-v3-022 第四改訂）**: 実装単位（計画 Issue、または XS/S 直接実装時は課題 Issue）は implement 中 `In progress` のまま。**コードレビュー待ちは PR が Review を担う**（`open-pr-issue` の `pr create` が PR を `In progress → Review` に遷移）。1 エンティティ 1 Review 原則により、実装単位 Issue を Review に遷移させない（旧モデルの `submit {number}` / `status transition {number} --to Review` は行わない。新モデルでは `ISSUE_FORWARD` に `In progress → Review` がなく失敗する）。
+> **新モデル（ADR-v3-022 第四改訂 + #2802）**: 実装単位（計画 Issue、または XS/S 直接実装時は課題 Issue）は implement 中 `In progress` のまま。**コードレビュー待ちは PR が Review を担う**。PR は `pr create` で **Backlog** として作成され、`review-flow` の AI レビュー PASS 後に `Backlog → Review` に遷移する（#2802）。1 エンティティ 1 Review 原則により、実装単位 Issue を Review に遷移させない（旧モデルの `submit {number}` / `status transition {number} --to Review` は行わない。新モデルでは `ISSUE_FORWARD` に `In progress → Review` がなく失敗する）。
 
-作業サマリーの Issue コメント投稿（前節）のみ行い、実装単位 Issue の Status はチェーン末尾で変更しない。
+作業サマリーの Issue コメント投稿（前節）のみ行い、実装単位 Issue の Status はチェーン末尾で変更しない。PR の Review 遷移は `review-flow` が担うため、チェーン末尾では PR が Review であることの検証のみを行う。
 
 ## 計画 Issue の Done（PR マージで到達）
 
@@ -110,7 +110,7 @@ Status 更新後、ユーザーに次のアクション候補を提示する。`
 
 ## 変更なしパス（`coding-worker` が `changes_made: false` で完了した場合）
 
-`coding-worker` が `changes_made: false` を返した場合、通常チェーン（commit → PR → finalize-changes）をスキップし、以下の手順を実行する。
+`coding-worker` が `changes_made: false` を返した場合、通常チェーン（commit → PR → review-flow → finalize-changes）をスキップし、以下の手順を実行する。
 
 ### 変更なし用作業サマリー
 

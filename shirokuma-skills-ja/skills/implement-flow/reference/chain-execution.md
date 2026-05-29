@@ -7,9 +7,11 @@
 | 完了したスキル | 起動方法 | 次に呼ぶスキル | 起動方法 | 禁止行動 |
 |-------------|---------|-------------|---------|---------|
 | `code-issue` (`changes_made: true`) | Agent (`coding-worker`) | `commit-issue` | Agent (`commit-worker`) | `code-issue` を再起動しない |
-| `code-issue` (`changes_made: false`) | Agent (`coding-worker`) | **変更なしチェーン**（下記「変更なしパス」参照） | マネージャー直接実行 | コミット・PR・finalize-changes をスキップする |
+| `code-issue` (`changes_made: false`) | Agent (`coding-worker`) | **変更なしチェーン**（下記「変更なしパス」参照） | マネージャー直接実行 | コミット・PR・review-flow・finalize-changes をスキップする |
 | `commit-issue` | Agent (`commit-worker`) | `open-pr-issue` | Agent (`pr-worker`) | `code-issue` に委任しない |
-| `open-pr-issue` | Agent (`pr-worker`) | `finalize-changes` | Skill ツール | この時点で Status を Review に変更しない |
+| `open-pr-issue` | Agent (`pr-worker`) | `review-flow` | Skill ツール | この時点で PR を手動で Review に変更しない（review-flow が PASS 時に遷移） |
+| `review-flow` (AI レビュー PASS) | Skill ツール | `finalize-changes` | Skill ツール | Agent ツールで起動しない。PASS 時に review-flow が PR を `Backlog → Review` に遷移済み |
+| `review-flow` (AI レビュー FAIL / 未解決スレッドあり) | Skill ツール | **チェーン停止**（PR は Backlog のまま、ユーザーに制御を返す） | — | finalize-changes に進まない |
 | `finalize-changes` | Skill ツール | **マネージャー管理ステップ開始**（下記参照） | 直接実行 | Agent ツールで起動しない |
 | `review-issue` | Agent (`review-worker`) | **完了**（コミット/PR チェーンなし。CONTINUE/STOP の詳細は下記「レビューワークタイプのチェーン」参照） | — | コミットチェーンを起動しない |
 
@@ -23,14 +25,14 @@
 | ユーザーが実装を手動で検証 | ユーザー（手動） |
 | PR がマージされてステージングにデプロイ後 | ユーザー（手動） |
 
-チェーン内で `Testing` ステータスを設定**しない**こと。チェーンは PR 作成とセキュリティレビュー完了後に `Review` ステータスを設定する。`Testing` への遷移は人間または CI システムの責務である。
+チェーン内で `Testing` ステータスを設定**しない**こと。チェーンは PR を Backlog で作成し、`review-flow` の AI レビュー PASS 後に PR を `Review` に遷移させる（#2802）。Issue 本体の Status はチェーン末尾で変更しない（1 エンティティ 1 Review 原則）。`Testing` への遷移は人間または CI システムの責務である。
 
 ## `finalize-changes` 完了後のマネージャー管理ステップ（断絶最多ポイント）
 
 `finalize-changes` 完了後は、サブエージェントではなくマネージャーが直接実行する。後処理が完了した時点でチェーンが終わったように見えるが、**TaskList には pending ステップが残っている**。停止せずに**同じレスポンス内で**以下を Bash ツールで順次実行する:
 
 1. **Work Summary**: Issue コメントとして作業サマリーを投稿（Bash: `shirokuma-flow issue comment {number} /tmp/shirokuma-flow/{number}-work-summary.md`）
-2. **Status Update**: `shirokuma-flow submit {number}`（Bash）
+2. **Status 検証**: `shirokuma-flow status get {PR#}`（Bash）で PR が `review-flow` により Review に遷移済みであることを確認。**Issue 本体を `submit` で Review に遷移させない**（1 エンティティ 1 Review 原則）
 3. **Evolution**: シグナル自動記録（ステップ 5 参照）
 
 > **なぜここで断絶するのか**: PR 作成と後処理チェーン（finalize-changes）は視覚的な「完了感」が強く、LLM がサマリーを出力して停止しやすい。しかし TaskList の pending ステップが 0 になるまではチェーン途中である。
@@ -54,7 +56,7 @@ if frontmatter.changes_made == false:
   break
 
 // ステップ 2-3: commit, pr（Agent ツール — サブエージェント）
-// PR 作成時点では Status を Review に変更しない（後処理ステップが残っているため）
+// pr create は PR を Backlog で作成する（#2802）。この時点で PR を Review に変更しない
 for each step in [commit, pr]:
   subagent_output = invoke_agent(step)
   frontmatter, body = parse_yaml_frontmatter(subagent_output)
@@ -63,17 +65,28 @@ for each step in [commit, pr]:
     break
   TaskUpdate(step, "completed")
 
-// ステップ 4: finalize-changes（Skill ツール）
+// ステップ 4: review-flow（Skill ツール — AI レビューゲート #2802）
+// AI レビュー実行。PASS で review-flow が PR を Backlog → Review に遷移する
+invoke_skill("review-flow", args="#{PR#}")
+// Skill ツールはメインコンテキストで完了
+if review_failed_or_unresolved_threads:
+  // AI レビュー FAIL / 未解決スレッドあり → PR は Backlog のまま。チェーン停止
+  handle_review_gate_stop()
+  break
+TaskUpdate("review_flow", "completed")
+
+// ステップ 5: finalize-changes（Skill ツール）
 // /simplify → reviewing-security → lint docs → 改善コミット（変更ありの場合）を内包
 invoke_skill("finalize-changes")
 // Skill ツールはメインコンテキストで完了。エラーがなければ次へ進む
 TaskUpdate("finalize_changes", "completed")
 
-// ステップ 5-6: work_summary, status_update（マネージャー直接実行）
+// ステップ 6-7: work_summary, status_verify（マネージャー直接実行）
 // 作業サマリーを `issue comment` で投稿
 post_work_summary()  // shirokuma-flow issue comment {N} /tmp/...
 TaskUpdate("work_summary", "completed")
-update_status_to_review()  // shirokuma-flow submit {N}
+// PR が review-flow により Review に遷移済みであることを検証（Issue 本体は触らない）
+verify_pr_status_review()  // shirokuma-flow status get {PR#}
 TaskUpdate("status_update", "completed")
 ```
 
@@ -85,7 +98,7 @@ TaskUpdate("status_update", "completed")
 2. **ステータス判定**: coding-worker の本文から理由を判定し、ステータスを更新（chain-end-steps.md「変更なし時のステータス判定」参照）
 3. **次のステップ提案**: PR がないため `/review-flow` は省略
 
-commit-issue / open-pr-issue / finalize-changes のタスクは `skipped`（または `completed` に相当するスキップ扱い）としてマークする。
+commit-issue / open-pr-issue / review-flow / finalize-changes のタスクは `skipped`（または `completed` に相当するスキップ扱い）としてマークする。
 
 ## Agent ツール構造化データフィールド定義
 

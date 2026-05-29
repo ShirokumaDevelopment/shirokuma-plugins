@@ -88,9 +88,9 @@ After HTML generation succeeds, include the PR page URL in the next-steps sugges
 
 ## Status (End of Chain)
 
-> **New model (ADR-v3-022 fourth revision)**: The implementation unit (the plan Issue, or the task Issue for XS/S direct implementation) stays `In progress` during implement. **Code review is carried by the PR's Review** (`open-pr-issue`'s `pr create` transitions the PR `In progress → Review`). Per the 1-entity-1-Review principle, the implementation unit Issue is NOT transitioned to Review (the old-model `submit {number}` / `status transition {number} --to Review` is not performed; in the new model `ISSUE_FORWARD` has no `In progress → Review` and it would fail).
+> **New model (ADR-v3-022 fourth revision + #2802)**: The implementation unit (the plan Issue, or the task Issue for XS/S direct implementation) stays `In progress` during implement. **Code review is carried by the PR's Review**. The PR is created in **Backlog** by `pr create`, then transitions `Backlog → Review` after `review-flow`'s AI review PASSes (#2802). Per the 1-entity-1-Review principle, the implementation unit Issue is NOT transitioned to Review (the old-model `submit {number}` / `status transition {number} --to Review` is not performed; in the new model `ISSUE_FORWARD` has no `In progress → Review` and it would fail).
 
-Only post the work summary Issue comment (previous section); do not change the implementation unit Issue's Status at the end of the chain.
+Only post the work summary Issue comment (previous section); do not change the implementation unit Issue's Status at the end of the chain. The PR's transition to Review is handled by `review-flow`, so the end of the chain only verifies the PR is in Review.
 
 ## Plan Issue Done (Reached on PR Merge)
 
@@ -110,7 +110,7 @@ After Status update, present next action candidates to the user. Extract the PR 
 
 ## No-Changes Path (when `coding-worker` completes with `changes_made: false`)
 
-When `coding-worker` returns `changes_made: false`, skip the normal chain (commit → PR → finalize-changes) and execute the following procedure.
+When `coding-worker` returns `changes_made: false`, skip the normal chain (commit → PR → review-flow → finalize-changes) and execute the following procedure.
 
 ### No-Changes Work Summary
 
