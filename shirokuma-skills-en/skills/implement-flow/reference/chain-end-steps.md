@@ -88,13 +88,13 @@ After HTML generation succeeds, include the PR page URL in the next-steps sugges
 
 ## Status (End of Chain)
 
-> **New model (ADR-v3-022 fourth revision + #2802)**: The implementation unit (the plan Issue, or the task Issue for XS/S direct implementation) stays `In progress` during implement. **Code review is carried by the PR's Review**. The PR is created in **Backlog** by `pr create`, then transitions `Backlog → Review` after `review-flow`'s AI review PASSes (#2802). Per the 1-entity-1-Review principle, the implementation unit Issue is NOT transitioned to Review (the old-model `submit {number}` / `status transition {number} --to Review` is not performed; in the new model `ISSUE_FORWARD` has no `In progress → Review` and it would fail).
+> **New model (ADR-v3-022 fourth revision + #2802 + #2818)**: The implementation unit (the plan Issue, or the task Issue for XS/S direct implementation) stays `In progress` during implement. **Code review is carried by the PR's Review**. The PR is created in **Backlog** by `pr create` and ends the chain still in Backlog. implement-flow does NOT auto-launch the review (#2818). The `Backlog → Review` transition is performed by `review-flow` when the user runs `/review-flow` and the AI review PASSes. Per the 1-entity-1-Review principle, the implementation unit Issue is NOT transitioned to Review (the old-model `submit {number}` / `status transition {number} --to Review` is not performed; in the new model `ISSUE_FORWARD` has no `In progress → Review` and it would fail).
 
-Only post the work summary Issue comment (previous section); do not change the implementation unit Issue's Status at the end of the chain. The PR's transition to Review is handled by `review-flow`, so the end of the chain only verifies the PR is in Review.
+Only post the work summary Issue comment (previous section); do not change the implementation unit Issue's Status at the end of the chain. At the end of the chain, after posting the work summary, only present `/review-flow #{PR#}` as guidance; do NOT verify the PR's Review status (implement-flow does NOT auto-launch code review). The `Backlog → Review` transition is handled by `review-flow` when the user runs `/review-flow`.
 
 ## Plan Issue Done (Reached on PR Merge)
 
-> The plan Issue is the implementation unit. implement runs `begin` (`ToDo → In progress`) and opens a PR. **The plan Issue reaches Done on PR merge** (review-flow / `pr merge` transitions the PR `Review → Done`, `Closes #N` closes the plan Issue, and `syncParentStatus` derives the parent from its children). At the end of the implement-flow chain the plan Issue stays `In progress` (awaiting PR review); no Done update is performed here.
+> The plan Issue is the implementation unit. implement runs `begin` (`ToDo → In progress`) and opens a PR. In the implement-flow chain the PR stays in Backlog; it moves to Review only after the user runs `/review-flow` and the AI review PASSes (#2818). **The plan Issue reaches Done on PR merge** (review-flow / `pr merge` transitions the PR `Review → Done`, `Closes #N` closes the plan Issue, and `syncParentStatus` derives the parent from its children). At the end of the implement-flow chain the plan Issue stays `In progress` (awaiting PR review); no Done update is performed here.
 
 The XS/S direct path (no plan Issue) is the same: the task Issue stays `In progress` and reaches Done on PR merge.
 
@@ -110,7 +110,7 @@ After Status update, present next action candidates to the user. Extract the PR 
 
 ## No-Changes Path (when `coding-worker` completes with `changes_made: false`)
 
-When `coding-worker` returns `changes_made: false`, skip the normal chain (commit → PR → review-flow → finalize-changes) and execute the following procedure.
+When `coding-worker` returns `changes_made: false`, skip the normal chain (commit → PR → finalize-changes) and execute the following procedure.
 
 ### No-Changes Work Summary
 

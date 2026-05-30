@@ -88,13 +88,13 @@ HTML 生成成功後、次のステップ提案に PR ページ URL を含める
 
 ## Status（チェーン末尾）
 
-> **新モデル（ADR-v3-022 第四改訂 + #2802）**: 実装単位（計画 Issue、または XS/S 直接実装時は課題 Issue）は implement 中 `In progress` のまま。**コードレビュー待ちは PR が Review を担う**。PR は `pr create` で **Backlog** として作成され、`review-flow` の AI レビュー PASS 後に `Backlog → Review` に遷移する（#2802）。1 エンティティ 1 Review 原則により、実装単位 Issue を Review に遷移させない（旧モデルの `submit {number}` / `status transition {number} --to Review` は行わない。新モデルでは `ISSUE_FORWARD` に `In progress → Review` がなく失敗する）。
+> **新モデル（ADR-v3-022 第四改訂 + #2802 + #2818）**: 実装単位（計画 Issue、または XS/S 直接実装時は課題 Issue）は implement 中 `In progress` のまま。**コードレビュー待ちは PR が Review を担う**。PR は `pr create` で **Backlog** として作成され、Backlog のままチェーンを終える。implement-flow はレビューを自動起動しない（#2818）。`Backlog → Review` 遷移はユーザーが `/review-flow` を実行し AI レビューが PASS した時点で `review-flow` が行う。1 エンティティ 1 Review 原則により、実装単位 Issue を Review に遷移させない（旧モデルの `submit {number}` / `status transition {number} --to Review` は行わない。新モデルでは `ISSUE_FORWARD` に `In progress → Review` がなく失敗する）。
 
-作業サマリーの Issue コメント投稿（前節）のみ行い、実装単位 Issue の Status はチェーン末尾で変更しない。PR の Review 遷移は `review-flow` が担うため、チェーン末尾では PR が Review であることの検証のみを行う。
+作業サマリーの Issue コメント投稿（前節）のみ行い、実装単位 Issue の Status はチェーン末尾で変更しない。チェーン末尾では作業サマリー投稿後に `/review-flow #{PR#}` を案内提示するのみで、PR の Review 検証は行わない（implement-flow はコードレビューを自動起動しないため）。`Backlog → Review` 遷移はユーザーが `/review-flow` を実行したときに `review-flow` が担う。
 
 ## 計画 Issue の Done（PR マージで到達）
 
-> 計画 Issue は実装単位。implement では `begin`（`ToDo → In progress`）して PR を作る。**計画 Issue が Done になるのは PR マージ時**（review-flow / `pr merge` で PR `Review → Done`、`Closes #N` で計画 Issue が close、`syncParentStatus` が親を子から導出）。implement-flow チェーン末尾では計画 Issue は `In progress` のまま（PR レビュー待ち）で、ここで Done への更新は行わない。
+> 計画 Issue は実装単位。implement では `begin`（`ToDo → In progress`）して PR を作る。PR は implement-flow チェーンでは Backlog のままで、ユーザーが `/review-flow` を実行した後に AI レビュー PASS で Review へ上がる（#2818）。**計画 Issue が Done になるのは PR マージ時**（review-flow / `pr merge` で PR `Review → Done`、`Closes #N` で計画 Issue が close、`syncParentStatus` が親を子から導出）。implement-flow チェーン末尾では計画 Issue は `In progress` のまま（PR レビュー待ち）で、ここで Done への更新は行わない。
 
 XS/S 直接実装パス（計画 Issue なし）でも同様に、課題 Issue は `In progress` のまま PR マージで Done に到達する。
 
@@ -110,7 +110,7 @@ Status 更新後、ユーザーに次のアクション候補を提示する。`
 
 ## 変更なしパス（`coding-worker` が `changes_made: false` で完了した場合）
 
-`coding-worker` が `changes_made: false` を返した場合、通常チェーン（commit → PR → review-flow → finalize-changes）をスキップし、以下の手順を実行する。
+`coding-worker` が `changes_made: false` を返した場合、通常チェーン（commit → PR → finalize-changes）をスキップし、以下の手順を実行する。
 
 ### 変更なし用作業サマリー
 

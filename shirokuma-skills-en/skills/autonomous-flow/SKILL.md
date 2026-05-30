@@ -38,8 +38,9 @@ autonomous-flow (manager, launches each flow via the Skill tool)
   ├─ approve (Bash)             → auto-pass the design approval gate (when --autopilot)
   ├─ prepare-flow (Skill)       → planning phase
   ├─ approve (Bash)             → auto-pass the plan approval gate (when --autopilot)
-  ├─ implement-flow (Skill)     → implementation through PR
-  └─ pr merge (Bash)            → auto-pass the PR merge gate (when --autopilot)
+  ├─ implement-flow (Skill)     → implementation through PR (PR created in Backlog)
+  ├─ review-flow (Skill)        → code review (PASS moves the PR Backlog → Review)
+  └─ pr merge (Bash)            → auto-pass the PR merge gate (when --autopilot, assumes review PASS)
 ```
 
 ## Task Registration (Required)
@@ -51,7 +52,7 @@ autonomous-flow (manager, launches each flow via the Skill tool)
 | 1 | Build the queue | Building the queue | Manager direct: `shirokuma-flow issue list` |
 | 2 | Confirm autonomous mode and queue | Confirming autonomous mode and queue | Manager direct: AskUserQuestion |
 | 3 | Create the batch summary Issue | Creating the batch summary Issue | Manager direct: `shirokuma-flow issue add` |
-| 4 | Run the Issue loop (process each Issue through all phases) | Running the Issue loop | Skill: `design-flow`/`prepare-flow`/`implement-flow` + Bash |
+| 4 | Run the Issue loop (process each Issue through all phases) | Running the Issue loop | Skill: `design-flow`/`prepare-flow`/`implement-flow`/`review-flow` + Bash |
 | 5 | Display the completion report | Displaying the completion report | Manager direct: update the batch summary Issue |
 
 Dependencies: step 2 blockedBy 1, step 3 blockedBy 2, step 4 blockedBy 3, step 5 blockedBy 4.
@@ -193,12 +194,21 @@ Skill(skill: "prepare-flow", args: "#{number}")
 #   When the plan Issue is already In progress: skip begin
 shirokuma-flow begin {plan-issue-number}             # ToDo → In progress (only when ToDo)
 Skill(skill: "implement-flow", args: "#{plan-issue-number}")
-  → PR merge gate (when --autopilot):
+  → Code review + PR merge gate (when --autopilot):
      # Obtain the PR number: after implement-flow completes, check linked PRs via issue context
      shirokuma-flow issue context {plan-issue-number}  # → get pull_requests[0].number
-     # Merge only when a PR exists (no PR on the no-changes path)
+     # Review then merge only when a PR exists (no PR on the no-changes path).
+     # implement-flow ends its chain leaving the PR in Backlog (#2818).
+     # pr merge force-sets Status=Done without passing the transition guard, so
+     # always run review-flow and confirm review PASS (PR moved to Review) before merging.
      if pull_requests is not empty:
-       shirokuma-flow pr merge {pr-number}              # Review → Done
+       Skill(skill: "review-flow", args: "#{pr-number}")  # code review (PASS moves the PR Backlog → Review)
+       shirokuma-flow status get {pr-number}              # → confirm status == Review
+       if review PASS (status == Review):
+         shirokuma-flow pr merge {pr-number}              # Review → Done
+       else:
+         # Review FAIL / unresolved threads: do not auto-merge; record as
+         # "review FAIL (needs attention)" and skip pr merge (safeguard: never auto-merge unreviewed/FAIL code)
      else:
        # Completed with no changes (record as SUCCESS)
 ```
@@ -278,8 +288,9 @@ Issue #101 (title...):
   5. Run prepare-flow
   6. Plan approve: Review → ToDo (approve #{plan-issue-number})
   7. begin #{plan-issue-number} (ToDo → In progress)
-  8. Run implement-flow
-  9. PR merge (pr merge #{PR-number})
+  8. Run implement-flow (PR created in Backlog)
+  9. Run review-flow (code review; PASS moves the PR Backlog → Review)
+  10. PR merge (pr merge #{PR-number}) — only on review PASS; FAIL is recorded as needs-attention and skipped
 
 Issue #102 (title...):
   1. Resume from prepare-flow (status: ToDo / has child Issue "Plan:")
@@ -348,7 +359,7 @@ To actually run, remove --dry-run.
 |------|--------|
 | AskUserQuestion | Confirm autonomous mode / queue, each approval gate in normal mode |
 | Bash | `shirokuma-flow submit/approve/begin/block/issue list/issue add/issue comment/pr merge` |
-| Skill | Launch `design-flow` / `prepare-flow` / `implement-flow` |
+| Skill | Launch `design-flow` / `prepare-flow` / `implement-flow` / `review-flow` |
 | TaskCreate, TaskUpdate | Track batch-processing step progress |
 
 ## Notes

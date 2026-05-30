@@ -64,7 +64,7 @@ Apply code fixes in response to review feedback **while the issue / plan issue s
    shirokuma-flow pr show {PR#}
    ```
    Fields to extract:
-   - `review_count`: Number of submitted reviews (0 = triggers new review mode)
+   - `review_count`: Number of GitHub formal review submissions (one factor in the new-review decision; it does NOT count issue-comment-form reviews, so Step 2 also checks `issue_comments`)
    - `linked_issues`: Related Issue numbers (used for context restoration)
    - `base_ref_name`: Base branch (used to fetch diff)
    - PR body (`body`): Used for artifact detection
@@ -94,20 +94,27 @@ Apply code fixes in response to review feedback **while the issue / plan issue s
 
 ### Step 2: Review State Assessment and Branching
 
-First check the `review_count` obtained in Step 1:
-
-**If `review_count: 0` → proceed to new review mode (Step 2a)**
-
-**If `review_count > 0` → fetch unresolved threads and branch**:
+**Before** entering new review mode (Step 2a), check both `review_count` and existing review comments. Fetch `pr comments {PR#}` and check whether `issue_comments` contains a comment with `**Review result:**` (PASS / FAIL):
 
 ```bash
 shirokuma-flow pr comments {PR#}
 ```
 
-- 0 unresolved threads → display completion report and propose re-review ("Would you like to run a re-review with `review-issue`?" via AskUserQuestion). If user accepts, transition to Step 2a
-- Unresolved threads exist → proceed to existing flow (Step 3 onwards)
+> **Why `review_count` alone is insufficient (#2818 problem 2)**: `review_count` is the number of GitHub formal review submissions and does NOT count reviews posted as issue comments. `review-issue` may post findings as either review threads or issue comments, so judging "new review" based on `review_count: 0` alone causes a duplicate review to run on a PR that has already been reviewed in issue-comment form.
 
-### Step 2a: Review Execution Mode (when `review_count: 0`)
+**Decision order (determine existing-review presence first):**
+
+| Decision | Condition | Branch target |
+|----------|-----------|---------------|
+| **Existing review present** | `review_count > 0` **or** `issue_comments` contains a comment with `**Review result:**` | **Skip** new review mode (Step 2a). Proceed to "Existing-review branch" below |
+| **New review** | `review_count: 0` **and** no `issue_comments` comment contains `**Review result:**` | Proceed to new review mode (Step 2a) |
+
+**Existing-review branch** (split by presence of unresolved threads):
+
+- 0 unresolved threads → display completion report and propose re-review ("Would you like to run a re-review with `review-issue`?" via AskUserQuestion). If user accepts, transition to Step 2a
+- Unresolved threads exist → proceed to Step 2b (review result confirmation) → existing flow (Step 3 onwards)
+
+### Step 2a: Review Execution Mode (when determined to be a new review)
 
 When no review has been submitted yet, invoke `review-issue` via the Agent tool (`review-worker`) to perform a code review.
 
@@ -199,9 +206,9 @@ shirokuma-flow status transition {PR#} --to Review
 
 ### Step 2b: Review Result Confirmation (User Control Point)
 
-> **Scope:** This step applies only after Step 2a (new review execution, `review_count: 0`). When processing existing threads with `review_count > 0`, the user is already aware of the review content, so UCP is not required.
+> **Scope:** This step is reached from two entry points: (1) after Step 2a (new review execution) when unresolved threads or review issue comments exist; (2) from the existing-review branch in Step 2 when an existing review is detected and unresolved threads are present. UCP is required in both cases.
 
-After `review-issue` completes in Step 2a and unresolved threads or review issue comments exist, present the review results to the user and confirm the response approach. `review-issue` may post findings as review threads or as issue comments; the UCP must trigger for either format.
+Present the review results to the user and confirm the response approach. For entry point (1), unresolved threads or review issue comments were returned by the just-completed `review-issue` run. For entry point (2), the existing review was detected via `issue_comments` in Step 2. `review-issue` may post findings as review threads or as issue comments; the UCP must trigger for either format.
 
 Scan the Agent tool (`review-worker`) output body for the `**Review result:**` string to obtain the PASS / FAIL judgment.
 
@@ -393,7 +400,8 @@ Addressed {N} threads.
 
 | Situation | Action |
 |-----------|--------|
-| `review_count: 0` | Execute code review via `review-issue` Agent (`review-worker`) in review execution mode (Step 2a) |
+| `review_count: 0` and no `**Review result:**` in `issue_comments` | Execute code review via `review-issue` Agent (`review-worker`) in review execution mode (Step 2a) |
+| `review_count: 0` but `issue_comments` contains an existing review with `**Review result:**` | Skip new review mode (Step 2a) and proceed to the existing-review branch. Prevents duplicate review (#2818 problem 2) |
 | AI review PASS (no unresolved threads) | Transition the PR `Backlog → Review` in Step 2a-3 (PR_FORWARD, #2802) |
 | AI review FAIL / unresolved threads | **Keep the PR in Backlog**. Raise it `Backlog → Review` only after a fix + re-review PASSes |
 | PR already in Review (e.g., manually transitioned during re-review) | Skip the Step 2a-3 `Backlog → Review` transition |

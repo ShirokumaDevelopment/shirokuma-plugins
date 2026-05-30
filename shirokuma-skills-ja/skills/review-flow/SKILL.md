@@ -64,7 +64,7 @@ PR 番号を受け取り、コードレビュー実行（`review-issue` Agent / 
    shirokuma-flow pr show {PR#}
    ```
    取得すべきフィールド:
-   - `review_count`: レビュー提出数（0 = 新規レビューモード判定に使用）
+   - `review_count`: GitHub formal review submission の件数（新規レビュー判定の一要素。issue comment 形式のレビューは計上しないため、ステップ 2 で `issue_comments` も併せて確認する）
    - `linked_issues`: 関連 Issue 番号（コンテキスト復元に使用）
    - `base_ref_name`: ベースブランチ（diff 取得に使用）
    - PR 本文（`body`）: 成果物検出に使用
@@ -94,20 +94,27 @@ PR 番号を受け取り、コードレビュー実行（`review-issue` Agent / 
 
 ### ステップ 2: レビュー状態の判定と分岐
 
-ステップ 1 で取得した `review_count` を先に確認する:
-
-**`review_count: 0` の場合 → 新規レビューモードへ（ステップ 2a）**
-
-**`review_count > 0` の場合 → 未解決スレッドを取得して分岐**:
+新規レビューモード（ステップ 2a）に入る**前**に、`review_count` と既存レビューコメントの両方を確認する。`pr comments {PR#}` を取得し、`issue_comments` に `**レビュー結果:**`（PASS / FAIL）を含むコメントが存在するかをチェックする:
 
 ```bash
 shirokuma-flow pr comments {PR#}
 ```
 
-- 未解決スレッドが 0 件 → 完了レポートを表示し、再レビューを提案（「`review-issue` で再レビューを実行しますか？」と AskUserQuestion）。ユーザーが承認した場合はステップ 2a へ遷移
-- 未解決スレッドあり → ステップ 3 以降の既存フロー
+> **なぜ `review_count` だけでは不十分か（#2818 問題 2）**: `review_count` は GitHub の formal review submission の件数であり、issue comment 形式で投稿されたレビューを計上しない。`review-issue` は指摘を review thread・issue comment のどちらの形式でも投稿しうるため、`review_count: 0` だけを根拠に新規レビューと判定すると、issue comment 形式で既にレビュー済みの PR で重複レビューが走る。
 
-### ステップ 2a: レビュー実行モード（`review_count: 0` の場合）
+**判定順序（既存レビューの有無を先に確定する）:**
+
+| 判定 | 条件 | 分岐先 |
+|------|------|--------|
+| **既存レビューあり** | `review_count > 0` **または** `issue_comments` に `**レビュー結果:**` を含むコメントあり | 新規レビューモード（ステップ 2a）を**スキップ**。下記「既存レビューありの分岐」へ |
+| **新規レビュー** | `review_count: 0` **かつ** `issue_comments` に `**レビュー結果:**` を含むコメントなし | 新規レビューモードへ（ステップ 2a） |
+
+**既存レビューありの分岐**（未解決スレッドの有無で振り分け）:
+
+- 未解決スレッドが 0 件 → 完了レポートを表示し、再レビューを提案（「`review-issue` で再レビューを実行しますか？」と AskUserQuestion）。ユーザーが承認した場合はステップ 2a へ遷移
+- 未解決スレッドあり → ステップ 2b（レビュー結果確認）→ ステップ 3 以降の既存フロー
+
+### ステップ 2a: レビュー実行モード（新規レビューと判定された場合）
 
 レビューがまだ提出されていない場合、`review-issue` を Agent ツール（`review-worker`）で呼び出してコードレビューを実行する。
 
@@ -199,9 +206,9 @@ shirokuma-flow status transition {PR#} --to Review
 
 ### ステップ 2b: レビュー結果確認（ユーザー制御ポイント）
 
-> **適用範囲:** このステップはステップ 2a（新規レビュー実行後、`review_count: 0`）の場合のみ適用される。`review_count > 0` で既存スレッドを処理する場合は、ユーザーが既にレビュー内容を認識しているため UCP は不要。
+> **適用範囲:** このステップは 2 つのエントリーポイントから到達する: (1) ステップ 2a（新規レビュー実行後）で未解決スレッドまたはレビュー issue comment がある場合; (2) ステップ 2 の「既存レビューありの分岐」で既存レビューが検出され未解決スレッドが残っている場合。いずれの場合も UCP は必要。
 
-ステップ 2a の `review-issue` 完了後、未解決スレッドまたはレビュー issue comment がある場合にレビュー結果をユーザーに提示し対応方針を確認する。`review-issue` は指摘を review thread として投稿する場合と issue comment として投稿する場合があり、いずれの形式でも UCP を発動させる。
+レビュー結果をユーザーに提示し対応方針を確認する。エントリーポイント (1) では、直前に完了した `review-issue` の実行から未解決スレッドまたはレビュー issue comment が返された状態。エントリーポイント (2) では、ステップ 2 で `issue_comments` を介して既存レビューが検出された状態。`review-issue` は指摘を review thread として投稿する場合と issue comment として投稿する場合があり、いずれの形式でも UCP を発動させる。
 
 Agent ツール（`review-worker`）の出力本文から `**レビュー結果:**` 文字列を走査し、PASS / FAIL の判定結果を取得する。
 
@@ -393,7 +400,8 @@ shirokuma-flow issue comment {PR#} /tmp/shirokuma-flow/pr-{PR#}-review-response.
 
 | 状況 | アクション |
 |------|----------|
-| `review_count: 0` | レビュー実行モード（ステップ 2a）で `review-issue` を Agent ツール（`review-worker`）で呼び出しコードレビューを実行 |
+| `review_count: 0` かつ `issue_comments` に `**レビュー結果:**` なし | レビュー実行モード（ステップ 2a）で `review-issue` を Agent ツール（`review-worker`）で呼び出しコードレビューを実行 |
+| `review_count: 0` だが `issue_comments` に `**レビュー結果:**` を含む既存レビューあり | 新規レビューモード（ステップ 2a）をスキップし、既存レビューありの分岐へ。重複レビュー防止（#2818 問題 2） |
 | AI レビュー PASS（未解決スレッドなし） | ステップ 2a-3 で PR を `Backlog → Review` に遷移（PR_FORWARD、#2802） |
 | AI レビュー FAIL / 未解決スレッドあり | PR を **Backlog のまま保持**。修正→再レビュー PASS で初めて `Backlog → Review` に上げる |
 | PR が既に Review（再レビュー等で手動遷移済み） | ステップ 2a-3 の `Backlog → Review` 遷移をスキップ |
