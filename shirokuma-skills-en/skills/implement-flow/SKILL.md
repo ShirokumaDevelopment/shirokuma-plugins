@@ -382,7 +382,7 @@ See [reference/epic-entry.md](reference/epic-entry.md) for details (precondition
 | `branch-workflow` | Branch naming, creation from `develop`, integration branch |
 | `batch-workflow` | Batch eligibility, quality standards, branch naming |
 | `epic-workflow` reference | Epic/sub-issue workflow overview |
-| `project-items` | Status workflow, field requirements, "Next-Flow Common Gate" section (canonical start-work behavior) |
+| `project-items` | Status workflow, field requirements, "Next-Flow Common Gate" section (canonical start-work behavior), "What/Why Separation" section (on plan deviation, update Issue body = latest What payload / record the deviation reason in a comment first) |
 | `git-commit-style` | Commit message format |
 | `output-language` | GitHub output language convention |
 | `github-writing-style` | Bullet-point vs prose guidelines |

@@ -372,7 +372,7 @@ shirokuma-flow submit {plan-issue-number}
 
 | 参照元 | 用途 |
 |--------|------|
-| `project-items` ルール | In Progress/Review ステータスの運用、「次フロー共通ゲート」節（着手挙動の正本） |
+| `project-items` ルール | In Progress/Review ステータスの運用、「次フロー共通ゲート」節（着手挙動の正本）、「What/Why 分離」節（計画 Issue 本文 = 最新 What payload / 判断根拠はコメントに記録） |
 | `output-language` ルール | Issue コメント・本文の出力言語 |
 | `github-writing-style` ルール | 箇条書き vs 散文のガイドライン |
 | `implement-flow` スキル | Worker 完了後の統一パターン、UCP チェック |

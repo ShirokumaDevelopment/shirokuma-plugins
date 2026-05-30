@@ -284,7 +284,7 @@ If analysis is incomplete:
 - **Progressive**: Summary first, details on request
 - **Rules auto-loaded**: Project conventions from `.claude/rules/` (including paths-based rules when running in main context)
 - **Main context execution**: Runs via Skill tool in the main context, enabling access to project-specific rules
-- **Caller's comment-first compliance**: This skill posts comments but does not update bodies
+- **Caller's What/Why Separation compliance**: This skill only posts comments (recording the Why) and does not update bodies (updating the body to the latest payload is the caller's responsibility; see the "What/Why Separation" section of the `project-items` rule)
 - **Effort assumption**: Assumes xhigh. Ensures sufficient reasoning depth for ADR consistency checks, anti-pattern matching, and multi-faceted quality evaluation
 
 ## Language

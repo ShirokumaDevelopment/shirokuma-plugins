@@ -275,3 +275,4 @@ PR を作成しました。次のステップ:
 - `main` への PR はホットフィックスに限定 — 日常作業を `main` に向けると統合ブランチをバイパスする
 - Issue 参照には常に `Closes #N` を使用する（`Refs #N` では CLI の `parseLinkedIssues()` が解析できず、マージ時に Issue がクローズされない）
 - PR 本文は簡潔かつ情報量を確保
+- **What/Why 分離**: PR 本文は最新 What payload（変更の概要・テスト計画）を記す。判断根拠・対応経緯（Why）はコメントに残す。原則は `project-items` ルールの「What/Why 分離」節を参照

@@ -387,6 +387,7 @@ Addressed {N} threads.
 6. **Restore context first** — Step 1 must always run first; obtain `review_count` before branching
 7. **Review execution via `review-issue`** — Step 2a invokes `review-issue` via Agent tool (`review-worker`); do not write reviews directly
 8. **Code fixes via skill/subagent delegation** — Step 5 code fixes are delegated to `code-issue` (Skill) / `commit-worker` (Agent); the orchestrator does not modify code directly
+9. **What/Why Separation** — Handle review responses in comments (replies = recording the Why); when updating the PR body, bring it to the latest What payload. See the "What/Why Separation" section of the `project-items` rule
 
 ## Edge Cases
 

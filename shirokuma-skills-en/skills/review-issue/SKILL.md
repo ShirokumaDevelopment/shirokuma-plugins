@@ -369,7 +369,7 @@ Progress reporting examples: `reference/progress-report-examples.md` "Multi-Role
 - **Reports saved**: PR → PR comment, files → Discussion Reports (`rules/output-destinations.md`)
 - **Role-based**: Load only relevant knowledge files (progressive disclosure)
 - **Main context execution**: Runs via Skill tool with access to `.claude/rules/`
-- **Comment-first**: Posts review comments only, does not update bodies (`item-maintenance.md`)
+- **What/Why Separation**: Posts review comments only (recording the Why), does not update bodies. See the "What/Why Separation" section of the `project-items` rule for the principle and `item-maintenance.md` for procedures
 - **Context boundary**: Do not suggest referencing other skills' `reference/` by file path
 
 ## Review Result Expressions

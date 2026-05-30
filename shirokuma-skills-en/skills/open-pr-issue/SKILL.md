@@ -283,3 +283,4 @@ PR created. Next steps:
 - Reserve `main` as PR target for hotfixes only — routing daily work to `main` bypasses the integration branch
 - Always use `Closes #N` for issue references (not `Refs #N` — the CLI's `parseLinkedIssues()` cannot parse `Refs`, so Issues won't close on merge)
 - PR body should be informative but concise
+- **What/Why Separation**: The PR body holds the latest What payload (change summary, test plan). Rationale and response history (Why) go in comments. See the "What/Why Separation" section of the `project-items` rule

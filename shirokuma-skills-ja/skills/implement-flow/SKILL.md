@@ -380,7 +380,7 @@ PR revert 後のリカバリーおよびチェーン復旧手順の詳細は [re
 | `branch-workflow` | ブランチ命名、`develop` からの作成、integration ブランチ |
 | `batch-workflow` | バッチ適格性、品質基準、ブランチ命名 |
 | `epic-workflow` リファレンス | エピック・サブ Issue ワークフロー全体像 |
-| `project-items` | ステータスワークフロー、フィールド要件、「次フロー共通ゲート」節（着手挙動の正本） |
+| `project-items` | ステータスワークフロー、フィールド要件、「次フロー共通ゲート」節（着手挙動の正本）、「What/Why 分離」節（計画乖離時の Issue 本文 = 最新 What payload 更新 / 乖離理由はコメントに先記録） |
 | `git-commit-style` | コミットメッセージ形式 |
 | `output-language` | GitHub 出力の言語規約 |
 | `github-writing-style` | 箇条書き vs 散文のガイドライン |

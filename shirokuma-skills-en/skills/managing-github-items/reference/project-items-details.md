@@ -77,9 +77,9 @@ Labels indicate **where** work applies (cross-cutting attribute). Work type clas
 
 ## Item Body Maintenance (Issues / Discussions / PRs)
 
-**The body is the source of truth.** Comments serve as historical record; body must always be the latest consolidated version. For detailed procedures, see `managing-github-items/reference/item-maintenance.md`.
+**Body = latest payload, comments = Why & history** (What/Why Separation). The single source of truth for the principle is the "What/Why Separation" section of the `project-items` rule; for implementer-facing procedures, see `managing-github-items/reference/item-maintenance.md`.
 
-> **Comment-first rule**: Always post a comment before updating the body. Comments must have independent value as primary records of work.
+> **Comment-first** (the update order of What/Why Separation): Always post a comment before updating the body. See the "What/Why Separation" section of the `project-items` rule for details.
 
 Comment operation CLI commands:
 

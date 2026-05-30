@@ -387,6 +387,7 @@ shirokuma-flow issue comment {PR#} /tmp/shirokuma-flow/pr-{PR#}-review-response.
 6. **コンテキスト復元を先に** — ステップ 1 は必ず最初に実行し、`review_count` を取得してから分岐する
 7. **レビュー実行は `review-issue` 経由** — ステップ 2a では `review-issue` を Agent ツール（`review-worker`）で呼び出し、直接レビューを書かない
 8. **コード修正はスキル/サブエージェント委任** — ステップ 5 のコード修正は `code-issue` (Skill) / `commit-worker` (Agent) に委任し、オーケストレーターは直接コード修正しない
+9. **What/Why 分離** — レビュー対応はコメント（返信 = Why の記録）で完結させ、PR 本文を更新する場合は最新 What payload に整える。原則は `project-items` ルールの「What/Why 分離」節を参照
 
 ## エッジケース
 

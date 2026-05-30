@@ -55,13 +55,9 @@ Always pass the file name to the CLI (positional commands use `issue update {num
 
 ## Workflow Order (Comment First)
 
-### Why Comment First
+> **The single source of truth for this principle is the "What/Why Separation" section of the `project-items` rule** (Body = latest payload / Comments = Why & history). This section covers only the **procedural details** for implementers. See the source of truth for the principle's definition, invariants, item type × payload boundary table, and ADR exception.
 
-The purpose of the comment-first principle is to preserve AI's **thinking process as a primary record**.
-
-- **Judgment error analysis**: Without recorded thinking, it is impossible to retroactively analyze why a wrong decision was made
-- **Evolution loop input source**: Evolution signals in the `rule-evolution` rule are detected from decision rationale and investigation results recorded in comments. The body alone captures "what was done" but loses "why it was done"
-- **Hallucination detection**: By comparing the reasoning process recorded in comments with actual results, detection and correction of AI's incorrect assumptions or reasoning becomes possible
+The purpose of comment-first (the update order of What/Why Separation) is to preserve AI's **thinking process as a primary record** (retroactive analysis of judgment errors, input source for the Evolution loop, hallucination detection). See the "What/Why Separation" section of the `project-items` rule for the detailed rationale.
 
 ### Order
 

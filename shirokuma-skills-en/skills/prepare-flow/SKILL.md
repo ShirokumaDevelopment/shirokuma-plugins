@@ -363,7 +363,7 @@ At the end of the plan completion report, auto-record Evolution signals followin
 
 | Reference | Usage |
 |-----------|-------|
-| `project-items` rule | In Progress/Review status workflow, "Next-Flow Common Gate" section (canonical start-work behavior) |
+| `project-items` rule | In Progress/Review status workflow, "Next-Flow Common Gate" section (canonical start-work behavior), "What/Why Separation" section (plan Issue body = latest What payload / record rationale in comments) |
 | `output-language` rule | Output language for issue comments and body |
 | `github-writing-style` rule | Bullet-point vs prose guidelines |
 | `implement-flow` skill | Worker completion unified pattern, UCP check |

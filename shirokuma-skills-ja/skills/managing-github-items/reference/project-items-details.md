@@ -77,9 +77,9 @@ shirokuma-flow project workflows
 
 ## アイテム本文メンテナンス（Issues / Discussions / PRs 共通）
 
-**本文はソースオブトゥルース。** コメントは経緯・履歴、本文は常に最新の統合版。詳細手順は `managing-github-items/reference/item-maintenance.md` を参照。
+**本文 = 最新 payload、コメント = Why・履歴**（What/Why 分離）。原則の正本は `project-items` ルールの「What/Why 分離」節、実装者向け詳細手順は `managing-github-items/reference/item-maintenance.md` を参照。
 
-> **コメントファースト**: 本文更新前に必ずコメントを投稿する。コメントは作業の一次記録として独立した価値を持つこと。
+> **コメントファースト**（What/Why 分離の更新順序）: 本文更新前に必ずコメントを投稿する。詳細は `project-items` ルールの「What/Why 分離」節を参照。
 
 コメント操作の CLI コマンド:
 

@@ -191,6 +191,52 @@ Ideas and proposals start as **Discussions** (Research or Knowledge category), n
 
 > For type-specific templates (bug reproduction steps, research investigation items, etc.), see the `create-item` reference.
 
+## What/Why Separation (Body = Latest Payload / Comments = Why & History)
+
+> **This section is the single source of truth for the "What/Why Separation" principle.** Other rules and skills (`item-maintenance.md` / `project-items-details.md` / `analyze-issue` / `review-issue` / `write-adr` / `prepare-flow` / `implement-flow` / `review-flow` / `open-pr-issue`) must reference this section (§). Do not re-state the full definition or boundary table elsewhere.
+
+The body and comments of a GitHub item (Issue / PR / Discussion / ADR) have **distinct roles**. This role separation is called "What/Why Separation." The former name "comment-first" is a procedure name and has been promoted to the invariant name of this principle (the legacy term "comment-first" may still appear alongside it in procedural descriptions).
+
+Related ADRs: ADR-v3-005 (two-layer knowledge, #1596) / ADR-v3-026 (What/Why/vocabulary knowledge separation, #2812) / ADR-v3-027 (redefinition of What/Why Separation for GitHub items, #2813).
+
+### Invariants
+
+| Target | Role | Content |
+|--------|------|---------|
+| **Body** | What (latest payload) | The latest, integrated state at the current moment. Always represents "how things are now." Excludes past history and discarded options |
+| **Comments** | Why & history | The primary record of "why it was done this way": rationale, alternatives considered, facts discovered during investigation, history. Append-only; never overwrite |
+
+**Invariants (properties that must always hold):**
+
+1. **Body = latest payload**: Reading the body alone reveals the current latest state without retracing past comments.
+2. **Comments = Why & history**: The "why" lives in comments. If deleting a comment loses no information absent from the body, that comment is not substantive.
+3. **Update order (comment-first)**: Always record the "why" as a comment before updating the body. The reverse order — updating the body first and adding the comment afterward — is prohibited.
+
+### Item Type × Payload Boundary Table
+
+The kind of payload written to the body differs by item type.
+
+| Item Type | Body Payload | Comment Role |
+|-----------|--------------|--------------|
+| Issue | **What payload** (purpose, summary, current tasks, latest deliverable state) | Why & history (rationale, reason for approach change, background) |
+| PR | **What payload** (latest change summary, test plan) | Why & history (replies to review comments, response history) |
+| Discussion | **What payload** (topic, current consensus state) | Why & history (discussion background, dissenting opinions) |
+| ADR / knowledge-record type | **Why payload** (decision context, rationale, consequences recorded in the body) | Supplement / discussion |
+
+**ADR exception**: Because for an ADR the "why" of the decision is itself the deliverable, the body holds the Why payload (Context / Decision / Consequences). Furthermore, `write-adr` **records change history in a "Change History" section at the end of the body** (history is kept in the body's Why payload, not in comments). This is a **legitimate exception** to the general "Body = latest What payload" principle, stemming from the fact that an ADR body serves as the historical record of the decision itself.
+
+### Application Targets
+
+All skills that write bodies follow this principle:
+
+| Skill | Body Write Target | Payload Type |
+|-------|-------------------|--------------|
+| `write-adr` | ADR body (including change history) | Why payload (**ADR exception**) |
+| `prepare-flow` | Plan Issue body | What payload |
+| `implement-flow` | Issue body (deviation update) | What payload |
+| `review-flow` | PR comments / body | Comments = Why, body = What payload |
+| `open-pr-issue` | PR body | What payload |
+
 ## Status Update Triggers
 
 AI MUST update issue status at these points:
@@ -408,7 +454,7 @@ Not automated as part of the chain. AI judges and executes at these points:
 - During self-review after PR creation
 - When a reviewer points out the discrepancy
 
-Follow the comment-first principle: record the deviation reason as a comment before updating the body. The comment must be a primary record containing rationale, alternatives considered, and "why" — not just "what changed".
+Follow comment-first (the update order of [What/Why Separation](#whatwhy-separation-body--latest-payload--comments--why--history)): record the deviation reason as a comment before updating the body. The comment must be a primary record containing rationale, alternatives considered, and "why" — not just "what changed".
 
 ### Command
 
@@ -450,7 +496,7 @@ Comments must contain "why" as a primary record. Avoid comments that only descri
 
 ### When to Update the Body
 
-Update the body when comments reflect a state that diverges from the Issue/PR's current description. Follow the **comment-first principle**: record in a comment first, then update the body.
+Update the body when comments reflect a state that diverges from the Issue/PR's current description. Follow **comment-first** (the update order of [What/Why Separation](#whatwhy-separation-body--latest-payload--comments--why--history)): record in a comment first, then update the body.
 
 | Update needed | No update needed |
 |--------------|-----------------|

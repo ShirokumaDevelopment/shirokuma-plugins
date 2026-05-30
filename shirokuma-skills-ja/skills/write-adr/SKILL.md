@@ -302,6 +302,7 @@ shirokuma-flow issue comment {old-discussion-number} /tmp/shirokuma-flow/{old-nu
 4. **1 ADR 1 決定** — ADR はフォーカスされアトミックに保つ
 5. **履歴は不変** — 削除ではなく Deprecated または Superseded で管理
 6. **配置場所の判定**: 「ADR として GitHub Discussion に残すべきか」「reference doc として `.shirokuma/rules/` に置くべきか」を迷ったときは `docs-layering` ルールの「ADR vs reference doc」境界ケースを参照
+7. **What/Why 分離の ADR 例外**: GitHub アイテムは「本文 = 最新 What payload / コメント = Why・履歴」が原則だが（`project-items` ルールの「What/Why 分離」節）、**ADR は例外**。ADR 本文は決定の Why payload（Context / Decision / Consequences）を担い、更新履歴も本文末尾の「更新履歴」セクション（本ステップ 3 参照）に記録する。コメントではなく本文に Why・履歴を残すのが ADR の正規運用である
 
 ## NGケース
 

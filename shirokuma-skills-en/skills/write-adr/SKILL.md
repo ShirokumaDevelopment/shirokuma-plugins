@@ -302,6 +302,7 @@ Out of scope:
 4. **One decision per ADR** — keep ADRs focused and atomic
 5. **Immutable history** — deprecate or supersede, never delete ADRs
 6. **Placement decision**: When unsure whether to record something as a GitHub Discussion ADR or as a reference doc under `.shirokuma/rules/`, see the "ADR vs reference doc" boundary case in the `docs-layering` rule
+7. **What/Why Separation — ADR exception**: For GitHub items the principle is "Body = latest What payload / Comments = Why & history" (see the "What/Why Separation" section of the `project-items` rule), but **ADRs are the exception**. The ADR body holds the decision's Why payload (Context / Decision / Consequences), and change history is also recorded in the "Change History" section at the end of the body (see Step 3 of this skill). Keeping the Why and history in the body rather than comments is the canonical operation for ADRs
 
 ## Anti-patterns
 
